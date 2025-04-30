@@ -22,9 +22,9 @@ class UsuarioRol(database.Model, UniversalMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # Claves foráneas
-    rol_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
+    rol_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("roles.id"))
     rol: Mapped["Rol"] = relationship(back_populates="usuarios_roles")
-    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    usuario_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("usuarios.id"))
     usuario: Mapped["Usuario"] = relationship(back_populates="usuarios_roles")
 
     # Columnas

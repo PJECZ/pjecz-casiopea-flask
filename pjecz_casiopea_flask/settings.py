@@ -9,7 +9,7 @@ from google.cloud import secretmanager
 from pydantic_settings import BaseSettings
 
 PROJECT_ID = os.getenv("PROJECT_ID", "")  # Por defecto está vacío, esto significa estamos en modo local
-SERVICE_PREFIX = os.getenv("SERVICE_PREFIX", "pjecz_casiopea_flask")
+SERVICE_PREFIX = os.getenv("SERVICE_PREFIX", "pjecz_casiopea_api_key")
 
 
 def get_secret(secret_id: str) -> str:
@@ -39,9 +39,9 @@ class Settings(BaseSettings):
     HOST: str = get_secret("host")
     REDIS_URL: str = get_secret("redis_url")
     SALT: str = get_secret("salt")
-    SECRET_KEY: str = get_secret("secret_key")
     SQLALCHEMY_DATABASE_URI: str = get_secret("sqlalchemy_database_uri")
     TASK_QUEUE: str = get_secret("task_queue")
+    TZ: str = "America/Mexico_City"
 
     class Config:
         """Load configuration"""

@@ -34,9 +34,9 @@ class Permiso(database.Model, UniversalMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # Claves foráneas
-    rol_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
+    rol_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("roles.id"))
     rol: Mapped["Rol"] = relationship(back_populates="permisos")
-    modulo_id: Mapped[int] = mapped_column(ForeignKey("modulos.id"))
+    modulo_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("modulos.id"))
     modulo: Mapped["Modulo"] = relationship(back_populates="permisos")
 
     # Columnas

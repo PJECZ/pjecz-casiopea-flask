@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List, Optional
 import uuid
 
+# from flask import current_app
 from flask_login import UserMixin
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
@@ -27,7 +28,7 @@ class Usuario(database.Model, UserMixin, UniversalMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # Clave foránea
-    autoridad_id: Mapped[int] = mapped_column(ForeignKey("autoridades.id"))
+    autoridad_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("autoridades.id"))
     autoridad: Mapped["Autoridad"] = relationship(back_populates="usuarios")
 
     # Columnas
@@ -43,7 +44,9 @@ class Usuario(database.Model, UserMixin, UniversalMixin):
     # Hijos
     bitacoras: Mapped[List["Bitacora"]] = relationship("Bitacora", back_populates="usuario")
     entradas_salidas: Mapped[List["EntradaSalida"]] = relationship("EntradaSalida", back_populates="usuario")
+    tareas: Mapped[List["Tarea"]] = relationship("Tarea", back_populates="usuario")
     usuarios_roles: Mapped[List["UsuarioRol"]] = relationship("UsuarioRol", back_populates="usuario")
+    usuarios_oficinas: Mapped[List["UsuarioOficina"]] = relationship("UsuarioOficina", back_populates="usuario")
 
     # Propiedades
     modulos_menu_principal_consultados = []
@@ -132,6 +135,21 @@ class Usuario(database.Model, UserMixin, UniversalMixin):
         """Obtener roles"""
         usuarios_roles = UsuarioRol.query.filter_by(usuario_id=self.id).filter_by(estatus="A").all()
         return [usuario_rol.rol.nombre for usuario_rol in usuarios_roles]
+
+    # def launch_task(self, comando, mensaje, *args, **kwargs):
+    #     """Lanzar tarea en el fondo"""
+    #     rq_job = current_app.task_queue.enqueue(f"hercules.blueprints.{comando}", *args, **kwargs)
+    #     tarea = Tarea(id=rq_job.get_id(), comando=comando, mensaje=mensaje, usuario=self)
+    #     tarea.save()
+    #     return tarea
+    #
+    # def get_tasks_in_progress(self):
+    #     """Obtener tareas"""
+    #     return Tarea.query.filter_by(usuario=self, ha_terminado=False).all()
+    #
+    # def get_task_in_progress(self, comando):
+    #     """Obtener progreso de una tarea"""
+    #     return Tarea.query.filter_by(comando=comando, usuario=self, ha_terminado=False).first()
 
     def __repr__(self):
         """Representación"""

@@ -23,9 +23,9 @@ class Autoridad(database.Model, UniversalMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # Claves foráneas
-    distrito_id: Mapped[int] = mapped_column(ForeignKey("distritos.id"))
+    distrito_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("distritos.id"))
     distrito: Mapped["Distrito"] = relationship(back_populates="autoridades")
-    materia_id: Mapped[int] = mapped_column(ForeignKey("materias.id"))
+    materia_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("materias.id"))
     materia: Mapped["Materia"] = relationship(back_populates="autoridades")
 
     # Columnas
