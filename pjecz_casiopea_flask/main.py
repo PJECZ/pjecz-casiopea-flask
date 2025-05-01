@@ -23,6 +23,7 @@ from pjecz_casiopea_flask.blueprints.modulos.views import modulos
 from pjecz_casiopea_flask.blueprints.permisos.views import permisos
 from pjecz_casiopea_flask.blueprints.roles.views import roles
 from pjecz_casiopea_flask.blueprints.sistemas.views import sistemas
+from pjecz_casiopea_flask.blueprints.tareas.views import tareas
 from pjecz_casiopea_flask.blueprints.usuarios.views import usuarios
 from pjecz_casiopea_flask.blueprints.usuarios_oficinas.views import usuarios_oficinas
 from pjecz_casiopea_flask.blueprints.usuarios_roles.views import usuarios_roles
@@ -55,6 +56,7 @@ app.register_blueprint(modulos)
 app.register_blueprint(permisos)
 app.register_blueprint(roles)
 app.register_blueprint(sistemas)
+app.register_blueprint(tareas)
 app.register_blueprint(usuarios)
 app.register_blueprint(usuarios_oficinas)
 app.register_blueprint(usuarios_roles)

@@ -1,5 +1,5 @@
 """
-Alimentar Distritos
+Alimentar Materias
 """
 
 import csv
@@ -8,43 +8,37 @@ from pathlib import Path
 
 import click
 
-from pjecz_casiopea_flask.blueprints.distritos.models import Distrito
+from pjecz_casiopea_flask.blueprints.materias.models import Materia
 from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_string
 
-DISTRITOS_CSV = "seed/distritos.csv"
+MATERIAS_CSV = "seed/materias.csv"
 
 
-def alimentar_distritos():
-    """Alimentar Distritos"""
-    ruta = Path(DISTRITOS_CSV)
+def alimentar_materias():
+    """Alimentar Materias"""
+    ruta = Path(MATERIAS_CSV)
     if not ruta.exists():
         click.echo(f"AVISO: {ruta.name} no se encontró.")
         sys.exit(1)
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         sys.exit(1)
-    click.echo("Alimentando distritos: ", nl=False)
+    click.echo("Alimentando materias: ", nl=False)
     contador = 0
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
             clave = safe_clave(row["clave"])
             nombre = safe_string(row["nombre"], save_enie=True)
-            nombre_corto = safe_string(row["nombre_corto"], save_enie=True)
-            es_distrito_judicial = row["es_distrito_judicial"] == "1"
-            es_distrito = row["es_distrito_judicial"] == "1"
-            es_jurisdiccional = row["es_distrito_judicial"] == "1"
+            descripcion = safe_string(row["descripcion"], save_enie=True)
             estatus = row["estatus"]
-            Distrito(
+            Materia(
                 clave=clave,
                 nombre=nombre,
-                nombre_corto=nombre_corto,
-                es_distrito_judicial=es_distrito_judicial,
-                es_distrito=es_distrito,
-                es_jurisdiccional=es_jurisdiccional,
+                descripcion=descripcion,
                 estatus=estatus,
             ).save()
             contador += 1
             click.echo(click.style(".", fg="green"), nl=False)
     click.echo()
-    click.echo(click.style(f"  {contador} distritos alimentados.", fg="green"))
+    click.echo(click.style(f"  {contador} materias alimentadas.", fg="green"))
