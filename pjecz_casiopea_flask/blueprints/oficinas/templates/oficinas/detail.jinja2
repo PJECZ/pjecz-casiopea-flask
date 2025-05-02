@@ -51,13 +51,7 @@
             <div class="row">
                 <div class="col">
                     <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosCitCitas.buscar(); return false;">
-                        <div class="col-2">
-                            <div class="form-floating">
-                                <input id="filtroId" type="text" class="form-control" aria-label="ID">
-                                <label for="filtroId">ID</label>
-                            </div>
-                        </div>
-                        <div class="col-2">
+                        <div class="col-3">
                             <div class="form-floating">
                                 <input id="filtroCitClienteEmail" type="text" class="form-control" aria-label="Correo Electrónico">
                                 <label for="filtroCitClienteEmail">Correo Electrónico</label>
@@ -75,7 +69,7 @@
                                 <label for="filtroCitClientePrimerApellido">Primer Apellido</label>
                             </div>
                         </div>
-                        <div class="col-2 text-end">
+                        <div class="col-3 text-end">
                             <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosCitCitas.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                             <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosCitCitas.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                         </div>
@@ -221,7 +215,7 @@
             // DataTable CitCitas
             let configDTCitCitas = constructorDataTable.config();
             configDTCitCitas['ajax']['url'] = '/cit_citas/datatable_json';
-            configDTCitCitas['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id }} };
+            configDTCitCitas['ajax']['data'] = { 'estatus': "A", 'oficina_id': "{{ oficina.id }}" };
             configDTCitCitas['columns'] = [
                 { data: "detalle" },
                 { data: "fecha" },
@@ -291,7 +285,6 @@
             };
             // Filtros CitCitas
             const filtrosCitCitas = new FiltrosDataTable('#cit_citas_datatable', configDTCitCitas);
-            filtrosCitCitas.agregarInput('filtroId', 'id');
             filtrosCitCitas.agregarInput('filtroCitClienteEmail', 'cit_cliente_email');
             filtrosCitCitas.agregarInput('filtroCitClienteNombres', 'cit_cliente_nombres');
             filtrosCitCitas.agregarInput('filtroCitClientePrimerApellido', 'cit_cliente_primer_apellido');
@@ -303,7 +296,7 @@
             // DataTable CitHorasBloqueadas
             let configDTCitHorasBloqueadas = constructorDataTable.config();
             configDTCitHorasBloqueadas['ajax']['url'] = '/cit_horas_bloqueadas/datatable_json';
-            configDTCitHorasBloqueadas['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id }} };
+            configDTCitHorasBloqueadas['ajax']['data'] = { 'estatus': "A", 'oficina_id': "{{ oficina.id }}" };
             configDTCitHorasBloqueadas['columns'] = [
                 { data: 'detalle' },
                 { data: 'inicio' },
@@ -340,7 +333,7 @@
             // DataTable CitOficinasServicios
             let configDTCitOficinasServicios = constructorDataTable.config();
             configDTCitOficinasServicios['ajax']['url'] = '/cit_oficinas_servicios/datatable_json';
-            configDTCitOficinasServicios['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id }} };
+            configDTCitOficinasServicios['ajax']['data'] = { 'estatus': "A", 'oficina_id': "{{ oficina.id }}" };
             configDTCitOficinasServicios['columns'] = [
                 { data: 'detalle' },
                 { data: 'cit_servicio' },
@@ -384,7 +377,7 @@
             // DataTable Usuarios-Oficinas
             let configDTUsuarios = constructorDataTable.config();
             configDTUsuarios['ajax']['url'] = '/usuarios/datatable_json';
-            configDTUsuarios['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id }} };
+            configDTUsuarios['ajax']['data'] = { 'estatus': "A", 'oficina_id': "{{ oficina.id }}" };
             configDTUsuarios['columns'] = [
                 { data: 'detalle' },
                 { data: 'nombre' },
@@ -429,7 +422,7 @@
             // DataTable Usuarios-Oficinas
             let configDTUsuariosOficinas = constructorDataTable.config();
             configDTUsuariosOficinas['ajax']['url'] = '/usuarios_oficinas/datatable_json';
-            configDTUsuariosOficinas['ajax']['data'] = { 'estatus': "A", 'oficina_id': {{ oficina.id }} };
+            configDTUsuariosOficinas['ajax']['data'] = { 'estatus': "A", 'oficina_id': "{{ oficina.id }}" };
             configDTUsuariosOficinas['columns'] = [
                 { data: 'detalle' },
                 { data: 'usuario' },

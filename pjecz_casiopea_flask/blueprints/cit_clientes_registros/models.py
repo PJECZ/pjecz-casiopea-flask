@@ -9,8 +9,8 @@ from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from pjecz_casiopea_flask.extensions import database
-from pjecz_casiopea_flask.lib.universal_mixin import UniversalMixin
+from ...config.extensions import database
+from ...lib.universal_mixin import UniversalMixin
 
 
 class CitClienteRegistro(database.Model, UniversalMixin):

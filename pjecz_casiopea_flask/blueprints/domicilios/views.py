@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.domicilios.forms import DomicilioForm
-from pjecz_casiopea_flask.blueprints.domicilios.models import Domicilio
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..domicilios.forms import DomicilioForm
+from ..domicilios.models import Domicilio
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string
 
 MODULO = "DOMICILIOS"
 
@@ -94,7 +94,7 @@ def list_inactive():
     )
 
 
-@domicilios.route("/domicilios/<int:domicilio_id>")
+@domicilios.route("/domicilios/<domicilio_id>")
 def detail(domicilio_id):
     """Detalle de un Domicilio"""
     domicilio = Domicilio.query.get_or_404(domicilio_id)
@@ -146,7 +146,7 @@ def new():
     return render_template("domicilios/new.jinja2", form=form)
 
 
-@domicilios.route("/domicilios/edicion/<int:domicilio_id>", methods=["GET", "POST"])
+@domicilios.route("/domicilios/edicion/<domicilio_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(domicilio_id):
     """Editar Domicilio"""
@@ -195,7 +195,7 @@ def edit(domicilio_id):
     return render_template("domicilios/edit.jinja2", form=form, domicilio=domicilio)
 
 
-@domicilios.route("/domicilios/eliminar/<int:domicilio_id>")
+@domicilios.route("/domicilios/eliminar/<domicilio_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(domicilio_id):
     """Eliminar Domicilio"""
@@ -213,7 +213,7 @@ def delete(domicilio_id):
     return redirect(url_for("domicilios.detail", domicilio_id=domicilio.id))
 
 
-@domicilios.route("/domicilios/recuperar/<int:domicilio_id>")
+@domicilios.route("/domicilios/recuperar/<domicilio_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(domicilio_id):
     """Recuperar Domicilio"""

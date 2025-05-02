@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.materias.forms import MateriaForm
-from pjecz_casiopea_flask.blueprints.materias.models import Materia
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..materias.forms import MateriaForm
+from ..materias.models import Materia
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "MATERIAS"
 
@@ -102,7 +102,7 @@ def list_inactive():
     )
 
 
-@materias.route("/materias/<int:materia_id>")
+@materias.route("/materias/<materia_id>")
 def detail(materia_id):
     """Detalle de una Materia"""
     materia = Materia.query.get_or_404(materia_id)
@@ -147,7 +147,7 @@ def new():
     return render_template("materias/new.jinja2", form=form)
 
 
-@materias.route("/materias/edicion/<int:materia_id>", methods=["GET", "POST"])
+@materias.route("/materias/edicion/<materia_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(materia_id):
     """Editar Materia"""
@@ -194,7 +194,7 @@ def edit(materia_id):
     return render_template("materias/edit.jinja2", form=form, materia=materia)
 
 
-@materias.route("/materias/eliminar/<int:materia_id>")
+@materias.route("/materias/eliminar/<materia_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(materia_id):
     """Eliminar Materia"""
@@ -212,7 +212,7 @@ def delete(materia_id):
     return redirect(url_for("materias.detail", materia_id=materia.id))
 
 
-@materias.route("/materias/recuperar/<int:materia_id>")
+@materias.route("/materias/recuperar/<materia_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(materia_id):
     """Recuperar Materia"""

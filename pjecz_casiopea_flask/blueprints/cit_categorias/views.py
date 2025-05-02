@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.cit_categorias.forms import CitCategoriaForm
-from pjecz_casiopea_flask.blueprints.cit_categorias.models import CitCategoria
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..cit_categorias.forms import CitCategoriaForm
+from ..cit_categorias.models import CitCategoria
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string
 
 MODULO = "CIT CATEGORIAS"
 
@@ -85,7 +85,7 @@ def list_inactive():
     )
 
 
-@cit_categorias.route("/cit_categorias/<int:cit_categoria_id>")
+@cit_categorias.route("/cit_categorias/<cit_categoria_id>")
 def detail(cit_categoria_id):
     """Detalle de un Cit Categoria"""
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
@@ -124,7 +124,7 @@ def new():
     return render_template("cit_categorias/new.jinja2", form=form)
 
 
-@cit_categorias.route("/cit_categorias/edicion/<int:cit_categoria_id>", methods=["GET", "POST"])
+@cit_categorias.route("/cit_categorias/edicion/<cit_categoria_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_categoria_id):
     """Editar Cit Categoria"""
@@ -160,7 +160,7 @@ def edit(cit_categoria_id):
     return render_template("cit_categorias/edit.jinja2", form=form, cit_categoria=cit_categoria)
 
 
-@cit_categorias.route("/cit_categorias/eliminar/<int:cit_categoria_id>")
+@cit_categorias.route("/cit_categorias/eliminar/<cit_categoria_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cit_categoria_id):
     """Eliminar Cit Categoria"""
@@ -178,7 +178,7 @@ def delete(cit_categoria_id):
     return redirect(url_for("cit_categorias.detail", cit_categoria_id=cit_categoria.id))
 
 
-@cit_categorias.route("/cit_categorias/recuperar/<int:cit_categoria_id>")
+@cit_categorias.route("/cit_categorias/recuperar/<cit_categoria_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cit_categoria_id):
     """Recuperar Cit Categoria"""

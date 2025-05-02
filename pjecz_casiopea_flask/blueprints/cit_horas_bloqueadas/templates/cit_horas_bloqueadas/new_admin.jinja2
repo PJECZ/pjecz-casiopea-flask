@@ -52,7 +52,7 @@
             });
             // Agregar la oficina 'No Definido', que en la vista se consulta
             let data = {
-                id: {{ oficina.id }},
+                id: "{{ oficina.id }}",
                 text: "{{ oficina.clave }} - {{ oficina.descripcion_corta }}"
             };
             let newOption = new Option(data.text, data.id, true, true);

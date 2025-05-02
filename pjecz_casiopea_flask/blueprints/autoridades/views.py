@@ -7,15 +7,15 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.autoridades.forms import AutoridadEditForm, AutoridadNewForm
-from pjecz_casiopea_flask.blueprints.autoridades.models import Autoridad
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.distritos.models import Distrito
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_message, safe_string
+from ..autoridades.forms import AutoridadEditForm, AutoridadNewForm
+from ..autoridades.models import Autoridad
+from ..bitacoras.models import Bitacora
+from ..distritos.models import Distrito
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "AUTORIDADES"
 
@@ -42,11 +42,7 @@ def datatable_json():
     else:
         consulta = consulta.filter(Autoridad.estatus == "A")
     if "distrito_id" in request.form:
-        try:
-            distrito_id = int(request.form["distrito_id"])
-            consulta = consulta.filter(Autoridad.distrito_id == distrito_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(Autoridad.distrito_id == request.form["distrito_id"])
     if "clave" in request.form:
         try:
             clave = safe_clave(request.form["clave"])
@@ -107,7 +103,7 @@ def list_inactive():
     )
 
 
-@autoridades.route("/autoridades/<int:autoridad_id>")
+@autoridades.route("/autoridades/<autoridad_id>")
 def detail(autoridad_id):
     """Detalle de una Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
@@ -145,7 +141,7 @@ def new():
     return render_template("autoridades/new.jinja2", form=form)
 
 
-@autoridades.route("/autoridades/edicion/<int:autoridad_id>", methods=["GET", "POST"])
+@autoridades.route("/autoridades/edicion/<autoridad_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(autoridad_id):
     """Editar Autoridad"""
@@ -183,7 +179,7 @@ def edit(autoridad_id):
     return render_template("autoridades/edit.jinja2", form=form, autoridad=autoridad)
 
 
-@autoridades.route("/autoridades/eliminar/<int:autoridad_id>")
+@autoridades.route("/autoridades/eliminar/<autoridad_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(autoridad_id):
     """Eliminar Autoridad"""
@@ -201,7 +197,7 @@ def delete(autoridad_id):
     return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
 
-@autoridades.route("/autoridades/recuperar/<int:autoridad_id>")
+@autoridades.route("/autoridades/recuperar/<autoridad_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(autoridad_id):
     """Recuperar Autoridad"""
@@ -219,7 +215,7 @@ def recover(autoridad_id):
     return redirect(url_for("autoridades.detail", autoridad_id=autoridad.id))
 
 
-@autoridades.route("/autoridades/select_json/<int:distrito_id>", methods=["GET", "POST"])
+@autoridades.route("/autoridades/select_json/<distrito_id>", methods=["GET", "POST"])
 def query_autoridades_json(distrito_id):
     """Proporcionar el JSON de autoridades para elegir con un Select"""
     # Consultar

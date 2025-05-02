@@ -9,8 +9,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.functions import now
 from sqlalchemy.types import CHAR
 
-from pjecz_casiopea_flask.settings import get_settings
-from pjecz_casiopea_flask.extensions import database
+from ..config.settings import get_settings
+from ..config.extensions import database
 
 settings = get_settings()
 hashids = Hashids(salt=settings.SALT, min_length=8)

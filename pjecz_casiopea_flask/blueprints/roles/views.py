@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.roles.forms import RolForm
-from pjecz_casiopea_flask.blueprints.roles.models import Rol
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..roles.forms import RolForm
+from ..roles.models import Rol
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string
 
 MODULO = "ROLES"
 
@@ -85,7 +85,7 @@ def list_inactive():
     )
 
 
-@roles.route("/roles/<int:rol_id>")
+@roles.route("/roles/<rol_id>")
 def detail(rol_id):
     """Detalle de un Rol"""
     rol = Rol.query.get_or_404(rol_id)
@@ -118,7 +118,7 @@ def new():
     return render_template("roles/new.jinja2", form=form)
 
 
-@roles.route("/roles/edicion/<int:rol_id>", methods=["GET", "POST"])
+@roles.route("/roles/edicion/<rol_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(rol_id):
     """Editar Rol"""
@@ -150,7 +150,7 @@ def edit(rol_id):
     return render_template("roles/edit.jinja2", form=form, rol=rol)
 
 
-@roles.route("/roles/eliminar/<int:rol_id>")
+@roles.route("/roles/eliminar/<rol_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(rol_id):
     """Eliminar Rol"""
@@ -176,7 +176,7 @@ def delete(rol_id):
     return redirect(url_for("roles.detail", rol_id=rol.id))
 
 
-@roles.route("/roles/recuperar/<int:rol_id>")
+@roles.route("/roles/recuperar/<rol_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(rol_id):
     """Recuperar Rol"""

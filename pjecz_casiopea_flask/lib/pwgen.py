@@ -8,7 +8,7 @@ import time
 
 from hashids import Hashids
 
-from pjecz_casiopea_flask.settings import get_settings
+from ..config.settings import get_settings
 
 
 def generar_api_key(id: int, email: str, random_length: int = 24) -> str:

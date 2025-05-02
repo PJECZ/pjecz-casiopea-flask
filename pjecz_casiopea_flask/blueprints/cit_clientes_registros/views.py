@@ -7,13 +7,13 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.cit_clientes_registros.models import CitClienteRegistro
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_email, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..cit_clientes_registros.models import CitClienteRegistro
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_email, safe_message, safe_string
 
 MODULO = "CIT CLIENTES REGISTROS"
 
@@ -95,7 +95,7 @@ def list_inactive():
     )
 
 
-@cit_clientes_registros.route("/cit_clientes_registros/<int:cit_cliente_registro_id>")
+@cit_clientes_registros.route("/cit_clientes_registros/<cit_cliente_registro_id>")
 def detail(cit_cliente_registro_id):
     """Detalle de un Cit Cliente Registro"""
     cit_cliente_registro = CitClienteRegistro.query.get_or_404(cit_cliente_registro_id)

@@ -58,7 +58,7 @@
             const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
             let configDTPermisos = constructorDataTable.config();
             configDTPermisos['ajax']['url'] = '/permisos/datatable_json';
-            configDTPermisos['ajax']['data'] = { 'estatus': "A", 'modulo_id': {{ modulo.id}} };
+            configDTPermisos['ajax']['data'] = { 'estatus': "A", 'modulo_id': "{{ modulo.id }}" };
             configDTPermisos['columns'] = [
                 { data: "detalle" },
                 { data: "rol" }

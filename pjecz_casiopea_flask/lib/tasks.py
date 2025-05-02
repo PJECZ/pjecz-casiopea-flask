@@ -2,7 +2,7 @@
 Tareas en el fondo
 """
 
-from pjecz_casiopea_flask.blueprints.tareas.models import Tarea
+from blueprints.tareas.models import Tarea
 from rq import get_current_job
 
 

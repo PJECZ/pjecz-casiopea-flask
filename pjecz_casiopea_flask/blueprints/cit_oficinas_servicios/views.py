@@ -7,19 +7,19 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.cit_oficinas_servicios.forms import (
+from ..bitacoras.models import Bitacora
+from ..cit_oficinas_servicios.forms import (
     CitOficinaServicioWithCitServicioForm,
     CitOficinaServicioWithOficinaForm,
 )
-from pjecz_casiopea_flask.blueprints.cit_oficinas_servicios.models import CitOficinaServicio
-from pjecz_casiopea_flask.blueprints.cit_servicios.models import CitServicio
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_message, safe_string
+from ..cit_oficinas_servicios.models import CitOficinaServicio
+from ..cit_servicios.models import CitServicio
+from ..modulos.models import Modulo
+from ..oficinas.models import Oficina
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "CIT OFICINAS SERVICIOS"
 
@@ -135,14 +135,14 @@ def list_inactive():
     )
 
 
-@cit_oficinas_servicios.route("/cit_oficinas_servicios/<int:cit_oficina_servicio_id>")
+@cit_oficinas_servicios.route("/cit_oficinas_servicios/<cit_oficina_servicio_id>")
 def detail(cit_oficina_servicio_id):
     """Detalle de un Cit Oficina-Servicio"""
     cit_oficina_servicio = CitOficinaServicio.query.get_or_404(cit_oficina_servicio_id)
     return render_template("cit_oficinas_servicios/detail.jinja2", cit_oficina_servicio=cit_oficina_servicio)
 
 
-@cit_oficinas_servicios.route("/cit_oficinas_servicios/nuevo_con_cit_servicio/<int:cit_servicio_id>", methods=["GET", "POST"])
+@cit_oficinas_servicios.route("/cit_oficinas_servicios/nuevo_con_cit_servicio/<cit_servicio_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_cit_servicio(cit_servicio_id):
     """Nuevo Cit Oficina-Servicio con CitServicio"""
@@ -194,7 +194,7 @@ def new_with_cit_servicio(cit_servicio_id):
     )
 
 
-@cit_oficinas_servicios.route("/cit_oficinas_servicios/nuevo_with_oficina/<int:oficina_id>", methods=["GET", "POST"])
+@cit_oficinas_servicios.route("/cit_oficinas_servicios/nuevo_with_oficina/<oficina_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_oficina(oficina_id):
     """Nuevo Cit Oficina-Servicio con Oficina"""
@@ -246,7 +246,7 @@ def new_with_oficina(oficina_id):
     )
 
 
-@cit_oficinas_servicios.route("/cit_oficinas_servicios/eliminar/<int:cit_oficina_servicio_id>")
+@cit_oficinas_servicios.route("/cit_oficinas_servicios/eliminar/<cit_oficina_servicio_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cit_oficina_servicio_id):
     """Eliminar Cit Oficina-Servicio"""
@@ -264,7 +264,7 @@ def delete(cit_oficina_servicio_id):
     return redirect(url_for("cit_oficinas_servicios.detail", cit_oficina_servicio_id=cit_oficina_servicio.id))
 
 
-@cit_oficinas_servicios.route("/cit_oficinas_servicios/recuperar/<int:cit_oficina_servicio_id>")
+@cit_oficinas_servicios.route("/cit_oficinas_servicios/recuperar/<cit_oficina_servicio_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cit_oficina_servicio_id):
     """Recuperar Cit Oficina-Servicio"""

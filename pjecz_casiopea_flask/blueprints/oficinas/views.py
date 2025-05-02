@@ -8,14 +8,14 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.oficinas.forms import OficinaForm
-from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..modulos.models import Modulo
+from ..oficinas.forms import OficinaForm
+from ..oficinas.models import Oficina
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "OFICINAS"
 
@@ -107,7 +107,7 @@ def list_inactive():
     )
 
 
-@oficinas.route("/oficinas/<int:oficina_id>")
+@oficinas.route("/oficinas/<oficina_id>")
 def detail(oficina_id):
     """Detalle de una Oficina"""
     oficina = Oficina.query.get_or_404(oficina_id)
@@ -152,7 +152,7 @@ def new():
     return render_template("oficinas/new.jinja2", form=form)
 
 
-@oficinas.route("/oficinas/edicion/<int:oficina_id>", methods=["GET", "POST"])
+@oficinas.route("/oficinas/edicion/<oficina_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(oficina_id):
     """Editar Oficina"""
@@ -204,7 +204,7 @@ def edit(oficina_id):
     return render_template("oficinas/edit.jinja2", form=form, oficina=oficina)
 
 
-@oficinas.route("/oficinas/eliminar/<int:oficina_id>")
+@oficinas.route("/oficinas/eliminar/<oficina_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(oficina_id):
     """Eliminar Oficina"""
@@ -222,7 +222,7 @@ def delete(oficina_id):
     return redirect(url_for("oficinas.detail", oficina_id=oficina.id))
 
 
-@oficinas.route("/oficinas/recuperar/<int:oficina_id>")
+@oficinas.route("/oficinas/recuperar/<oficina_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(oficina_id):
     """Recuperar Oficina"""

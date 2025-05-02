@@ -11,7 +11,7 @@ import click
 
 from pjecz_casiopea_flask.blueprints.autoridades.models import Autoridad
 from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
-from pjecz_casiopea_flask.extensions import pwd_context
+from pjecz_casiopea_flask.config.extensions import pwd_context
 from pjecz_casiopea_flask.lib.pwgen import generar_contrasena
 from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_email, safe_string
 

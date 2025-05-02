@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.forms import PermisoEditForm, PermisoNewWithModuloForm, PermisoNewWithRolForm
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.roles.models import Rol
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..modulos.models import Modulo
+from ..permisos.forms import PermisoEditForm, PermisoNewWithModuloForm, PermisoNewWithRolForm
+from ..permisos.models import Permiso
+from ..roles.models import Rol
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string
 
 MODULO = "PERMISOS"
 
@@ -41,17 +41,9 @@ def datatable_json():
     else:
         consulta = consulta.filter(Permiso.estatus == "A")
     if "modulo_id" in request.form:
-        try:
-            modulo_id = int(request.form["modulo_id"])
-            consulta = consulta.filter(Permiso.modulo_id == modulo_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(Permiso.modulo_id == request.form["modulo_id"])
     if "rol_id" in request.form:
-        try:
-            rol_id = int(request.form["rol_id"])
-            consulta = consulta.filter(Permiso.rol_id == rol_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(Permiso.rol_id == request.form["rol_id"])
     if "nombre" in request.form:
         nombre = safe_string(request.form["nombre"], save_enie=True)
         if nombre != "":
@@ -110,14 +102,14 @@ def list_inactive():
     )
 
 
-@permisos.route("/permisos/<int:permiso_id>")
+@permisos.route("/permisos/<permiso_id>")
 def detail(permiso_id):
     """Detalle de un Permiso"""
     permiso = Permiso.query.get_or_404(permiso_id)
     return render_template("permisos/detail.jinja2", permiso=permiso)
 
 
-@permisos.route("/permisos/nuevo_con_rol/<int:rol_id>", methods=["GET", "POST"])
+@permisos.route("/permisos/nuevo_con_rol/<rol_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_rol(rol_id):
     """Nuevo Permiso con Rol"""
@@ -155,7 +147,7 @@ def new_with_rol(rol_id):
     )
 
 
-@permisos.route("/permisos/nuevo_con_modulo/<int:modulo_id>", methods=["GET", "POST"])
+@permisos.route("/permisos/nuevo_con_modulo/<modulo_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_modulo(modulo_id):
     """Nuevo Permiso con Modulo"""
@@ -193,7 +185,7 @@ def new_with_modulo(modulo_id):
     )
 
 
-@permisos.route("/permisos/edicion/<int:permiso_id>", methods=["GET", "POST"])
+@permisos.route("/permisos/edicion/<permiso_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(permiso_id):
     """Editar Permiso"""
@@ -218,7 +210,7 @@ def edit(permiso_id):
     return render_template("permisos/edit.jinja2", form=form, permiso=permiso)
 
 
-@permisos.route("/permisos/eliminar/<int:permiso_id>")
+@permisos.route("/permisos/eliminar/<permiso_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(permiso_id):
     """Eliminar Permiso"""
@@ -236,7 +228,7 @@ def delete(permiso_id):
     return redirect(url_for("permisos.detail", permiso_id=permiso.id))
 
 
-@permisos.route("/permisos/recuperar/<int:permiso_id>")
+@permisos.route("/permisos/recuperar/<permiso_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(permiso_id):
     """Recuperar Permiso"""

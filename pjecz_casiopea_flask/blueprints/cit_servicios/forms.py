@@ -8,7 +8,7 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, SelectField, StringField, SubmitField, TimeField
 from wtforms.validators import DataRequired, Length, Optional
 
-from pjecz_casiopea_flask.blueprints.cit_categorias.models import CitCategoria
+from ..cit_categorias.models import CitCategoria
 
 
 class CitServicioForm(FlaskForm):

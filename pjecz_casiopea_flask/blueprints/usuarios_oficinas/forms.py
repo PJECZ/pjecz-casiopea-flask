@@ -6,8 +6,8 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired
 
-from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
-from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
+from ..oficinas.models import Oficina
+from ..usuarios.models import Usuario
 
 
 class UsuarioOficinaWithUsuarioForm(FlaskForm):

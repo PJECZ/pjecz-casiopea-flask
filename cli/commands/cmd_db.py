@@ -17,7 +17,7 @@ from cli.commands.alimentar_permisos import alimentar_permisos
 from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
 from pjecz_casiopea_flask.main import app
-from pjecz_casiopea_flask.extensions import database
+from pjecz_casiopea_flask.config.extensions import database
 
 app.app_context().push()
 database.app = app

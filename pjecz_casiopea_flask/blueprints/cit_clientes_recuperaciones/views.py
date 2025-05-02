@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.cit_clientes.models import CitCliente
-from pjecz_casiopea_flask.blueprints.cit_clientes_recuperaciones.models import CitClienteRecuperacion
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_email, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..cit_clientes.models import CitCliente
+from ..cit_clientes_recuperaciones.models import CitClienteRecuperacion
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_email, safe_message, safe_string
 
 MODULO = "CIT CLIENTES RECUPERACIONES"
 
@@ -109,7 +109,7 @@ def list_inactive():
     )
 
 
-@cit_clientes_recuperaciones.route("/cit_clientes_recuperaciones/<int:cit_cliente_recuperacion_id>")
+@cit_clientes_recuperaciones.route("/cit_clientes_recuperaciones/<cit_cliente_recuperacion_id>")
 def detail(cit_cliente_recuperacion_id):
     """Detalle de un Cit Cliente Recuperacion"""
     cit_cliente_recuperacion = CitClienteRecuperacion.query.get_or_404(cit_cliente_recuperacion_id)

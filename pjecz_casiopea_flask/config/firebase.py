@@ -1,15 +1,17 @@
 """
-Settings
+Firebase
 """
 
 import os
 from functools import lru_cache
 
+from dotenv import load_dotenv
 from google.cloud import secretmanager
 from pydantic_settings import BaseSettings
 
+load_dotenv()
 PROJECT_ID = os.getenv("PROJECT_ID", "")  # Por defecto está vacío, esto significa estamos en modo local
-SERVICE_PREFIX = os.getenv("SERVICE_PREFIX", "pjecz_casiopea_api_key")
+PREFIX = os.getenv("PREFIX", "firebase")
 
 
 def get_secret(secret_id: str) -> str:
@@ -23,25 +25,31 @@ def get_secret(secret_id: str) -> str:
     client = secretmanager.SecretManagerServiceClient()
 
     # Build the resource name of the secret version
-    secret = f"{SERVICE_PREFIX}_{secret_id}"
+    if PREFIX != "":
+        secret = f"{PREFIX}_{secret_id}"
+    else:
+        secret = secret_id
     name = client.secret_version_path(PROJECT_ID, secret, "latest")
 
-    # Access the secret version
-    response = client.access_secret_version(name=name)
+    # Access the secret version and return the decoded payload
+    try:
+        response = client.access_secret_version(name=name)
+        return response.payload.data.decode("UTF-8")
+    except Exception:
+        return ""  # If fail return empty string
 
-    # Return the decoded payload
-    return response.payload.data.decode("UTF-8")
 
-
-class Settings(BaseSettings):
+class FirebaseSettings(BaseSettings):
     """Settings"""
 
-    HOST: str = get_secret("host")
-    REDIS_URL: str = get_secret("redis_url")
-    SALT: str = get_secret("salt")
-    SQLALCHEMY_DATABASE_URI: str = get_secret("sqlalchemy_database_uri")
-    TASK_QUEUE: str = get_secret("task_queue")
-    TZ: str = "America/Mexico_City"
+    APIKEY: str = get_secret("apikey")
+    APPID: str = get_secret("appid")
+    AUTHDOMAIN: str = get_secret("authdomain")
+    DATABASEURL: str = get_secret("databaseurl")
+    MEASUREMENTID: str = get_secret("measurementid")
+    MESSAGINGSENDERID: str = get_secret("messagingsenderid")
+    PROJECTID: str = get_secret("projectid")
+    STORAGEBUCKET: str = get_secret("storagebucket")
 
     class Config:
         """Load configuration"""
@@ -53,6 +61,6 @@ class Settings(BaseSettings):
 
 
 @lru_cache()
-def get_settings() -> Settings:
+def get_firebase_settings() -> FirebaseSettings:
     """Get Settings"""
-    return Settings()
+    return FirebaseSettings()

@@ -8,20 +8,23 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+import google.auth.transport.requests
+import google.oauth2.id_token
 from pytz import timezone
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.distritos.models import Distrito
-from pjecz_casiopea_flask.blueprints.entradas_salidas.models import EntradaSalida
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import anonymous_required, permission_required
-from pjecz_casiopea_flask.blueprints.usuarios.forms import AccesoForm, UsuarioForm
-from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.pwgen import generar_api_key, generar_contrasena
-from pjecz_casiopea_flask.lib.safe_next_url import safe_next_url
-from pjecz_casiopea_flask.lib.safe_string import (
+from ..bitacoras.models import Bitacora
+from ..distritos.models import Distrito
+from ..entradas_salidas.models import EntradaSalida
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import anonymous_required, permission_required
+from ..usuarios.forms import AccesoForm, UsuarioForm
+from ..usuarios.models import Usuario
+from ...config.firebase import get_firebase_settings
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.pwgen import generar_api_key, generar_contrasena
+from ...lib.safe_next_url import safe_next_url
+from ...lib.safe_string import (
     CONTRASENA_REGEXP,
     EMAIL_REGEXP,
     TOKEN_REGEXP,
@@ -29,6 +32,8 @@ from pjecz_casiopea_flask.lib.safe_string import (
     safe_message,
     safe_string,
 )
+
+HTTP_REQUEST = google.auth.transport.requests.Request()
 
 MODULO = "USUARIOS"
 
@@ -39,37 +44,68 @@ usuarios = Blueprint("usuarios", __name__, template_folder="templates")
 @anonymous_required()
 def login():
     """Acceso al Sistema"""
+    firebase_settings = get_firebase_settings()
     form = AccesoForm(siguiente=request.args.get("siguiente"))
     if form.validate_on_submit():
         # Tomar valores del formulario
         identidad = request.form.get("identidad")
         contrasena = request.form.get("contrasena")
+        token = request.form.get("token")
         siguiente_url = request.form.get("siguiente")
-        # El ingreso es con username/password
-        if re.fullmatch(EMAIL_REGEXP, identidad) is None:
-            flash("Correo electrónico no válido.", "warning")
-        elif re.fullmatch(CONTRASENA_REGEXP, contrasena) is None:
-            flash("Contraseña no válida.", "warning")
-        else:
-            usuario = Usuario.find_by_identity(identidad)
-            if usuario and usuario.authenticated(password=contrasena):
-                if login_user(usuario, remember=True) and usuario.is_active:
-                    EntradaSalida(
-                        usuario_id=usuario.id,
-                        tipo="INGRESO",
-                        direccion_ip=request.remote_addr,
-                    ).save()
-                    if siguiente_url:
-                        return redirect(safe_next_url(siguiente_url))
-                    return redirect(url_for("sistemas.start"))
+        # Si esta definida la variable de entorno FIREBASE_APIKEY
+        if firebase_settings.APIKEY != "":
+            # Entonces debe ingresar con Google/Microsoft/GitHub
+            if re.fullmatch(TOKEN_REGEXP, token) is not None:
+                # Acceso por Firebase Auth
+                claims = google.oauth2.id_token.verify_firebase_token(token, HTTP_REQUEST)
+                if claims:
+                    email = claims.get("email", "Unknown")
+                    usuario = Usuario.find_by_identity(email)
+                    if usuario and usuario.authenticated(with_password=False):
+                        if login_user(usuario, remember=True) and usuario.is_active:
+                            EntradaSalida(
+                                usuario_id=usuario.id,
+                                tipo="INGRESO",
+                                direccion_ip=request.remote_addr,
+                            ).save()
+                            if siguiente_url:
+                                return redirect(safe_next_url(siguiente_url))
+                            return redirect(url_for("sistemas.start"))
+                        else:
+                            flash("No está activa esa cuenta.", "warning")
+                    else:
+                        flash("No existe esa cuenta.", "warning")
                 else:
-                    flash("No está activa esa cuenta", "warning")
+                    flash("Falló la autentificación.", "warning")
             else:
-                flash("Usuario o contraseña incorrectos.", "warning")
+                flash("Token incorrecto.", "warning")
+        else:
+            # De lo contrario, el ingreso es con username/password
+            if re.fullmatch(EMAIL_REGEXP, identidad) is None:
+                flash("Correo electrónico no válido.", "warning")
+            elif re.fullmatch(CONTRASENA_REGEXP, contrasena) is None:
+                flash("Contraseña no válida.", "warning")
+            else:
+                usuario = Usuario.find_by_identity(identidad)
+                if usuario and usuario.authenticated(password=contrasena):
+                    if login_user(usuario, remember=True) and usuario.is_active:
+                        EntradaSalida(
+                            usuario_id=usuario.id,
+                            tipo="INGRESO",
+                            direccion_ip=request.remote_addr,
+                        ).save()
+                        if siguiente_url:
+                            return redirect(safe_next_url(siguiente_url))
+                        return redirect(url_for("sistemas.start"))
+                    else:
+                        flash("No está activa esa cuenta", "warning")
+                else:
+                    flash("Usuario o contraseña incorrectos.", "warning")
     return render_template(
         "usuarios/login.jinja2",
         form=form,
-        title="Sistema de Turnos",
+        firebase_settings=firebase_settings,
+        title="Sistema de Citas",
     )
 
 
@@ -159,7 +195,7 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
-@usuarios.route("/usuarios/api_key_request/<int:usuario_id>", methods=["GET", "POST"])
+@usuarios.route("/usuarios/api_key_request/<usuario_id>", methods=["GET", "POST"])
 @login_required
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def request_api_key_json(usuario_id):
@@ -254,7 +290,7 @@ def list_inactive():
     )
 
 
-@usuarios.route("/usuarios/<int:usuario_id>")
+@usuarios.route("/usuarios/<usuario_id>")
 @login_required
 @permission_required(MODULO, Permiso.VER)
 def detail(usuario_id):
@@ -263,7 +299,7 @@ def detail(usuario_id):
     return render_template("usuarios/detail.jinja2", usuario=usuario)
 
 
-@usuarios.route("/usuarios/api_key/<int:usuario_id>")
+@usuarios.route("/usuarios/api_key/<usuario_id>")
 @login_required
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def view_api_key(usuario_id):
@@ -341,7 +377,7 @@ def new():
     )
 
 
-@usuarios.route("/usuarios/edicion/<int:usuario_id>", methods=["GET", "POST"])
+@usuarios.route("/usuarios/edicion/<usuario_id>", methods=["GET", "POST"])
 @login_required
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(usuario_id):
@@ -385,7 +421,7 @@ def edit(usuario_id):
     return render_template("usuarios/edit.jinja2", form=form, usuario=usuario)
 
 
-@usuarios.route("/usuarios/eliminar/<int:usuario_id>")
+@usuarios.route("/usuarios/eliminar/<usuario_id>")
 @login_required
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(usuario_id):
@@ -409,7 +445,7 @@ def delete(usuario_id):
     return redirect(url_for("usuarios.detail", usuario_id=usuario.id))
 
 
-@usuarios.route("/usuarios/recuperar/<int:usuario_id>")
+@usuarios.route("/usuarios/recuperar/<usuario_id>")
 @login_required
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(usuario_id):

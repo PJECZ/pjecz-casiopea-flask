@@ -7,13 +7,13 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.modulos.forms import ModuloForm
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..modulos.forms import ModuloForm
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string
 
 MODULO = "MODULOS"
 
@@ -86,7 +86,7 @@ def list_inactive():
     )
 
 
-@modulos.route("/modulos/<int:modulo_id>")
+@modulos.route("/modulos/<modulo_id>")
 def detail(modulo_id):
     """Detalle de un Modulo"""
     modulo = Modulo.query.get_or_404(modulo_id)
@@ -125,7 +125,7 @@ def new():
     return render_template("modulos/new.jinja2", form=form)
 
 
-@modulos.route("/modulos/edicion/<int:modulo_id>", methods=["GET", "POST"])
+@modulos.route("/modulos/edicion/<modulo_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(modulo_id):
     """Editar Modulo"""
@@ -165,7 +165,7 @@ def edit(modulo_id):
     return render_template("modulos/edit.jinja2", form=form, modulo=modulo)
 
 
-@modulos.route("/modulos/eliminar/<int:modulo_id>")
+@modulos.route("/modulos/eliminar/<modulo_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(modulo_id):
     """Eliminar Modulo"""
@@ -188,7 +188,7 @@ def delete(modulo_id):
     return redirect(url_for("modulos.detail", modulo_id=este_modulo.id))
 
 
-@modulos.route("/modulos/recuperar/<int:modulo_id>")
+@modulos.route("/modulos/recuperar/<modulo_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(modulo_id):
     """Recuperar Modulo"""

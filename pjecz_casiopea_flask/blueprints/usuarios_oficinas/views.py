@@ -7,16 +7,16 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
-from pjecz_casiopea_flask.blueprints.usuarios_oficinas.forms import UsuarioOficinaWithOficinaForm, UsuarioOficinaWithUsuarioForm
-from pjecz_casiopea_flask.blueprints.usuarios_oficinas.models import UsuarioOficina
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..modulos.models import Modulo
+from ..oficinas.models import Oficina
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ..usuarios.models import Usuario
+from ..usuarios_oficinas.forms import UsuarioOficinaWithOficinaForm, UsuarioOficinaWithUsuarioForm
+from ..usuarios_oficinas.models import UsuarioOficina
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string
 
 MODULO = "USUARIOS OFICINAS"
 
@@ -101,14 +101,14 @@ def list_inactive():
     )
 
 
-@usuarios_oficinas.route("/usuarios_oficinas/<int:usuario_oficina_id>")
+@usuarios_oficinas.route("/usuarios_oficinas/<usuario_oficina_id>")
 def detail(usuario_oficina_id):
     """Detalle de un Usuario-Oficina"""
     usuario_oficina = UsuarioOficina.query.get_or_404(usuario_oficina_id)
     return render_template("usuarios_oficinas/detail.jinja2", usuario_oficina=usuario_oficina)
 
 
-@usuarios_oficinas.route("/usuarios_oficinas/nuevo_con_oficina/<int:oficina_id>", methods=["GET", "POST"])
+@usuarios_oficinas.route("/usuarios_oficinas/nuevo_con_oficina/<oficina_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_oficina(oficina_id):
     """Nuevo Usuario-Oficina con Oficina"""
@@ -160,7 +160,7 @@ def new_with_oficina(oficina_id):
     )
 
 
-@usuarios_oficinas.route("/usuarios_oficinas/nuevo_con_usuario/<int:usuario_id>", methods=["GET", "POST"])
+@usuarios_oficinas.route("/usuarios_oficinas/nuevo_con_usuario/<usuario_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_usuario(usuario_id):
     """Nuevo Usuario-Oficina con Usuario"""
@@ -213,7 +213,7 @@ def new_with_usuario(usuario_id):
     )
 
 
-@usuarios_oficinas.route("/usuarios_oficinas/eliminar/<int:usuario_oficina_id>")
+@usuarios_oficinas.route("/usuarios_oficinas/eliminar/<usuario_oficina_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(usuario_oficina_id):
     """Eliminar Usuario-Oficina"""
@@ -231,7 +231,7 @@ def delete(usuario_oficina_id):
     return redirect(url_for("usuarios_oficinas.detail", usuario_oficina_id=usuario_oficina.id))
 
 
-@usuarios_oficinas.route("/usuarios_oficinas/recuperar/<int:usuario_oficina_id>")
+@usuarios_oficinas.route("/usuarios_oficinas/recuperar/<usuario_oficina_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(usuario_oficina_id):
     """Recuperar Usuario-Oficina"""

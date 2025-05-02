@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import click
 
 from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
-from pjecz_casiopea_flask.extensions import database, pwd_context
+from pjecz_casiopea_flask.config.extensions import database, pwd_context
 from pjecz_casiopea_flask.lib.pwgen import generar_api_key
 from pjecz_casiopea_flask.main import app
 

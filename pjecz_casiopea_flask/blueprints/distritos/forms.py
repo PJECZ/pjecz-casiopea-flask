@@ -6,7 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
 
-from pjecz_casiopea_flask.lib.safe_string import CLAVE_REGEXP
+from ...lib.safe_string import CLAVE_REGEXP
 
 
 class DistritoForm(FlaskForm):

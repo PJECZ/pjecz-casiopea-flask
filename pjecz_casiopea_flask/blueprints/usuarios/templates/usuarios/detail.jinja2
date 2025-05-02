@@ -83,7 +83,7 @@
             // DataTable UsuariosRoles
             let configDTUsuariosRoles = constructorDataTable.config();
             configDTUsuariosRoles['ajax']['url'] = '/usuarios_roles/datatable_json';
-            configDTUsuariosRoles['ajax']['data'] = { 'estatus': "A", 'usuario_id': {{ usuario.id}} };
+            configDTUsuariosRoles['ajax']['data'] = { 'estatus': "A", 'usuario_id': "{{ usuario.id }}" };
             configDTUsuariosRoles['columns'] = [
                 { data: "detalle" },
                 { data: "rol" },
