@@ -81,7 +81,7 @@
             // DataTable Autoridades
             let configDTAutoridades = constructorDataTable.config();
             configDTAutoridades['ajax']['url'] = '/autoridades/datatable_json';
-            configDTAutoridades['ajax']['data'] = { 'estatus': "A", 'distrito_id': {{ distrito.id }} };
+            configDTAutoridades['ajax']['data'] = { 'estatus': "A", 'distrito_id': "{{ distrito.id }}" };
             configDTAutoridades['columns'] = [
                 { data: "detalle" },
                 { data: "descripcion_corta" }

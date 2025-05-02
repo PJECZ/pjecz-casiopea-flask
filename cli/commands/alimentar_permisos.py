@@ -11,6 +11,7 @@ import click
 from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
 from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
 from pjecz_casiopea_flask.blueprints.roles.models import Rol
+from pjecz_casiopea_flask.lib.safe_string import safe_string
 
 PERMISOS_CSV = "seed/roles_permisos.csv"
 
@@ -24,20 +25,17 @@ def alimentar_permisos():
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         sys.exit(1)
-    modulos = Modulo.query.all()
-    if len(modulos) == 0:
-        click.echo(click.style("  AVISO: No hay modulos alimentados.", fg="red"))
-        sys.exit(1)
+    modulos = Modulo.query.order_by(Modulo.nombre).all()
     click.echo("Alimentando permisos: ", nl=False)
     contador = 0
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            rol_id = int(row["rol_id"])
+            rol_nombre = safe_string(row["rol_nombre"], save_enie=True)
             estatus = row["estatus"]
-            rol = Rol.query.get(rol_id)
+            rol = Rol.query.filter(Rol.nombre == rol_nombre).first()
             if rol is None:
-                click.echo(click.style(f"  AVISO: rol_id {rol_id} no existe", fg="red"))
+                click.echo(click.style(f"  AVISO: rol {rol_nombre} no existe", fg="red"))
                 sys.exit(1)
             for modulo in modulos:
                 columna = modulo.nombre.lower()

@@ -7,16 +7,16 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.cit_citas.models import CitCita
-from pjecz_casiopea_flask.blueprints.cit_clientes.models import CitCliente
-from pjecz_casiopea_flask.blueprints.cit_servicios.models import CitServicio
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_email, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..cit_citas.models import CitCita
+from ..cit_clientes.models import CitCliente
+from ..cit_servicios.models import CitServicio
+from ..modulos.models import Modulo
+from ..oficinas.models import Oficina
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_email, safe_message, safe_string
 
 MODULO = "CIT CITAS"
 
@@ -43,29 +43,13 @@ def datatable_json():
     else:
         consulta = consulta.filter(CitCita.estatus == "A")
     if "id" in request.form:
-        try:
-            cit_cita_id = int(request.form["id"])
-            consulta = consulta.filter(CitCita.id == cit_cita_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(CitCita.id == request.form["id"])
     if "cit_cliente_id" in request.form:
-        try:
-            cit_cliente_id = int(request.form["cit_cliente_id"])
-            consulta = consulta.filter(CitCita.cit_cliente_id == cit_cliente_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(CitCita.cit_cliente_id == request.form["cit_cliente_id"])
     if "cit_servicio_id" in request.form:
-        try:
-            cit_servicio_id = int(request.form["cit_servicio_id"])
-            consulta = consulta.filter(CitCita.cit_servicio_id == cit_servicio_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(CitCita.cit_servicio_id == request.form["cit_servicio_id"])
     if "oficina_id" in request.form:
-        try:
-            oficina_id = int(request.form["oficina_id"])
-            consulta = consulta.filter(CitCita.oficina_id == oficina_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(CitCita.oficina_id == request.form["oficina_id"])
     # Luego filtrar por columnas de otras tablas
     cit_cliente_email = ""
     if "cit_cliente_email" in request.form:
@@ -154,29 +138,29 @@ def list_inactive():
     )
 
 
-@cit_citas.route("/cit_citas/<int:cit_cita_id>")
+@cit_citas.route("/cit_citas/<cit_cita_id>")
 def detail(cit_cita_id):
     """Detalle de un Cit Cita"""
     cit_cita = CitCita.query.get_or_404(cit_cita_id)
     return render_template("cit_citas/detail.jinja2", cit_cita=cit_cita)
 
 
-@cit_citas.route("/cit_citas/pendiente/<int:cit_cita_id>")
+@cit_citas.route("/cit_citas/pendiente/<cit_cita_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def set_pending(cit_cita_id):
     """Marcar la cita como pendiente"""
 
 
-@cit_citas.route("/cit_citas/asistencia/<int:cit_cita_id>")
+@cit_citas.route("/cit_citas/asistencia/<cit_cita_id>")
 def set_assistance(cit_cita_id):
     """Marcar la cita como asistencia"""
 
 
-@cit_citas.route("/cit_citas/falta/<int:cit_cita_id>")
+@cit_citas.route("/cit_citas/falta/<cit_cita_id>")
 def set_no_assistance(cit_cita_id):
     """Marcar la cita como falta"""
 
 
-@cit_citas.route("/cit_citas/cancelar/<int:cit_cita_id>")
+@cit_citas.route("/cit_citas/cancelar/<cit_cita_id>")
 def set_cancelled(cit_cita_id):
     """Marcar la cita como cancelada"""

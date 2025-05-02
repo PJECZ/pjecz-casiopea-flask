@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.cit_dias_inhabiles.forms import CitDiaInhabilForm
-from pjecz_casiopea_flask.blueprints.cit_dias_inhabiles.models import CitDiaInhabil
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..cit_dias_inhabiles.forms import CitDiaInhabilForm
+from ..cit_dias_inhabiles.models import CitDiaInhabil
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string
 
 MODULO = "CIT DIAS INHABILES"
 
@@ -86,7 +86,7 @@ def list_inactive():
     )
 
 
-@cit_dias_inhabiles.route("/cit_dias_inhabiles/<int:cit_dia_inhabil_id>")
+@cit_dias_inhabiles.route("/cit_dias_inhabiles/<cit_dia_inhabil_id>")
 def detail(cit_dia_inhabil_id):
     """Detalle de un Cit Dia Inhábil"""
     cit_dia_inhabil = CitDiaInhabil.query.get_or_404(cit_dia_inhabil_id)
@@ -122,7 +122,7 @@ def new():
     return render_template("cit_dias_inhabiles/new.jinja2", form=form)
 
 
-@cit_dias_inhabiles.route("/cit_dias_inhabiles/edicion/<int:cit_dia_inhabil_id>", methods=["GET", "POST"])
+@cit_dias_inhabiles.route("/cit_dias_inhabiles/edicion/<cit_dia_inhabil_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_dia_inhabil_id):
     """Editar Dia Inhábil"""
@@ -153,7 +153,7 @@ def edit(cit_dia_inhabil_id):
     return render_template("cit_dias_inhabiles/edit.jinja2", form=form, cit_dia_inhabil=cit_dia_inhabil)
 
 
-@cit_dias_inhabiles.route("/cit_dias_inhabiles/eliminar/<int:cit_dia_inhabil_id>")
+@cit_dias_inhabiles.route("/cit_dias_inhabiles/eliminar/<cit_dia_inhabil_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(cit_dia_inhabil_id):
     """Eliminar Dia Inhábil"""
@@ -171,7 +171,7 @@ def delete(cit_dia_inhabil_id):
     return redirect(url_for("cit_dias_inhabiles.detail", cit_dia_inhabil_id=cit_dia_inhabil.id))
 
 
-@cit_dias_inhabiles.route("/cit_dias_inhabiles/recuperar/<int:cit_dia_inhabil_id>")
+@cit_dias_inhabiles.route("/cit_dias_inhabiles/recuperar/<cit_dia_inhabil_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(cit_dia_inhabil_id):
     """Recuperar Dia Inhábil"""

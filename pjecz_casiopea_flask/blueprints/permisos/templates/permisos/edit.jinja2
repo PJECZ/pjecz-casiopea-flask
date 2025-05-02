@@ -2,7 +2,7 @@
 {% import 'macros/form.jinja2' as f with context %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Editar Permiso {{ permiso.id }}{% endblock %}
+{% block title %}Editar Permiso{% endblock %}
 
 {% block topbar_actions %}
     {{ topbar.page('Editar Permiso ' + permiso.id | string) }}

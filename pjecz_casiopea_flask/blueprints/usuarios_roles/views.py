@@ -7,16 +7,16 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.roles.models import Rol
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
-from pjecz_casiopea_flask.blueprints.usuarios_roles.forms import UsuarioRolNewWithRolForm, UsuarioRolNewWithUsuarioForm
-from pjecz_casiopea_flask.blueprints.usuarios_roles.models import UsuarioRol
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_email, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..roles.models import Rol
+from ..usuarios.decorators import permission_required
+from ..usuarios.models import Usuario
+from ..usuarios_roles.forms import UsuarioRolNewWithRolForm, UsuarioRolNewWithUsuarioForm
+from ..usuarios_roles.models import UsuarioRol
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_email, safe_message, safe_string
 
 MODULO = "USUARIOS ROLES"
 
@@ -37,11 +37,6 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = UsuarioRol.query.select_from(UsuarioRol).join(Rol).join(Usuario)
-    # Sin filtro por estatus, para usar el boton para activar o desactivar
-    # if "estatus" in request.form:
-    #     consulta = consulta.filter_by(estatus=request.form["estatus"])
-    # else:
-    #     consulta = consulta.filter_by(estatus="A")
     # Primero filtrar por columnas propias
     if "usuario_id" in request.form:
         consulta = consulta.filter(UsuarioRol.usuario_id == request.form["usuario_id"])
@@ -117,14 +112,14 @@ def list_active():
     )
 
 
-@usuarios_roles.route("/usuarios_roles/<int:usuario_rol_id>")
+@usuarios_roles.route("/usuarios_roles/<usuario_rol_id>")
 def detail(usuario_rol_id):
     """Detalle de un Usuario-Rol"""
     usuario_rol = UsuarioRol.query.get_or_404(usuario_rol_id)
     return render_template("usuarios_roles/detail.jinja2", usuario_rol=usuario_rol)
 
 
-@usuarios_roles.route("/usuarios_roles/nuevo_con_rol/<int:rol_id>", methods=["GET", "POST"])
+@usuarios_roles.route("/usuarios_roles/nuevo_con_rol/<rol_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_rol(rol_id):
     """Nuevo Usuario-Rol con el rol como parametro"""
@@ -166,7 +161,7 @@ def new_with_rol(rol_id):
     )
 
 
-@usuarios_roles.route("/usuarios_roles/nuevo_con_usuario/<int:usuario_id>", methods=["GET", "POST"])
+@usuarios_roles.route("/usuarios_roles/nuevo_con_usuario/<usuario_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_usuario(usuario_id):
     """Nuevo Usuario-Rol con el usuario como parametro"""
@@ -210,7 +205,7 @@ def new_with_usuario(usuario_id):
     )
 
 
-@usuarios_roles.route("/usuarios_roles/eliminar/<int:usuario_rol_id>")
+@usuarios_roles.route("/usuarios_roles/eliminar/<usuario_rol_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(usuario_rol_id):
     """Eliminar Usuario-Rol"""
@@ -228,7 +223,7 @@ def delete(usuario_rol_id):
     return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))
 
 
-@usuarios_roles.route("/usuarios_roles/recuperar/<int:usuario_rol_id>")
+@usuarios_roles.route("/usuarios_roles/recuperar/<usuario_rol_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(usuario_rol_id):
     """Recuperar Usuario-Rol"""
@@ -246,7 +241,7 @@ def recover(usuario_rol_id):
     return redirect(url_for("usuarios_roles.detail", usuario_rol_id=usuario_rol.id))
 
 
-@usuarios_roles.route("/usuarios_roles/toggle_estatus_json/<int:usuario_rol_id>", methods=["GET", "POST"])
+@usuarios_roles.route("/usuarios_roles/toggle_estatus_json/<usuario_rol_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def toggle_estatus_json(usuario_rol_id):
     """Cambiar el estatus de un usuario-rol por solicitud de botón en datatable"""

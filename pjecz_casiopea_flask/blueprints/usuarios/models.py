@@ -12,10 +12,10 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios_roles.models import UsuarioRol
-from pjecz_casiopea_flask.extensions import database, pwd_context
-from pjecz_casiopea_flask.lib.universal_mixin import UniversalMixin
+from ..permisos.models import Permiso
+from ..usuarios_roles.models import UsuarioRol
+from ...config.extensions import database, pwd_context
+from ...lib.universal_mixin import UniversalMixin
 
 
 class Usuario(database.Model, UserMixin, UniversalMixin):

@@ -94,7 +94,7 @@
             const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
             let configDTUsuarios = constructorDataTable.config();
             configDTUsuarios['ajax']['url'] = '/usuarios/datatable_json';
-            configDTUsuarios['ajax']['data'] = { 'estatus': "A", 'autoridad_id': {{ autoridad.id }} };
+            configDTUsuarios['ajax']['data'] = { 'estatus': "A", 'autoridad_id': "{{ autoridad.id }}" };
             configDTUsuarios['columns'] = [
                 { data: "detalle" },
                 { data: "nombre" },

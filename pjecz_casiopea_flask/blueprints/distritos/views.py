@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.distritos.forms import DistritoForm
-from pjecz_casiopea_flask.blueprints.distritos.models import Distrito
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..distritos.forms import DistritoForm
+from ..distritos.models import Distrito
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "DISTRITOS"
 
@@ -96,7 +96,7 @@ def list_inactive():
     )
 
 
-@distritos.route("/distritos/<int:distrito_id>")
+@distritos.route("/distritos/<distrito_id>")
 def detail(distrito_id):
     """Detalle de un Distrito"""
     distrito = Distrito.query.get_or_404(distrito_id)
@@ -143,7 +143,7 @@ def new():
     return render_template("distritos/new.jinja2", form=form)
 
 
-@distritos.route("/distritos/edicion/<int:distrito_id>", methods=["GET", "POST"])
+@distritos.route("/distritos/edicion/<distrito_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(distrito_id):
     """Editar Distrito"""
@@ -192,7 +192,7 @@ def edit(distrito_id):
     return render_template("distritos/edit.jinja2", form=form, distrito=distrito)
 
 
-@distritos.route("/distritos/eliminar/<int:distrito_id>")
+@distritos.route("/distritos/eliminar/<distrito_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(distrito_id):
     """Eliminar Distrito"""
@@ -210,7 +210,7 @@ def delete(distrito_id):
     return redirect(url_for("distritos.detail", distrito_id=distrito.id))
 
 
-@distritos.route("/distritos/recuperar/<int:distrito_id>")
+@distritos.route("/distritos/recuperar/<distrito_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(distrito_id):
     """Recuperar Distrito"""

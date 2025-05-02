@@ -6,8 +6,8 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Regexp
 
-from pjecz_casiopea_flask.blueprints.distritos.models import Distrito
-from pjecz_casiopea_flask.lib.safe_string import CLAVE_REGEXP
+from ..distritos.models import Distrito
+from ...lib.safe_string import CLAVE_REGEXP
 
 
 class AutoridadNewForm(FlaskForm):

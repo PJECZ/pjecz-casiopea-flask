@@ -6,8 +6,8 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired
 
-from pjecz_casiopea_flask.blueprints.cit_servicios.models import CitServicio
-from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
+from ..cit_servicios.models import CitServicio
+from ..oficinas.models import Oficina
 
 
 class CitOficinaServicioWithCitServicioForm(FlaskForm):

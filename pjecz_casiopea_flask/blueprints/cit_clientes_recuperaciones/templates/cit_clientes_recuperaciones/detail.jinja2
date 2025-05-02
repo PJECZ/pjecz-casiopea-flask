@@ -3,7 +3,7 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Cliente Recuperación {{ cit_cliente_recuperacion.id }}{% endblock %}
+{% block title %}Cliente Recuperación{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Cliente Recuperación ' + cit_cliente_recuperacion.id | string) %}

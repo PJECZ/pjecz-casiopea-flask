@@ -7,14 +7,14 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.cit_servicios.forms import CitServicioForm
-from pjecz_casiopea_flask.blueprints.cit_servicios.models import CitServicio
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..cit_servicios.forms import CitServicioForm
+from ..cit_servicios.models import CitServicio
+from ..modulos.models import Modulo
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 DIAS_SEMANA = {
     0: "DOMINGO",
@@ -50,11 +50,7 @@ def datatable_json():
     else:
         consulta = consulta.filter(CitServicio.estatus == "A")
     if "cit_categoria_id" in request.form:
-        try:
-            cit_categoria_id = int(request.form["cit_categoria_id"])
-            consulta = consulta.filter(CitServicio.cit_categoria_id == cit_categoria_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(CitServicio.cit_categoria_id == request.form["cit_categoria_id"])
     if "clave" in request.form:
         clave = safe_clave(request.form["clave"])
         if clave != "":
@@ -118,7 +114,7 @@ def list_inactive():
     )
 
 
-@cit_servicios.route("/cit_servicios/<int:cit_servicio_id>")
+@cit_servicios.route("/cit_servicios/<cit_servicio_id>")
 def detail(cit_servicio_id):
     """Detalle de un Cit Servicio"""
     # Consultar
@@ -204,7 +200,7 @@ def new():
     return render_template("cit_servicios/new.jinja2", form=form)
 
 
-@cit_servicios.route("/cit_servicios/edicion/<int:cit_servicio_id>", methods=["GET", "POST"])
+@cit_servicios.route("/cit_servicios/edicion/<cit_servicio_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_servicio_id):
     """Editar Cit Servicio"""
@@ -277,7 +273,7 @@ def edit(cit_servicio_id):
     return render_template("cit_servicios/edit.jinja2", form=form, cit_servicio=cit_servicio)
 
 
-@cit_servicios.route("/cit_servicios/eliminar/<int:cit_servicio_id>")
+@cit_servicios.route("/cit_servicios/eliminar/<cit_servicio_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cit_servicio_id):
     """Eliminar Cit Servicio"""
@@ -295,7 +291,7 @@ def delete(cit_servicio_id):
     return redirect(url_for("cit_servicios.detail", cit_servicio_id=cit_servicio.id))
 
 
-@cit_servicios.route("/cit_servicios/recuperar/<int:cit_servicio_id>")
+@cit_servicios.route("/cit_servicios/recuperar/<cit_servicio_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cit_servicio_id):
     """Recuperar Cit Servicio"""

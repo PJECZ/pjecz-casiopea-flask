@@ -7,11 +7,11 @@ import json
 from flask import Blueprint, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
+from ..bitacoras.models import Bitacora
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ..usuarios.models import Usuario
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
 
 MODULO = "BITACORAS"
 
@@ -38,17 +38,9 @@ def datatable_json():
     else:
         consulta = consulta.filter(Bitacora.estatus == "A")
     if "modulo_id" in request.form:
-        try:
-            modulo_id = int(request.form["modulo_id"])
-            consulta = consulta.filter(Bitacora.modulo_id == modulo_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(Bitacora.modulo_id == request.form["modulo_id"])
     if "usuario_id" in request.form:
-        try:
-            usuario_id = int(request.form["usuario_id"])
-            consulta = consulta.filter(Bitacora.usuario_id == usuario_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(Bitacora.usuario_id == request.form["usuario_id"])
     # Ordenar y paginar
     registros = consulta.order_by(Bitacora.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()

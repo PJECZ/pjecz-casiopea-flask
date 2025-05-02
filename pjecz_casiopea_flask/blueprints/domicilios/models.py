@@ -5,12 +5,12 @@ Domicilios, modelos
 from typing import List
 import uuid
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from pjecz_casiopea_flask.extensions import database
-from pjecz_casiopea_flask.lib.universal_mixin import UniversalMixin
+from ...config.extensions import database
+from ...lib.universal_mixin import UniversalMixin
 
 
 class Domicilio(database.Model, UniversalMixin):

@@ -85,7 +85,7 @@
             const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
             let configDataTable = constructorDataTable.config();
             configDataTable['ajax']['url'] = '/cit_servicios/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'cit_categoria_id': {{ cit_categoria.id }} };
+            configDataTable['ajax']['data'] = { 'estatus': "A", 'cit_categoria_id': "{{ cit_categoria.id }}" };
             configDataTable['columns'] = [
                 { data: 'detalle' },
                 { data: 'descripcion' },

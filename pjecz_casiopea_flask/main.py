@@ -3,37 +3,46 @@ PJECZ Casiopea Flask
 """
 
 from flask import Flask
+from redis import Redis
+from rq import Queue
 
-from pjecz_casiopea_flask.blueprints.autoridades.views import autoridades
-from pjecz_casiopea_flask.blueprints.bitacoras.views import bitacoras
-from pjecz_casiopea_flask.blueprints.cit_categorias.views import cit_categorias
-from pjecz_casiopea_flask.blueprints.cit_citas.views import cit_citas
-from pjecz_casiopea_flask.blueprints.cit_clientes.views import cit_clientes
-from pjecz_casiopea_flask.blueprints.cit_clientes_recuperaciones.views import cit_clientes_recuperaciones
-from pjecz_casiopea_flask.blueprints.cit_clientes_registros.views import cit_clientes_registros
-from pjecz_casiopea_flask.blueprints.cit_dias_inhabiles.views import cit_dias_inhabiles
-from pjecz_casiopea_flask.blueprints.cit_horas_bloqueadas.views import cit_horas_bloqueadas
-from pjecz_casiopea_flask.blueprints.cit_oficinas_servicios.views import cit_oficinas_servicios
-from pjecz_casiopea_flask.blueprints.cit_servicios.views import cit_servicios
-from pjecz_casiopea_flask.blueprints.distritos.views import distritos
-from pjecz_casiopea_flask.blueprints.domicilios.views import domicilios
-from pjecz_casiopea_flask.blueprints.entradas_salidas.views import entradas_salidas
-from pjecz_casiopea_flask.blueprints.materias.views import materias
-from pjecz_casiopea_flask.blueprints.modulos.views import modulos
-from pjecz_casiopea_flask.blueprints.permisos.views import permisos
-from pjecz_casiopea_flask.blueprints.roles.views import roles
-from pjecz_casiopea_flask.blueprints.sistemas.views import sistemas
-from pjecz_casiopea_flask.blueprints.usuarios.views import usuarios
-from pjecz_casiopea_flask.blueprints.usuarios_oficinas.views import usuarios_oficinas
-from pjecz_casiopea_flask.blueprints.usuarios_roles.views import usuarios_roles
-from pjecz_casiopea_flask.extensions import csrf, database, login_manager, moment
-from pjecz_casiopea_flask.settings import Settings
+from .blueprints.autoridades.views import autoridades
+from .blueprints.bitacoras.views import bitacoras
+from .blueprints.cit_categorias.views import cit_categorias
+from .blueprints.cit_citas.views import cit_citas
+from .blueprints.cit_clientes.views import cit_clientes
+from .blueprints.cit_clientes_recuperaciones.views import cit_clientes_recuperaciones
+from .blueprints.cit_clientes_registros.views import cit_clientes_registros
+from .blueprints.cit_dias_inhabiles.views import cit_dias_inhabiles
+from .blueprints.cit_horas_bloqueadas.views import cit_horas_bloqueadas
+from .blueprints.cit_oficinas_servicios.views import cit_oficinas_servicios
+from .blueprints.cit_servicios.views import cit_servicios
+from .blueprints.distritos.views import distritos
+from .blueprints.domicilios.views import domicilios
+from .blueprints.entradas_salidas.views import entradas_salidas
+from .blueprints.materias.views import materias
+from .blueprints.modulos.views import modulos
+from .blueprints.oficinas.views import oficinas
+from .blueprints.permisos.views import permisos
+from .blueprints.roles.views import roles
+from .blueprints.sistemas.views import sistemas
+from .blueprints.tareas.views import tareas
+from .blueprints.usuarios.models import Usuario
+from .blueprints.usuarios.views import usuarios
+from .blueprints.usuarios_oficinas.views import usuarios_oficinas
+from .blueprints.usuarios_roles.views import usuarios_roles
+from .config.extensions import authentication, csrf, database, login_manager, moment
+from .config.settings import Settings
 
 # Definir app
 app = Flask(__name__, instance_relative_config=True)
 
 # Cargar la configuración
 app.config.from_object(Settings())
+
+# Redis
+app.redis = Redis(host=app.config["REDIS_URL"])
+app.task_queue = Queue(app.config["TASK_QUEUE"], connection=app.redis, default_timeout=3000)
 
 # Cargar las vistas
 app.register_blueprint(autoridades)
@@ -52,9 +61,11 @@ app.register_blueprint(domicilios)
 app.register_blueprint(entradas_salidas)
 app.register_blueprint(materias)
 app.register_blueprint(modulos)
+app.register_blueprint(oficinas)
 app.register_blueprint(permisos)
 app.register_blueprint(roles)
 app.register_blueprint(sistemas)
+app.register_blueprint(tareas)
 app.register_blueprint(usuarios)
 app.register_blueprint(usuarios_oficinas)
 app.register_blueprint(usuarios_roles)
@@ -64,3 +75,6 @@ csrf.init_app(app)
 database.init_app(app)
 login_manager.init_app(app)
 moment.init_app(app)
+
+# Flask Login authentication
+authentication(Usuario)

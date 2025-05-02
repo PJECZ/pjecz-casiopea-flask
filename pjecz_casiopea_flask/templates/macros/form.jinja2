@@ -142,11 +142,11 @@
             }
             // Cargar distritos
             {% for distrito in distritos %}
-            distritos.push({ id: {{ distrito.id }}, nombre: "{{ distrito.nombre }}" });
+            distritos.push({ id: "{{ distrito.id }}", nombre: "{{ distrito.nombre }}" });
             {%- endfor %}
             // Cargar autoridades
             {% for autoridad in autoridades %}
-            autoridades.push({ distrito_id: {{ autoridad.distrito_id }}, id: {{ autoridad.id }}, descripcion: "{{ autoridad.descripcion }}" });
+            autoridades.push({ distrito_id: "{{ autoridad.distrito_id }}", id: "{{ autoridad.id }}", descripcion: "{{ autoridad.descripcion }}" });
             {%- endfor %}
             // Opciones select de distritos
             distritos.forEach(
@@ -164,51 +164,6 @@
             // Poner valores iniciales si se reciben
             if (mi_distrito != -1) $('#distrito').val(mi_distrito).change()
             if (mi_autoridad != -1) $('#autoridad').val(mi_autoridad).change()
-        });
-    </script>
-{%- endmacro -%}
-
-{# javascript para combo materia/tipo_juicio #}
-{%- macro js_select_materia_materia_tipo_juicio(materias, materias_tipos_juicios, mi_materia=-1, mi_materia_tipo_juicio=-1) -%}
-    <!-- Combo materia/tipo_juicio -->
-    <script>
-        let materias = [];
-        let materias_tipos_juicios = [];
-        let mi_materia = {{ mi_materia }};
-        let mi_materia_tipo_juicio = {{ mi_materia_tipo_juicio }};
-        $(document).ready(function() {
-            // Función
-            function cambiarTiposJuiciosSelect(materia_id) {
-                materias_tipos_juicios.forEach(function(item) {
-                    if (item.materia_id == materia_id) {
-                        $('#materia_tipo_juicio').append($('<option>', { value: item.id, text: item.descripcion }));
-                    }
-                });
-            }
-            // Cargar materias
-            {% for materia in materias %}
-            materias.push({ id: {{ materia.id }}, nombre: "{{ materia.nombre }}" });
-            {%- endfor %}
-            // Cargar materias_tipos_juicios
-            {% for tipo_juicio in materias_tipos_juicios %}
-            materias_tipos_juicios.push({ materia_id: {{ tipo_juicio.materia_id }}, id: {{ tipo_juicio.id }}, descripcion: "{{ tipo_juicio.descripcion }}" });
-            {%- endfor %}
-            // Opciones select de materias
-            materias.forEach(
-                item => $('#materia').append($('<option>', { value: item.id, text: item.nombre }))
-            );
-            // Cuando es -1 debe no estar seleccionado
-            if (mi_materia == -1) mi_materia = materias[0].id;
-            // De inicio, poner las opciones en el select de materias_tipos_juicios
-            cambiarTiposJuiciosSelect(mi_materia);
-            // Al cambiar el select materia, cambiar las opciones de tipo_juicio
-            $('#materia').change(function() {
-                $('#materia_tipo_juicio').empty();
-                cambiarTiposJuiciosSelect($('#materia').val());
-            });
-            // Poner valores iniciales si se reciben
-            if (mi_materia != -1) $('#materia').val(mi_materia).change()
-            if (mi_materia_tipo_juicio != -1) $('#materia_tipo_juicio').val(mi_materia_tipo_juicio).change()
         });
     </script>
 {%- endmacro -%}

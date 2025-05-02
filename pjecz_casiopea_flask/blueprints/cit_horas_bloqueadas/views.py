@@ -7,15 +7,15 @@ import json
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from pjecz_casiopea_flask.blueprints.bitacoras.models import Bitacora
-from pjecz_casiopea_flask.blueprints.cit_horas_bloqueadas.forms import CitHoraBloqueadaAdminForm, CitHoraBloqueadaForm
-from pjecz_casiopea_flask.blueprints.cit_horas_bloqueadas.models import CitHoraBloqueada
-from pjecz_casiopea_flask.blueprints.modulos.models import Modulo
-from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
-from pjecz_casiopea_flask.blueprints.permisos.models import Permiso
-from pjecz_casiopea_flask.blueprints.usuarios.decorators import permission_required
-from pjecz_casiopea_flask.lib.datatables import get_datatable_parameters, output_datatable_json
-from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_message, safe_string
+from ..bitacoras.models import Bitacora
+from ..cit_horas_bloqueadas.forms import CitHoraBloqueadaAdminForm, CitHoraBloqueadaForm
+from ..cit_horas_bloqueadas.models import CitHoraBloqueada
+from ..modulos.models import Modulo
+from ..oficinas.models import Oficina
+from ..permisos.models import Permiso
+from ..usuarios.decorators import permission_required
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "CIT HORAS BLOQUEADAS"
 
@@ -41,13 +41,7 @@ def datatable_json():
         consulta = consulta.filter(CitHoraBloqueada.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(CitHoraBloqueada.estatus == "A")
-    if "oficina_id" in request.form:
-        try:
-            oficina_id = int(request.form["oficina_id"])
-            consulta = consulta.filter(CitHoraBloqueada.oficina_id == oficina_id)
-        except ValueError:
-            pass
-    elif "oficina_clave" in request.form:
+    if "oficina_clave" in request.form:
         oficina_clave = safe_clave(request.form["oficina_clave"])
         if oficina_clave != "":
             consulta = consulta.join(Oficina).filter(Oficina.clave.contains(oficina_clave))
@@ -89,11 +83,7 @@ def admin_datatable_json():
     else:
         consulta = consulta.filter(CitHoraBloqueada.estatus == "A")
     if "oficina_id" in request.form:
-        try:
-            oficina_id = int(request.form["oficina_id"])
-            consulta = consulta.filter(CitHoraBloqueada.oficina_id == oficina_id)
-        except ValueError:
-            pass
+        consulta = consulta.filter(CitHoraBloqueada.oficina_id == request.form["oficina_id"])
     elif "oficina_clave" in request.form:
         oficina_clave = safe_clave(request.form["oficina_clave"])
         if oficina_clave != "":
@@ -166,7 +156,7 @@ def list_inactive():
     )
 
 
-@cit_horas_bloqueadas.route("/cit_horas_bloqueadas/<int:cit_hora_bloqueada_id>")
+@cit_horas_bloqueadas.route("/cit_horas_bloqueadas/<cit_hora_bloqueada_id>")
 def detail(cit_hora_bloqueada_id):
     """Detalle de un Cit Hora Bloqueada"""
     cit_hora_bloqueada = CitHoraBloqueada.query.get_or_404(cit_hora_bloqueada_id)
@@ -240,7 +230,7 @@ def new():
     return render_template("cit_horas_bloqueadas/new.jinja2", form=form)
 
 
-@cit_horas_bloqueadas.route("/cit_horas_bloqueadas/edicion/<int:cit_hora_bloqueada_id>", methods=["GET", "POST"])
+@cit_horas_bloqueadas.route("/cit_horas_bloqueadas/edicion/<cit_hora_bloqueada_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_hora_bloqueada_id):
     """Editar Hora Bloqueada"""
@@ -309,7 +299,7 @@ def edit(cit_hora_bloqueada_id):
     return render_template("cit_horas_bloqueadas/edit.jinja2", form=form, cit_hora_bloqueada=cit_hora_bloqueada)
 
 
-@cit_horas_bloqueadas.route("/cit_horas_bloqueadas/eliminar/<int:cit_hora_bloqueada_id>")
+@cit_horas_bloqueadas.route("/cit_horas_bloqueadas/eliminar/<cit_hora_bloqueada_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(cit_hora_bloqueada_id):
     """Eliminar Hora Bloqueada"""
@@ -333,7 +323,7 @@ def delete(cit_hora_bloqueada_id):
     return redirect(url_for("cit_horas_bloqueadas.detail", cit_hora_bloqueada_id=cit_hora_bloqueada.id))
 
 
-@cit_horas_bloqueadas.route("/cit_horas_bloqueadas/recuperar/<int:cit_hora_bloqueada_id>")
+@cit_horas_bloqueadas.route("/cit_horas_bloqueadas/recuperar/<cit_hora_bloqueada_id>")
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(cit_hora_bloqueada_id):
     """Recuperar Hora Bloqueada"""

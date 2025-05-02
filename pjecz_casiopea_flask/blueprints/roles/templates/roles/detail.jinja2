@@ -138,7 +138,7 @@
             // DataTable Permisos
             let configDTPermisos = constructorDataTable.config();
             configDTPermisos['ajax']['url'] = '/permisos/datatable_json';
-            configDTPermisos['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id}} };
+            configDTPermisos['ajax']['data'] = { 'estatus': "A", 'rol_id': "{{ rol.id }}" };
             configDTPermisos['columns'] = [
                 { data: "detalle" },
                 { data: "modulo" },
@@ -156,7 +156,7 @@
                     targets: 1, // modulo
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.url == '') {
+                        if (data.url === '') {
                             return data.nombre;
                         } else {
                             return '<a href="' + data.url + '">' + data.nombre + '</a>';
@@ -177,7 +177,7 @@
             // DataTable UsuariosRoles
             let configDTUsuariosRoles = constructorDataTable.config();
             configDTUsuariosRoles['ajax']['url'] = '/usuarios_roles/datatable_json';
-            configDTUsuariosRoles['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id}} };
+            configDTUsuariosRoles['ajax']['data'] = { 'estatus': "A", 'rol_id': "{{ rol.id }}" };
             configDTUsuariosRoles['columns'] = [
                 { data: "detalle" },
                 { data: "usuario" },
