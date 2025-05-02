@@ -41,8 +41,8 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_object(Settings())
 
 # Redis
-app.redis = Redis(host=app.config['REDIS_URL'])
-app.task_queue = Queue(app.config['TASK_QUEUE'], connection=app.redis, default_timeout=3000)
+app.redis = Redis(host=app.config["REDIS_URL"])
+app.task_queue = Queue(app.config["TASK_QUEUE"], connection=app.redis, default_timeout=3000)
 
 # Cargar las vistas
 app.register_blueprint(autoridades)
