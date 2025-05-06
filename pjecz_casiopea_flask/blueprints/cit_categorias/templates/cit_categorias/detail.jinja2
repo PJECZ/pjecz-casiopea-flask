@@ -3,7 +3,7 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Categoria {{ cit_categoria.nombre }}{% endblock %}
+{% block title %}Categoria {{ cit_categoria.clave }}{% endblock %}
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Categoría ' + cit_categoria.nombre) %}
@@ -21,6 +21,7 @@
 {% block content %}
     {% if cit_categoria.estatus == 'B' %}
         {% call detail.card(estatus=cit_categoria.estatus) %}
+            {{ detail.label_value_big('Clave', cit_categoria.clave) }}
             {{ detail.label_value('Nombre', cit_categoria.nombre) }}
         {% endcall %}
     {% endif %}

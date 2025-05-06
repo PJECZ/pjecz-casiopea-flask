@@ -42,6 +42,7 @@
         <table id="cit_categorias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Clave</th>
                     <th>Nombre</th>
                 </tr>
             </thead>
@@ -59,14 +60,15 @@
         configDTCitCategorias['ajax']['url'] = '/cit_categorias/datatable_json';
         configDTCitCategorias['ajax']['data'] = {{ filtros }};
         configDTCitCategorias['columns'] = [
-            { data: 'detalle' }
+            { data: 'detalle' },
+            { data: 'nombre' }
         ];
         configDTCitCategorias['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
                 }
             }
         ];

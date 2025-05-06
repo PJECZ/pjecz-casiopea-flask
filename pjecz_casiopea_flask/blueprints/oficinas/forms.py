@@ -4,16 +4,17 @@ Oficinas, formularios
 
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, IntegerField, SelectField, StringField, SubmitField, TimeField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length, Optional, Regexp
 
+from ...lib.safe_string import CLAVE_REGEXP
 from ..domicilios.models import Domicilio
 
 
 class OficinaForm(FlaskForm):
     """Formulario Oficina"""
 
-    clave = StringField("Clave", validators=[DataRequired(), Length(max=32)])
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=512)])
+    clave = StringField("Clave", validators=[DataRequired(), Regexp(CLAVE_REGEXP), Length(max=16)])
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     descripcion_corta = StringField("Descripción Corta", validators=[DataRequired(), Length(max=64)])
     domicilio = SelectField("Domicilio", coerce=int, validators=[DataRequired()])
     apertura = TimeField("Horario de apertura", validators=[DataRequired()], format="%H:%M")
