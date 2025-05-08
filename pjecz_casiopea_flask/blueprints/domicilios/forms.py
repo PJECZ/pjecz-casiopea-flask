@@ -12,7 +12,6 @@ from ..distritos.models import Distrito
 class DomicilioForm(FlaskForm):
     """Formulario Domicilio"""
 
-    distrito = SelectField("Distrito", coerce=int, validators=[DataRequired()])
     edificio = StringField("Edificio", validators=[DataRequired(), Length(max=64)])
     estado = StringField("Estado", validators=[DataRequired(), Length(max=64)])
     municipio = StringField("Municipio", validators=[DataRequired(), Length(max=64)])

@@ -41,8 +41,6 @@ def datatable_json():
         consulta = consulta.filter(Oficina.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(Oficina.estatus == "A")
-    if "distrito_id" in request.form:
-        consulta = consulta.filter(Oficina.distrito_id == request.form["distrito_id"])
     if "domicilio_id" in request.form:
         consulta = consulta.filter(Oficina.domicilio_id == request.form["domicilio_id"])
     if "clave" in request.form:
@@ -70,8 +68,6 @@ def datatable_json():
                 },
                 "descripcion_corta": resultado.descripcion_corta,
                 "domicilio_edificio": resultado.domicilio.edificio,
-                "distrito_clave": resultado.distrito.clave,
-                "distrito_nombre_corto": resultado.distrito.nombre_corto,
                 "apertura": resultado.apertura.strftime("%H:%M"),
                 "cierre": resultado.cierre.strftime("%H:%M"),
                 "limite_personas": resultado.limite_personas,
@@ -130,7 +126,6 @@ def new():
             clave=clave,
             descripcion=safe_string(form.descripcion.data, max_len=512, save_enie=True),
             descripcion_corta=safe_string(form.descripcion_corta.data, max_len=64, save_enie=True),
-            distrito_id=form.distrito.data,
             domicilio_id=form.domicilio.data,
             apertura=form.apertura.data,
             cierre=form.cierre.data,
@@ -172,7 +167,6 @@ def edit(oficina_id):
             oficina.clave = clave
             oficina.descripcion = safe_string(form.descripcion.data, max_len=512, save_enie=True)
             oficina.descripcion_corta = safe_string(form.descripcion_corta.data, max_len=64, save_enie=True)
-            oficina.distrito_id = form.distrito.data
             oficina.domicilio_id = form.domicilio.data
             oficina.apertura = form.apertura.data
             oficina.cierre = form.cierre.data
@@ -193,7 +187,6 @@ def edit(oficina_id):
     form.clave.data = oficina.clave
     form.descripcion_corta.data = oficina.descripcion_corta
     form.descripcion.data = oficina.descripcion
-    form.distrito.data = oficina.distrito_id  # Se manda distrito_id porque es un select
     form.domicilio.data = oficina.domicilio_id  # Se manda domicilio_id porque es un select
     form.apertura.data = oficina.apertura
     form.cierre.data = oficina.cierre
