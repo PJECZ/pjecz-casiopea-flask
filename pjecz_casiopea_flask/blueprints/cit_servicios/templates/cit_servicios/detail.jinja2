@@ -25,6 +25,7 @@
         {% else %}
             {{ detail.label_value('Categoria', cit_servicio.cit_categoria.nombre) }}
         {% endif %}
+        {{ detail.label_value_big('Clave', cit_servicio.clave) }}
         {{ detail.label_value('Descripcion', cit_servicio.descripcion) }}
         {{ detail.label_value('Duración', cit_servicio.duracion.strftime("%H:%M")) }}
         {{ detail.label_value('Documentos Limite', cit_servicio.documentos_limite) }}

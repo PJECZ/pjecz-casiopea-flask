@@ -107,7 +107,6 @@ def new():
     """Nuevo Domicilio"""
     form = DomicilioForm()
     if form.validate_on_submit():
-        distrito_id = form.distrito.data
         edificio = safe_string(form.edificio.data, max_len=64, save_enie=True)
         estado = safe_string(form.estado.data, max_len=64, save_enie=True)
         municipio = safe_string(form.municipio.data, max_len=64, save_enie=True)
@@ -122,7 +121,6 @@ def new():
             return render_template("autoridades/new.jinja2", form=form)
         # Guardar
         domicilio = Domicilio(
-            distrito_id=distrito_id,
             edificio=edificio,
             estado=estado,
             municipio=municipio,
@@ -163,7 +161,6 @@ def edit(domicilio_id):
                 flash("El edificio ya está en uso. Debe de ser único.", "warning")
         # Si es valido actualizar
         if es_valido:
-            domicilio.distrito_id = form.distrito.data
             domicilio.edificio = safe_string(form.edificio.data, max_len=64, save_enie=True)
             domicilio.estado = safe_string(form.estado.data, max_len=64, save_enie=True)
             domicilio.municipio = safe_string(form.municipio.data, max_len=64, save_enie=True)
@@ -172,7 +169,7 @@ def edit(domicilio_id):
             domicilio.num_int = safe_string(form.num_int.data, max_len=24, save_enie=True)
             domicilio.colonia = safe_string(form.colonia.data, max_len=256, save_enie=True)
             domicilio.cp = form.cp.data
-            domicilio.completo = f"{domicilio.calle} #{domicilio.num_ext} {domicilio.num_int}, {domicilio.colonia}, {domicilio.municipio}, {domicilio.estado}, C.P. {domicilio.cp}"
+            domicilio.completo = domicilio.elaborar_completo()
             domicilio.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -183,7 +180,6 @@ def edit(domicilio_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.distrito.data = domicilio.distrito_id  # Se manda distrito_id porque es un select
     form.edificio.data = domicilio.edificio
     form.estado.data = domicilio.estado
     form.municipio.data = domicilio.municipio

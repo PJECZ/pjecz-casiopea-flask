@@ -12,7 +12,7 @@ from ...lib.safe_string import CLAVE_REGEXP
 class MateriaForm(FlaskForm):
     """Formulario Materia"""
 
-    clave = StringField("Clave (única de hasta 16 caracteres)", validators=[DataRequired(), Regexp(CLAVE_REGEXP)])
+    clave = StringField("Clave", validators=[DataRequired(), Regexp(CLAVE_REGEXP), Length(max=16)])
     nombre = StringField("Nombre", validators=[DataRequired(), Length(max=64)])
     descripcion = TextAreaField("Descripción", validators=[Optional(), Length(max=1024)])
     en_sentencias = BooleanField("En Sentencias", validators=[Optional()])

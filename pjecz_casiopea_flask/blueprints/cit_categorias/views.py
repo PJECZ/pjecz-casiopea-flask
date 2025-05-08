@@ -1,5 +1,5 @@
 """
-Cit Categorias, vistas
+Cit Categorías, vistas
 """
 
 import json
@@ -14,7 +14,7 @@ from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_message, safe_string
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "CIT CATEGORIAS"
 
@@ -30,7 +30,7 @@ def before_request():
 
 @cit_categorias.route("/cit_categorias/datatable_json", methods=["GET", "POST"])
 def datatable_json():
-    """DataTable JSON para listado de Cit Categorias"""
+    """DataTable JSON para listado de Cit Categorías"""
     # Tomar parámetros de Datatables
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
@@ -53,9 +53,10 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "nombre": resultado.nombre,
+                    "clave": resultado.clave,
                     "url": url_for("cit_categorias.detail", cit_categoria_id=resultado.id),
                 },
+                "nombre": resultado.nombre,
             }
         )
     # Entregar JSON
@@ -64,7 +65,7 @@ def datatable_json():
 
 @cit_categorias.route("/cit_categorias")
 def list_active():
-    """Listado de Cit Categorias activas"""
+    """Listado de Cit Categorías activas"""
     return render_template(
         "cit_categorias/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
@@ -76,7 +77,7 @@ def list_active():
 @cit_categorias.route("/cit_categorias/inactivos")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_inactive():
-    """Listado de Cit Categorias inactivas"""
+    """Listado de Cit Categorías inactivas"""
     return render_template(
         "cit_categorias/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
@@ -87,7 +88,7 @@ def list_inactive():
 
 @cit_categorias.route("/cit_categorias/<cit_categoria_id>")
 def detail(cit_categoria_id):
-    """Detalle de un Cit Categoria"""
+    """Detalle de una Cit Categoría"""
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
     return render_template("cit_categorias/detail.jinja2", cit_categoria=cit_categoria)
 
@@ -95,27 +96,32 @@ def detail(cit_categoria_id):
 @cit_categorias.route("/cit_categorias/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Cit Categoria"""
+    """Nueva Cit Categoría"""
     form = CitCategoriaForm()
     if form.validate_on_submit():
         es_valido = True
+        # Validar clave
+        clave = safe_clave(form.clave.data)
+        if clave == "":
+            es_valido = False
+            flash("La clave es incorrecta o está vacía", "warning")
+        # Validar que la clave sea única
+        if CitCategoria.query.filter_by(clave=clave).first():
+            es_valido = False
+            flash("La clave ya está en uso. Debe de ser único.", "warning")
         # Validar nombre
         nombre = safe_string(form.nombre.data, save_enie=True, max_len=64)
         if nombre == "":
             es_valido = False
             flash("El nombre es incorrecto o está vacío", "warning")
-        # Validar que el nombre sea único
-        if CitCategoria.query.filter_by(nombre=nombre).first():
-            es_valido = False
-            flash("El nombre ya está en uso. Debe de ser único.", "warning")
         # Si es válido, guardar
         if es_valido:
-            cit_categoria = CitCategoria(nombre=nombre)
+            cit_categoria = CitCategoria(clave=clave, nombre=nombre)
             cit_categoria.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Nueva Categoria {cit_categoria.nombre}"),
+                descripcion=safe_message(f"Nueva Categoria {cit_categoria.clave}"),
                 url=url_for("cit_categorias.detail", cit_categoria_id=cit_categoria.id),
             )
             bitacora.save()
@@ -127,22 +133,27 @@ def new():
 @cit_categorias.route("/cit_categorias/edicion/<cit_categoria_id>", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_categoria_id):
-    """Editar Cit Categoria"""
+    """Editar Cit Categoría"""
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
     form = CitCategoriaForm()
     if form.validate_on_submit():
         es_valido = True
+        # Validar clave
+        clave = safe_clave(form.clave.data)
+        if clave == "":
+            es_valido = False
+            flash("La clave es incorrecta o está vacía", "warning")
+        # Si cambia la clave verificar que no este en uso
+        if cit_categoria.clave != clave:
+            cit_categoria_existente = CitCategoria.query.filter_by(clave=clave).first()
+            if cit_categoria_existente and cit_categoria_existente.id != cit_categoria.id:
+                es_valido = False
+                flash("La clave ya está en uso. Debe de ser única.", "warning")
         # Validar nombre
         nombre = safe_string(form.nombre.data, save_enie=True, max_len=64)
         if nombre == "":
             es_valido = False
             flash("El nombre es incorrecto o está vacío", "warning")
-        # Si cambia el nombre verificar que no este en uso
-        if cit_categoria.nombre != nombre:
-            cit_categoria_existente = CitCategoria.query.filter_by(nombre=nombre).first()
-            if cit_categoria_existente and cit_categoria_existente.id != cit_categoria.id:
-                es_valido = False
-                flash("El nombre ya está en uso. Debe de ser único.", "warning")
         # Si es válido, actualizar
         if es_valido:
             cit_categoria.nombre = nombre
@@ -150,7 +161,7 @@ def edit(cit_categoria_id):
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Editado Categoria {cit_categoria.nombre}"),
+                descripcion=safe_message(f"Editado Categoria {cit_categoria.clave}"),
                 url=url_for("cit_categorias.detail", cit_categoria_id=cit_categoria.id),
             )
             bitacora.save()
@@ -163,14 +174,14 @@ def edit(cit_categoria_id):
 @cit_categorias.route("/cit_categorias/eliminar/<cit_categoria_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cit_categoria_id):
-    """Eliminar Cit Categoria"""
+    """Eliminar Cit Categoría"""
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
     if cit_categoria.estatus == "A":
         cit_categoria.delete()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado Categoria {cit_categoria.nombre}"),
+            descripcion=safe_message(f"Eliminado Categoria {cit_categoria.clave}"),
             url=url_for("cit_categorias.detail", cit_categoria_id=cit_categoria.id),
         )
         bitacora.save()
@@ -181,14 +192,14 @@ def delete(cit_categoria_id):
 @cit_categorias.route("/cit_categorias/recuperar/<cit_categoria_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cit_categoria_id):
-    """Recuperar Cit Categoria"""
+    """Recuperar Cit Categoría"""
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
     if cit_categoria.estatus == "B":
         cit_categoria.recover()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Recuperado Categoria {cit_categoria.nombre}"),
+            descripcion=safe_message(f"Recuperado Categoria {cit_categoria.clave}"),
             url=url_for("cit_categorias.detail", cit_categoria_id=cit_categoria.id),
         )
         bitacora.save()

@@ -20,11 +20,6 @@
 
 {% block content %}
     {% call detail.card(estatus=domicilio.estatus) %}
-        {% if current_user.can_view("DISTRITOS") %}
-            {{ detail.label_value('Distrito', domicilio.distrito.nombre_corto, url_for('distritos.detail', distrito_id=domicilio.distrito_id)) }}
-        {% else %}
-            {{ detail.label_value('Distrito', domicilio.distrito.nombre_corto) }}
-        {% endif %}
         {{ detail.label_value('Edificio', domicilio.edificio) }}
         {{ detail.label_value('Calle', domicilio.calle) }}
         {{ detail.label_value('No. Exterior', domicilio.num_ext) }}
@@ -65,7 +60,6 @@
                     <tr>
                         <th>Clave</th>
                         <th>Descripción corta</th>
-                        <th>Distrito</th>
                         <th><span title="Es Jurisdiccional">Es J.</span></th>
                     </tr>
                 </thead>
@@ -95,7 +89,6 @@
             configDTOficinas['columns'] = [
                 { data: "detalle" },
                 { data: "descripcion_corta" },
-                { data: "distrito_clave" },
                 { data: "es_jurisdiccional" }
             ];
             configDTOficinas['columnDefs'] = [
@@ -114,7 +107,7 @@
                     }
                 },
                 {
-                    targets: 3, // es_jurisdiccional
+                    targets: 2, // es_jurisdiccional
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data) {

@@ -6,8 +6,9 @@ from datetime import time
 
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, SelectField, StringField, SubmitField, TimeField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length, Optional, Regexp
 
+from ...lib.safe_string import CLAVE_REGEXP
 from ..cit_categorias.models import CitCategoria
 
 
@@ -15,8 +16,8 @@ class CitServicioForm(FlaskForm):
     """Formulario Cit Servicio"""
 
     cit_categoria = SelectField("Categoría", coerce=int, validators=[DataRequired()])
-    clave = StringField("Clave", validators=[DataRequired(), Length(max=32)])
-    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=64)])
+    clave = StringField("Clave", validators=[DataRequired(), Regexp(CLAVE_REGEXP), Length(max=16)])
+    descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     duracion = TimeField("Duración (horas:minutos)", validators=[DataRequired()], format="%H:%M", default=time(0, 30))
     documentos_limite = IntegerField("Cantidad límite de documentos (0 es ilimitado)", validators=[Optional()], default=0)
     desde = TimeField("Horario de comienzo (horas:minutos)", validators=[Optional()])
