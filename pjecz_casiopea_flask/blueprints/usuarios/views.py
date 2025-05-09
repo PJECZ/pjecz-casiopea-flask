@@ -22,7 +22,8 @@ from ..usuarios.forms import AccesoForm, UsuarioForm
 from ..usuarios.models import Usuario
 from ...config.firebase import get_firebase_settings
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.pwgen import generar_api_key, generar_contrasena
+from ...lib.cryptography_api_key import generate_api_key
+from ...lib.pwgen import generar_contrasena
 from ...lib.safe_next_url import safe_next_url
 from ...lib.safe_string import (
     CONTRASENA_REGEXP,
@@ -237,7 +238,7 @@ def request_api_key_json(usuario_id):
             days = int(request.form["days"])
         else:
             days = 90
-        usuario.api_key = generar_api_key(usuario.id, usuario.email)
+        usuario.api_key = generate_api_key(usuario.email)
         usuario.api_key_expiracion = datetime.now() + timedelta(days=days)
         usuario.save()
         mensaje = f"Nueva API Key para {usuario.email} con expiración en {days} días"

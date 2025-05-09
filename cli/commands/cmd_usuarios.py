@@ -13,7 +13,7 @@ import click
 
 from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
 from pjecz_casiopea_flask.config.extensions import database, pwd_context
-from pjecz_casiopea_flask.lib.pwgen import generar_api_key
+from pjecz_casiopea_flask.lib.cryptography_api_key import convert_string_to_fernet_key, decode_api_key, generate_api_key
 from pjecz_casiopea_flask.main import app
 
 app.app_context().push()
@@ -23,6 +23,21 @@ database.app = app
 @click.group()
 def cli():
     """Usuarios"""
+
+
+@click.command()
+@click.argument("api_key", type=str)
+def decodificar_api_key(api_key):
+    """Decodificar API Key"""
+    click.echo(decode_api_key(api_key))
+
+
+@click.command()
+@click.argument("texto", type=str)
+def generar_fernet_key(texto):
+    """Generar FERNET_KEY"""
+    click.echo("Agregue FERNET_KEY al archivo .env con este valor")
+    click.echo(convert_string_to_fernet_key(texto))
 
 
 @click.command()
@@ -47,7 +62,7 @@ def nueva_api_key(email, dias):
     if usuario is None:
         click.echo(f"No existe el e-mail {email} en usuarios")
         return
-    api_key = generar_api_key(usuario.id, usuario.email)
+    api_key = generate_api_key(usuario.email)
     api_key_expiracion = datetime.now() + timedelta(days=dias)
     usuario.api_key = api_key
     usuario.api_key_expiracion = api_key_expiracion
@@ -76,6 +91,8 @@ def nueva_contrasena(email):
     click.echo(f"Se ha cambiado la contraseña de {email} en usuarios")
 
 
+cli.add_command(decodificar_api_key)
+cli.add_command(generar_fernet_key)
 cli.add_command(mostrar_api_key)
 cli.add_command(nueva_api_key)
 cli.add_command(nueva_contrasena)
