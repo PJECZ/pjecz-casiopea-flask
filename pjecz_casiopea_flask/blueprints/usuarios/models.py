@@ -32,7 +32,7 @@ class Usuario(database.Model, UserMixin, UniversalMixin):
     autoridad: Mapped["Autoridad"] = relationship(back_populates="usuarios")
 
     # Columnas
-    email: Mapped[str] = mapped_column(String(256), unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(256), unique=True)
     nombres: Mapped[str] = mapped_column(String(256))
     apellido_paterno: Mapped[str] = mapped_column(String(256))
     apellido_materno: Mapped[str] = mapped_column(String(256))
