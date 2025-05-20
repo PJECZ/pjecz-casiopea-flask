@@ -52,6 +52,16 @@ class Autoridad(database.Model, UniversalMixin):
         """Nombre corto del distrito"""
         return self.distrito.nombre_corto
 
+    @property
+    def materia_clave(self):
+        """Clave de la materia"""
+        return self.materia.clave
+
+    @property
+    def materia_nombre(self):
+        """Nombre de la materia"""
+        return self.materia.nombre
+
     def __repr__(self):
         """Representación"""
         return f"<Autoridad {self.clave}>"

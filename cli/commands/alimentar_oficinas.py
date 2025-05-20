@@ -31,21 +31,21 @@ def alimentar_oficinas():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            edificio = safe_string(row["edificio"], save_enie=True)
-            clave = safe_clave(row["clave"])
-            descripcion = safe_string(row["descripcion"], save_enie=True)
-            descripcion_corta = safe_string(row["descripcion_corta"], save_enie=True)
-            es_jurisdiccional = row["es_jurisdiccional"] == "1"
-            puede_agendar_citas = row["puede_agendar_citas"] == "1"
-            apertura = datetime.strptime(row["apertura"], "%H:%M").time()
-            cierre = datetime.strptime(row["cierre"], "%H:%M").time()
-            limite_personas = int(row["limite_personas"])
-            puede_enviar_qr = row["puede_enviar_qr"] == "1"
-            estatus = row["estatus"]
+            edificio_clave = safe_string(row.get("edificio_clave"), save_enie=True)
+            clave = safe_clave(row.get("clave"))
+            descripcion = safe_string(row.get("descripcion"), save_enie=True)
+            descripcion_corta = safe_string(row.get("descripcion_corta"), save_enie=True)
+            es_jurisdiccional = row.get("es_jurisdiccional") == "1"
+            puede_agendar_citas = row.get("puede_agendar_citas") == "1"
+            apertura = datetime.strptime(row.get("apertura"), "%H:%M").time()
+            cierre = datetime.strptime(row.get("cierre"), "%H:%M").time()
+            limite_personas = int(row.get("limite_personas"))
+            puede_enviar_qr = row.get("puede_enviar_qr") == "1"
+            estatus = row.get("estatus")
             try:
-                domicilio = Domicilio.query.filter(Domicilio.edificio == edificio).one()
+                domicilio = Domicilio.query.filter(Domicilio.clave == edificio_clave).one()
             except (MultipleResultsFound, NoResultFound):
-                click.echo(f"AVISO: Edificio {edificio} no existe.")
+                click.echo(f"AVISO: Edificio {edificio_clave} no existe.")
                 sys.exit(1)
             Oficina(
                 domicilio=domicilio,

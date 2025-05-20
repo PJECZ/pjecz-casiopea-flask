@@ -31,7 +31,7 @@ class Tarea(database.Model, UniversalMixin):
 
     # Columnas
     archivo: Mapped[str] = mapped_column(String(256), default="")
-    comando: Mapped[str] = mapped_column(String(256), index=True)
+    comando: Mapped[str] = mapped_column(String(256))
     ha_terminado: Mapped[bool] = mapped_column(default=False)
     mensaje: Mapped[str] = mapped_column(String(1024), default="")
     url: Mapped[str] = mapped_column(String(512), default="")

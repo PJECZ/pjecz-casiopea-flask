@@ -38,6 +38,7 @@ def get_secret(secret_id: str) -> str:
 class Settings(BaseSettings):
     """Settings"""
 
+    FERNET_KEY: str = get_secret("host")
     HOST: str = get_secret("host")
     REDIS_URL: str = get_secret("redis_url")
     SALT: str = get_secret("salt")

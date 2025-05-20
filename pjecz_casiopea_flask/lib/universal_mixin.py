@@ -4,16 +4,11 @@ Universal Mixin
 
 from datetime import datetime
 
-from hashids import Hashids
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.functions import now
 from sqlalchemy.types import CHAR
 
-from ..config.settings import get_settings
 from ..config.extensions import database
-
-settings = get_settings()
-hashids = Hashids(salt=settings.SALT, min_length=8)
 
 
 class UniversalMixin:
@@ -43,12 +38,3 @@ class UniversalMixin:
         database.session.add(self)
         database.session.commit()
         return self
-
-    def encode_id(self) -> str:
-        """Encode id"""
-        return hashids.encode(self.id)
-
-    @classmethod
-    def decode_id(cls, id_encoded: str) -> int:
-        """Decode id"""
-        return hashids.decode(id_encoded)[0]

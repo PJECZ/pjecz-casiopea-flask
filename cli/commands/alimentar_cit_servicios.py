@@ -31,8 +31,8 @@ def alimentar_cit_servicios():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            cit_categoria_clave = safe_clave(row["cit_categoria_clave"])
-            cit_categoria_nombre = safe_string(row["cit_categoria_nombre"], save_enie=True)
+            cit_categoria_clave = safe_clave(row.get("cit_categoria_clave"))
+            cit_categoria_nombre = safe_string(row.get("cit_categoria_nombre"), save_enie=True)
             cit_categoria = None
             try:
                 cit_categoria = CitCategoria.query.filter(CitCategoria.clave == cit_categoria_clave).one()
@@ -42,14 +42,14 @@ def alimentar_cit_servicios():
                     nombre=cit_categoria_nombre,
                 )
                 cit_categoria.save()
-            clave = safe_clave(row["clave"])
-            descripcion = safe_string(row["descripcion"], save_enie=True)
-            duracion = datetime.strptime(row["duracion"], "%H:%M").time()
-            documentos_limite = int(row["documentos_limite"])
-            desde = datetime.strptime(row["desde"], "%H:%M").time()
-            hasta = datetime.strptime(row["hasta"], "%H:%M").time()
-            dias_habilitados = row["dias_habilitados"]
-            estatus = row["estatus"]
+            clave = safe_clave(row.get("clave"))
+            descripcion = safe_string(row.get("descripcion"), save_enie=True)
+            duracion = datetime.strptime(row.get("duracion"), "%H:%M").time()
+            documentos_limite = int(row.get("documentos_limite"))
+            desde = datetime.strptime(row.get("desde"), "%H:%M").time()
+            hasta = datetime.strptime(row.get("hasta"), "%H:%M").time()
+            dias_habilitados = row.get("dias_habilitados")
+            estatus = row.get("estatus")
             CitServicio(
                 cit_categoria_id=cit_categoria.id,
                 clave=clave,

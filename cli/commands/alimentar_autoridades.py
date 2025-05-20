@@ -30,13 +30,13 @@ def alimentar_autoridades():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            distrito_clave = safe_clave(row["distrito_clave"])
-            materia_clave = safe_clave(row["materia_clave"])
-            clave = safe_clave(row["clave"])
-            descripcion = safe_string(row["descripcion"], save_enie=True)
-            descripcion_corta = safe_string(row["descripcion_corta"], save_enie=True)
-            es_jurisdiccional = row["es_jurisdiccional"] == "1"
-            estatus = row["estatus"]
+            distrito_clave = safe_clave(row.get("distrito_clave"))
+            materia_clave = safe_clave(row.get("materia_clave"))
+            clave = safe_clave(row.get("clave"))
+            descripcion = safe_string(row.get("descripcion"), save_enie=True)
+            descripcion_corta = safe_string(row.get("descripcion_corta"), save_enie=True)
+            es_jurisdiccional = row.get("es_jurisdiccional") == "1"
+            estatus = row.get("estatus")
             distrito = Distrito.query.filter(Distrito.clave == distrito_clave).first()
             if distrito is None:
                 click.echo(click.style(f"  AVISO: distrito {distrito_clave} no existe", fg="red"))

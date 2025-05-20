@@ -28,16 +28,18 @@ def alimentar_domicilios():
     with (open(ruta, encoding="utf8") as puntero):
         rows = csv.DictReader(puntero)
         for row in rows:
-            edificio = safe_string(row["edificio"], save_enie=True)
-            estado = safe_string(row["estado"], save_enie=True)
-            municipio = safe_string(row["municipio"], save_enie=True)
-            calle = safe_string(row["calle"], save_enie=True)
-            num_ext = safe_string(row["num_ext"])
-            num_int = safe_string(row["num_int"])
-            colonia = safe_string(row["colonia"], save_enie=True)
-            cp = int(row["cp"])
-            estatus = row["estatus"]
+            clave = safe_clave(row.get("clave"))
+            edificio = safe_string(row.get("edificio"), save_enie=True)
+            estado = safe_string(row.get("estado"), save_enie=True)
+            municipio = safe_string(row.get("municipio"), save_enie=True)
+            calle = safe_string(row.get("calle"), save_enie=True)
+            num_ext = safe_string(row.get("num_ext"))
+            num_int = safe_string(row.get("num_int"))
+            colonia = safe_string(row.get("colonia"), save_enie=True)
+            cp = int(row.get("cp"))
+            estatus = row.get("estatus")
             domicilio = Domicilio(
+                clave=clave,
                 edificio=edificio,
                 estado=estado,
                 municipio=municipio,

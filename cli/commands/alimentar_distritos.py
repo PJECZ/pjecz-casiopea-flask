@@ -28,13 +28,13 @@ def alimentar_distritos():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            clave = safe_clave(row["clave"])
-            nombre = safe_string(row["nombre"], save_enie=True)
-            nombre_corto = safe_string(row["nombre_corto"], save_enie=True)
-            es_distrito_judicial = row["es_distrito_judicial"] == "1"
-            es_distrito = row["es_distrito_judicial"] == "1"
-            es_jurisdiccional = row["es_distrito_judicial"] == "1"
-            estatus = row["estatus"]
+            clave = safe_clave(row.get("clave"))
+            nombre = safe_string(row.get("nombre"), save_enie=True)
+            nombre_corto = safe_string(row.get("nombre_corto"), save_enie=True)
+            es_distrito_judicial = row.get("es_distrito_judicial") == "1"
+            es_distrito = row.get("es_distrito_judicial") == "1"
+            es_jurisdiccional = row.get("es_distrito_judicial") == "1"
+            estatus = row.get("estatus")
             Distrito(
                 clave=clave,
                 nombre=nombre,
