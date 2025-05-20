@@ -32,13 +32,13 @@ def alimentar_usuarios():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            autoridad_clave = safe_clave(row["autoridad_clave"])
-            email = safe_email(row["email"])
-            nombres = safe_string(row["nombres"], save_enie=True)
-            apellido_paterno = safe_string(row["apellido_paterno"], save_enie=True)
-            apellido_materno = safe_string(row["apellido_materno"], save_enie=True)
-            puesto = safe_string(row["puesto"], save_enie=True)
-            estatus = row["estatus"]
+            autoridad_clave = safe_clave(row.get("autoridad_clave"))
+            email = safe_email(row.get("email"))
+            nombres = safe_string(row.get("nombres"), save_enie=True)
+            apellido_paterno = safe_string(row.get("apellido_paterno"), save_enie=True)
+            apellido_materno = safe_string(row.get("apellido_materno"), save_enie=True)
+            puesto = safe_string(row.get("puesto"), save_enie=True)
+            estatus = row.get("estatus")
             autoridad = Autoridad.query.filter(Autoridad.clave == autoridad_clave).first()
             if autoridad is None:
                 click.echo(click.style(f"  AVISO: autoridad {autoridad_clave} no existe", fg="red"))

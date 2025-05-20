@@ -14,7 +14,7 @@ class CitOficinaServicioWithCitServicioForm(FlaskForm):
     """Formulario para nuevo Cit Oficina-Servicio con un CitServicio"""
 
     cit_servicio = StringField("Servicio")  # Read only
-    oficina = SelectField("Oficina", coerce=int, validators=[DataRequired()])
+    oficina = SelectField("Oficina", coerce=str, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
     def __init__(self):
@@ -29,7 +29,7 @@ class CitOficinaServicioWithCitServicioForm(FlaskForm):
 class CitOficinaServicioWithOficinaForm(FlaskForm):
     """Formulario para nuevo Cit Oficina-Servicio con una Oficina"""
 
-    cit_servicio = SelectField("Servicio", coerce=int, validators=[DataRequired()])
+    cit_servicio = SelectField("Servicio", coerce=str, validators=[DataRequired()])
     oficina = StringField("Oficina")  # Read only
     guardar = SubmitField("Guardar")
 

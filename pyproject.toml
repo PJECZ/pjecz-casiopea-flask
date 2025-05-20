@@ -58,6 +58,7 @@ pylint = "^3.3.6"
 pylint-sqlalchemy = "^0.3.0"
 pytest = "^8.3.5"
 requests = "^2.32.3"
+faker = "^37.1.0"
 
 [tool.poetry.scripts]
 cli = "cli.app:cli"

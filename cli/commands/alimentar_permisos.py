@@ -31,7 +31,7 @@ def alimentar_permisos():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            rol_nombre = safe_string(row["rol_nombre"], save_enie=True)
+            rol_nombre = safe_string(row.get("rol_nombre"), save_enie=True)
             estatus = row["estatus"]
             rol = Rol.query.filter(Rol.nombre == rol_nombre).first()
             if rol is None:
@@ -44,7 +44,7 @@ def alimentar_permisos():
                 if row[columna] == "":
                     continue
                 try:
-                    nivel = int(row[columna])
+                    nivel = int(row.get(columna))
                 except ValueError:
                     nivel = 0
                 if nivel < 0:

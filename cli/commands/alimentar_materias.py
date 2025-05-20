@@ -28,10 +28,10 @@ def alimentar_materias():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            clave = safe_clave(row["clave"])
-            nombre = safe_string(row["nombre"], save_enie=True)
-            descripcion = safe_string(row["descripcion"], save_enie=True)
-            estatus = row["estatus"]
+            clave = safe_clave(row.get("clave"))
+            nombre = safe_string(row.get("nombre"), save_enie=True)
+            descripcion = safe_string(row.get("descripcion"), save_enie=True)
+            estatus = row.get("estatus")
             Materia(
                 clave=clave,
                 nombre=nombre,

@@ -14,7 +14,7 @@ from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_message, safe_string
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "DOMICILIOS"
 
@@ -40,12 +40,17 @@ def datatable_json():
         consulta = consulta.filter(Domicilio.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(Domicilio.estatus == "A")
+    if "clave" in request.form:
+        try:
+            clave = safe_clave(request.form["clave"])
+            if clave != "":
+                consulta = consulta.filter(Domicilio.clave.contains(clave))
+        except ValueError:
+            pass
     if "edificio" in request.form:
-        consulta = consulta.filter(Domicilio.edificio.contains(safe_string(request.form["edificio"])))
-    if "calle" in request.form:
-        consulta = consulta.filter(Domicilio.calle.contains(safe_string(request.form["calle"])))
-    if "colonia" in request.form:
-        consulta = consulta.filter(Domicilio.colonia.contains(safe_string(request.form["colonia"])))
+        edificio = safe_string(request.form["edificio"], save_enie=True)
+        if edificio != "":
+            consulta = consulta.filter(Domicilio.edificio.contains(edificio))
     # Ordenar y paginar
     registros = consulta.order_by(Domicilio.edificio).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -55,9 +60,10 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "edificio": resultado.edificio,
+                    "clave": resultado.clave,
                     "url": url_for("domicilios.detail", domicilio_id=resultado.id),
                 },
+                "edificio": resultado.edificio,
                 "estado": resultado.estado,
                 "municipio": resultado.municipio,
                 "calle": resultado.calle,
@@ -107,6 +113,7 @@ def new():
     """Nuevo Domicilio"""
     form = DomicilioForm()
     if form.validate_on_submit():
+        clave = safe_clave(form.clave.data, max_len=32)
         edificio = safe_string(form.edificio.data, max_len=64, save_enie=True)
         estado = safe_string(form.estado.data, max_len=64, save_enie=True)
         municipio = safe_string(form.municipio.data, max_len=64, save_enie=True)
@@ -115,12 +122,17 @@ def new():
         num_int = safe_string(form.num_int.data, max_len=24, save_enie=True)
         colonia = safe_string(form.colonia.data, max_len=256, save_enie=True)
         cp = form.cp.data
+        # Validar que la clave no se repita
+        if Domicilio.query.filter_by(clave=clave).first():
+            flash("La clave ya está en uso. Debe de ser única.", "warning")
+            return render_template("domicilios/new.jinja2", form=form)
         # Validar que el edificio no se repita
         if Domicilio.query.filter_by(edificio=edificio).first():
             flash("Ese edificio ya está en uso. Debe de ser único.", "warning")
-            return render_template("autoridades/new.jinja2", form=form)
+            return render_template("domicilios/new.jinja2", form=form)
         # Guardar
         domicilio = Domicilio(
+            clave=clave,
             edificio=edificio,
             estado=estado,
             municipio=municipio,
@@ -152,6 +164,13 @@ def edit(domicilio_id):
     form = DomicilioForm()
     if form.validate_on_submit():
         es_valido = True
+        # Si cambia la clave verificar que no este en uso
+        clave = safe_clave(form.clave.data, max_len=32)
+        if domicilio.clave != clave:
+            domicilio_existente = Domicilio.query.filter_by(clave=clave).first()
+            if domicilio_existente and domicilio_existente.id != domicilio_id:
+                es_valido = False
+                flash("La clave ya está en uso. Debe de ser única.", "warning")
         # Si cambia el edificio verificar que no este en uso
         edificio = safe_string(form.edificio.data, max_len=64, save_enie=True)
         if domicilio.edificio != edificio:
@@ -161,6 +180,7 @@ def edit(domicilio_id):
                 flash("El edificio ya está en uso. Debe de ser único.", "warning")
         # Si es valido actualizar
         if es_valido:
+            domicilio.clave = clave
             domicilio.edificio = safe_string(form.edificio.data, max_len=64, save_enie=True)
             domicilio.estado = safe_string(form.estado.data, max_len=64, save_enie=True)
             domicilio.municipio = safe_string(form.municipio.data, max_len=64, save_enie=True)
@@ -180,6 +200,7 @@ def edit(domicilio_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
+    form.clave.data = domicilio.clave
     form.edificio.data = domicilio.edificio
     form.estado.data = domicilio.estado
     form.municipio.data = domicilio.municipio

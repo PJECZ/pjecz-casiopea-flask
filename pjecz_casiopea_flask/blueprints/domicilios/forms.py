@@ -3,15 +3,16 @@ Domicilios, formularios
 """
 
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, SelectField, StringField, SubmitField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms import IntegerField, StringField, SubmitField
+from wtforms.validators import DataRequired, Length, Optional, Regexp
 
-from ..distritos.models import Distrito
+from ...lib.safe_string import CLAVE_REGEXP
 
 
 class DomicilioForm(FlaskForm):
     """Formulario Domicilio"""
 
+    clave = StringField("Clave", validators=[DataRequired(), Regexp(CLAVE_REGEXP), Length(max=16)])
     edificio = StringField("Edificio", validators=[DataRequired(), Length(max=64)])
     estado = StringField("Estado", validators=[DataRequired(), Length(max=64)])
     municipio = StringField("Municipio", validators=[DataRequired(), Length(max=64)])
@@ -21,10 +22,3 @@ class DomicilioForm(FlaskForm):
     colonia = StringField("Colonia", validators=[Optional(), Length(max=256)])
     cp = IntegerField("CP", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
-
-    def __init__(self, *args, **kwargs):
-        """Inicializar y cargar opciones en distrito"""
-        super().__init__(*args, **kwargs)
-        self.distrito.choices = [
-            (d.id, d.nombre_corto) for d in Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre_corto).all()
-        ]

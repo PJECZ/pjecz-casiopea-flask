@@ -1,5 +1,7 @@
 """
 CLI Base de Datos
+
+- cambiar_contrasena: Cambiar contraseña de un cliente
 """
 
 import os
@@ -9,6 +11,8 @@ import click
 from dotenv import load_dotenv
 
 from cli.commands.alimentar_autoridades import alimentar_autoridades
+from cli.commands.alimentar_cit_dias_inhabiles import alimentar_cit_dias_inhabiles
+from cli.commands.alimentar_cit_oficinas_servicios import alimentar_cit_oficinas_servicios
 from cli.commands.alimentar_cit_servicios import alimentar_cit_servicios
 from cli.commands.alimentar_distritos import alimentar_distritos
 from cli.commands.alimentar_domicilios import alimentar_domicilios
@@ -62,6 +66,8 @@ def alimentar():
     alimentar_domicilios()
     alimentar_oficinas()
     alimentar_cit_servicios()
+    alimentar_cit_oficinas_servicios()
+    alimentar_cit_dias_inhabiles()
     click.echo("Termina alimentar.")
 
 

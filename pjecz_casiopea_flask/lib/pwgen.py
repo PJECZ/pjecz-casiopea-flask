@@ -3,7 +3,10 @@ Generadores de contraseñas
 """
 
 import random
+import re
 import string
+
+PASSWORD_REGEXP = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,24}$"
 
 
 def generar_contrasena(largo=16):
@@ -11,7 +14,9 @@ def generar_contrasena(largo=16):
     minusculas = string.ascii_lowercase
     mayusculas = string.ascii_uppercase
     digitos = string.digits
-    simbolos = string.punctuation
-    todos = minusculas + mayusculas + digitos + simbolos
-    temp = random.sample(todos, largo)
-    return "".join(temp)
+    todos = minusculas + mayusculas + digitos
+    contrasena = ""
+    while re.match(PASSWORD_REGEXP, contrasena) is None:
+        temp = random.sample(todos, largo)
+        contrasena = "".join(temp)
+    return contrasena

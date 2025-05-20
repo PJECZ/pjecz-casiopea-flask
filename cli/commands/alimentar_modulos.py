@@ -28,12 +28,12 @@ def alimentar_modulos():
     with open(ruta_csv, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            nombre = safe_string(row["nombre"], save_enie=True)
-            nombre_corto = safe_string(row["nombre_corto"], do_unidecode=False, save_enie=True, to_uppercase=False)
-            icono = row["icono"]
-            ruta = row["ruta"]
-            en_navegacion = row["en_navegacion"] == "1"
-            estatus = row["estatus"]
+            nombre = safe_string(row.get("nombre"), save_enie=True)
+            nombre_corto = safe_string(row.get("nombre_corto"), do_unidecode=False, save_enie=True, to_uppercase=False)
+            icono = row.get("icono")
+            ruta = row.get("ruta")
+            en_navegacion = row.get("en_navegacion") == "1"
+            estatus = row.get("estatus")
             Modulo(
                 nombre=nombre,
                 nombre_corto=nombre_corto,

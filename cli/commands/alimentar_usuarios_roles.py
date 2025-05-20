@@ -30,12 +30,12 @@ def alimentar_usuarios_roles():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            email = safe_email(row["email"])
+            email = safe_email(row.get("email"))
             usuario = Usuario.query.filter(Usuario.email == email).first()
             if usuario is None:
                 click.echo(click.style(f"  AVISO: usuario {email} no existe", fg="red"))
                 sys.exit(1)
-            for rol_nombre in row["roles"].split(","):
+            for rol_nombre in row.get("roles").split(","):
                 nombre = safe_string(rol_nombre)
                 rol = Rol.query.filter(Rol.nombre == nombre).first()
                 if rol is None:

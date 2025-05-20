@@ -28,8 +28,8 @@ def alimentar_roles():
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
-            nombre = safe_string(row["rol_nombre"], save_enie=True)
-            estatus = row["estatus"]
+            nombre = safe_string(row.get("rol_nombre"), save_enie=True)
+            estatus = row.get("estatus")
             Rol(
                 nombre=nombre,
                 estatus=estatus,

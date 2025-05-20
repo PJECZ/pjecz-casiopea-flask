@@ -25,7 +25,13 @@
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosDomicilios.buscar(); return false;">
-                    <div class="col-6">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
+                            <label for="filtroClave">Clave</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
                         <div class="form-floating">
                             <input id="filtroEdificio" type="text" class="form-control" aria-label="Edificio" style="text-transform: uppercase;">
                             <label for="filtroEdificio">Edificio</label>
@@ -42,6 +48,7 @@
         <table id="domicilios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Clave</th>
                     <th>Edificio</th>
                     <th>Estado</th>
                     <th>Municipio</th>
@@ -67,6 +74,7 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: "detalle" },
+            { data: "edificio" },
             { data: "estado" },
             { data: "municipio" },
             { data: "calle" },
@@ -80,18 +88,18 @@
                 targets: 0, //detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.edificio + '</a>';
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
                 }
             },
             {
-                targets: [1, 2], // estado, municipio
+                targets: [2, 3], // estado, municipio
                 data: null,
                 render: function(data, type, row, meta) {
                     return data.length > 8 ? data.substring(0, 8) + '…' : data;
                 }
             },
             {
-                targets: [3, 6], // calle, colonia
+                targets: [4, 7], // calle, colonia
                 data: null,
                 render: function(data, type, row, meta) {
                     return data.length > 16 ? data.substring(0, 16) + '…' : data;
