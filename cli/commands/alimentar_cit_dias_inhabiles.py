@@ -41,7 +41,7 @@ def alimentar_cit_dias_inhabiles():
                 fecha=fecha,
                 descripcion=descripcion,
                 estatus=estatus,
-            )
+            ).save()
             contador += 1
             click.echo(click.style(".", fg="green"), nl=False)
     click.echo()
