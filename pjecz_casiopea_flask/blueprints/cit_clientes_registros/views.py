@@ -52,7 +52,7 @@ def datatable_json():
         if apellido_primero != "":
             consulta = consulta.filter(CitClienteRegistro.apellido_primero.contains(apellido_primero))
     # Ordenar y paginar
-    registros = consulta.order_by(CitClienteRegistro.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(CitClienteRegistro.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []

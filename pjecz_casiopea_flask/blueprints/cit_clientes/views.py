@@ -133,7 +133,7 @@ def new():
         # Validar que el email no se repita
         if CitCliente.query.filter_by(email=email).first():
             flash("El email ya está en uso. Debe ser único.", "warning")
-        es_valido = False
+            es_valido = False
         # Si es válido, guardar
         if es_valido:
             cit_cliente = CitCliente(
@@ -152,7 +152,7 @@ def new():
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Nuevo Cliente {cit_cliente.nombre}"),
+                descripcion=safe_message(f"Nuevo Cliente {cit_cliente.email}"),
                 url=url_for("cit_clientes.detail", cit_cliente_id=cit_cliente.id),
             )
             bitacora.save()
@@ -208,7 +208,7 @@ def edit(cit_cliente_id):
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Editado Cliente {cit_cliente.nombre}"),
+                descripcion=safe_message(f"Editado Cliente {cit_cliente.email}"),
                 url=url_for("cit_clientes.detail", cit_cliente_id=cit_cliente.id),
             )
             bitacora.save()
@@ -236,7 +236,7 @@ def delete(cit_cliente_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado Cliente {cit_cliente.clave}"),
+            descripcion=safe_message(f"Eliminado Cliente {cit_cliente.email}"),
             url=url_for("cit_clientes.detail", cit_cliente_id=cit_cliente.id),
         )
         bitacora.save()
@@ -254,7 +254,7 @@ def recover(cit_cliente_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Recuperado Cliente {cit_cliente.clave}"),
+            descripcion=safe_message(f"Recuperado Cliente {cit_cliente.email}"),
             url=url_for("cit_clientes.detail", cit_cliente_id=cit_cliente.id),
         )
         bitacora.save()
