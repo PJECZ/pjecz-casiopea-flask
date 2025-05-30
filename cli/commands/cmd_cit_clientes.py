@@ -20,6 +20,9 @@ from pjecz_casiopea_flask.lib.pwgen import generar_contrasena
 from pjecz_casiopea_flask.lib.safe_string import safe_email, safe_string
 from pjecz_casiopea_flask.main import app
 
+LIMITE_CITAS_PENDIENTES = 3
+RENOVACION_DIAS = 365
+
 app.app_context().push()
 database.app = app
 
@@ -48,8 +51,8 @@ def agregar_falsos(cantidad):
             email=faker.safe_email(),
             contrasena_md5="",
             contrasena_sha256=pwd_context.hash(contrasena),
-            renovacion=datetime.now() + timedelta(days=60),
-            limite_citas_pendientes=5,
+            renovacion=datetime.now() + timedelta(days=RENOVACION_DIAS),
+            limite_citas_pendientes=LIMITE_CITAS_PENDIENTES,
         )
         cit_cliente.save()
         click.echo(f"+ {cit_cliente.email}: {contrasena}")
@@ -76,7 +79,7 @@ def cambiar_contrasena(email):
     contrasena = generar_contrasena()
     cit_cliente.contrasena_md5 = ""
     cit_cliente.contrasena_sha256 = pwd_context.hash(contrasena)
-    cit_cliente.renovacion = datetime.now() + timedelta(days=60)
+    cit_cliente.renovacion = datetime.now() + timedelta(days=RENOVACION_DIAS)
     cit_cliente.save()
     # Mostrar
     click.echo(f"Se ha cambiado la contraseña de {email} a {contrasena}")

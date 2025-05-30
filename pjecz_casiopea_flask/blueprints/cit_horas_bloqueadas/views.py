@@ -50,7 +50,7 @@ def datatable_json():
         if descripcion != "":
             consulta = consulta.filter(CitHoraBloqueada.descripcion.contains(descripcion))
     # Ordenar y paginar
-    registros = consulta.order_by(CitHoraBloqueada.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(CitHoraBloqueada.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
@@ -93,7 +93,7 @@ def admin_datatable_json():
         if descripcion != "":
             consulta = consulta.filter(CitHoraBloqueada.descripcion.contains(descripcion))
     # Ordenar y paginar
-    registros = consulta.order_by(CitHoraBloqueada.id.desc()).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(CitHoraBloqueada.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
