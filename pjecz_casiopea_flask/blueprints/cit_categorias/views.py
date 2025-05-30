@@ -7,9 +7,9 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from .forms import CitCategoriaForm
+from .models import CitCategoria
 from ..bitacoras.models import Bitacora
-from ..cit_categorias.forms import CitCategoriaForm
-from ..cit_categorias.models import CitCategoria
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
@@ -181,7 +181,7 @@ def delete(cit_categoria_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Eliminado Categoria {cit_categoria.clave}"),
+            descripcion=safe_message(f"Eliminada Categoría {cit_categoria.clave}"),
             url=url_for("cit_categorias.detail", cit_categoria_id=cit_categoria.id),
         )
         bitacora.save()
@@ -199,7 +199,7 @@ def recover(cit_categoria_id):
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
-            descripcion=safe_message(f"Recuperado Categoria {cit_categoria.clave}"),
+            descripcion=safe_message(f"Recuperada Categoría {cit_categoria.clave}"),
             url=url_for("cit_categorias.detail", cit_categoria_id=cit_categoria.id),
         )
         bitacora.save()

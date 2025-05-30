@@ -8,13 +8,13 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Cliente ' + cit_cliente.email) %}
         {{ topbar.button_previous('Clientes', url_for('cit_clientes.list_active')) }}
-        {# if current_user.can_edit('CIT CLIENTES') %}
+        {% if current_user.can_edit('CIT CLIENTES') %}
             {{ topbar.button_edit('Editar', url_for('cit_clientes.edit', cit_cliente_id=cit_cliente.id)) }}
-        {% endif #}
-        {# if current_user.can_admin('CIT CLIENTES') %}
+        {% endif %}
+        {% if current_user.can_admin('CIT CLIENTES') %}
             {% if cit_cliente.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cit_clientes.delete', cit_cliente_id=cit_cliente.id)) }}{% endif %}
             {% if cit_cliente.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cit_clientes.recover', cit_cliente_id=cit_cliente.id)) }}{% endif %}
-        {% endif #}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -55,10 +55,10 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {# if current_user.can_admin('CIT CLIENTES') %}
+    {% if current_user.can_admin('CIT CLIENTES') %}
         {% if cit_cliente.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cit_cliente.email + '?') }}{% endif %}
         {% if cit_cliente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cit_cliente.email + '?') }}{% endif %}
-    {% endif #}
+    {% endif %}
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>

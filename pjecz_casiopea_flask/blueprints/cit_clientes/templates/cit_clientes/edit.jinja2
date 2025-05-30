@@ -1,0 +1,26 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Cliente {{ cit_cliente.email }}{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar Cliente ' + cit_cliente.email) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'cit_cliente_id': cit_cliente.id} %}
+        {% call f.form_tag('cit_clientes.edit', fid='cit_cliente_form', **form_kwargs) %}
+            {% call f.form_group(form.nombres) %}{% endcall %}
+            {% call f.form_group(form.apellido_primero) %}{% endcall %}
+            {% call f.form_group(form.apellido_segundo) %}{% endcall %}
+            {% call f.form_group(form.curp) %}{% endcall %}
+            {% call f.form_group(form.telefono) %}{% endcall %}
+            {% call f.form_group(form.email) %}{% endcall %}
+            {% call f.form_group(form.contrasena) %}{% endcall %}
+            {% call f.form_group(form.limite_citas_pendientes) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

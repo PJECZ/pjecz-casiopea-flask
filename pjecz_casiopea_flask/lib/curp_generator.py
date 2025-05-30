@@ -21,8 +21,11 @@ def generar_nacimiento_falso() -> date:
 def generar_curp_falso(nombres: str, primer_apellido: str, segundo_apellido: str, nacimiento: date) -> str:
     """Generar un CURP falso"""
     listado = []
-    listado.append(primer_apellido[0:1])
-    listado.append(segundo_apellido[0])
+    listado.append(primer_apellido[0:2])
+    if segundo_apellido == "":
+        listado.append("X")
+    else:
+        listado.append(segundo_apellido[0])
     listado.append(nombres[0])
     listado.append(str(nacimiento.year)[2:4])
     listado.append(str(nacimiento.month).zfill(2))
