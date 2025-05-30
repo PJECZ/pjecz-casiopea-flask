@@ -124,7 +124,7 @@ def new():
         curp = form.curp.data  # Validado en el formulario
         telefono = form.telefono.data  # Validado en el formulario
         email = safe_email(form.email.data)
-        contrasena = safe_string(form.contrasena.data)
+        contrasena = safe_string(form.contrasena.data, to_uppercase=False)
         limite_citas_pendientes = form.limite_citas_pendientes.data
         # Validar que el CURP no se repita
         if CitCliente.query.filter_by(curp=curp).first():
@@ -177,7 +177,7 @@ def edit(cit_cliente_id):
         curp = form.curp.data  # Validado en el formulario
         telefono = form.telefono.data  # Validado en el formulario
         email = safe_email(form.email.data)
-        contrasena = safe_string(form.contrasena.data)
+        contrasena = safe_string(form.contrasena.data, to_uppercase=False)
         limite_citas_pendientes = form.limite_citas_pendientes.data
         # Si cambia el CURP verificar que no esté en uso
         if cit_cliente.curp != curp:

@@ -32,7 +32,7 @@
         </div>
         <div class="col-lg-4 col-md-12">
             {% call detail.card(title='Oficina', estatus=cit_cita.estatus) %}
-                {{ detail.label_value('Distrito', cit_cita.oficina.distrito.nombre) }}
+                {{ detail.label_value('Edificio', cit_cita.oficina.domicilio.edificio) }}
                 {% if current_user.can_view('OFICINAS') %}
                     {{ detail.label_value('Clave', cit_cita.oficina.clave, url_for('oficinas.detail', oficina_id=cit_cita.oficina_id)) }}
                 {% else %}
