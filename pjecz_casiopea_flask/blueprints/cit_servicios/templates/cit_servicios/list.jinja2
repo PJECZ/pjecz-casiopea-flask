@@ -55,6 +55,7 @@
                     <th>Hasta</th>
                     <th>Dias Hab.</th>
                     <th>Categoría</th>
+                    <th>Activo</th>
                 </tr>
             </thead>
         </table>
@@ -77,7 +78,8 @@
             { data: 'desde' },
             { data: 'hasta' },
             { data: 'dias_habilitados' },
-            { data: 'cit_categoria' }
+            { data: 'cit_categoria' },
+            { data: 'es_activo' }
         ];
         configDTCitServicios['columnDefs'] = [
             {
@@ -95,6 +97,16 @@
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                     return data.clave;
+                }
+            },
+            {
+                targets: 7, // es_activo
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                 }
             }
         ];

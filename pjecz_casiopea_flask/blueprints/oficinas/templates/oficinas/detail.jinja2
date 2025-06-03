@@ -22,14 +22,14 @@
     {% call detail.card(estatus=oficina.estatus) %}
         <div class="row">
             <div class="col-md-6">
-                {{ detail.label_value_big('Clave', oficina.clave) }}
-                {{ detail.label_value('Descripción', oficina.descripcion) }}
-                {{ detail.label_value('Desc. Corta', oficina.descripcion_corta) }}
                 {% if current_user.can_view('DOMICILIOS') %}
                     {{ detail.label_value('Edificio', oficina.domicilio.edificio, url_for('domicilios.detail', domicilio_id=oficina.domicilio_id)) }}
                 {% else %}
                     {{ detail.label_value('Edificio', oficina.domicilio.edificio) }}
                 {% endif %}
+                {{ detail.label_value_big('Clave', oficina.clave) }}
+                {{ detail.label_value('Descripción', oficina.descripcion) }}
+                {{ detail.label_value('Desc. Corta', oficina.descripcion_corta) }}
             </div>
             <div class="col-md-6">
                 {{ detail.label_value('Horario', oficina.apertura.strftime("%H:%M") + ' — ' + oficina.cierre.strftime("%H:%M")) }}

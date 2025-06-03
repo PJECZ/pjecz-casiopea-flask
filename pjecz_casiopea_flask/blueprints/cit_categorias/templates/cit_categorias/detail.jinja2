@@ -23,6 +23,7 @@
         {% call detail.card(estatus=cit_categoria.estatus) %}
             {{ detail.label_value_big('Clave', cit_categoria.clave) }}
             {{ detail.label_value('Nombre', cit_categoria.nombre) }}
+            {{ detail.label_value_boolean('Activo', cit_categoria.es_activo) }}
         {% endcall %}
     {% endif %}
     {% if current_user.can_view('CIT SERVICIOS') and cit_categoria.estatus == 'A' %}
