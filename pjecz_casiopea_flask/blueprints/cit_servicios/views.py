@@ -85,6 +85,7 @@ def datatable_json():
                 "desde": "-" if resultado.desde is None else resultado.desde.strftime("%H:%M"),
                 "hasta": "-" if resultado.hasta is None else resultado.hasta.strftime("%H:%M"),
                 "dias_habilitados": resultado.dias_habilitados,
+                "es_activo": resultado.es_activo,
             }
         )
     # Entregar JSON
@@ -127,7 +128,11 @@ def detail(cit_servicio_id):
     if dias_habilitados == "":
         dias_habilitados = "De lunes a viernes"
     # Entregar
-    return render_template("cit_servicios/detail.jinja2", cit_servicio=cit_servicio, dias_habilitados=dias_habilitados)
+    return render_template(
+        "cit_servicios/detail.jinja2",
+        cit_servicio=cit_servicio,
+        dias_habilitados=dias_habilitados,
+    )
 
 
 @cit_servicios.route("/cit_servicios/nuevo", methods=["GET", "POST"])
@@ -177,6 +182,7 @@ def new():
                 desde=desde,
                 hasta=hasta,
                 dias_habilitados=dias_habilitados,
+                es_activo=form.es_activo.data,
             )
             cit_servicio.save()
             bitacora = Bitacora(
@@ -245,6 +251,7 @@ def edit(cit_servicio_id):
             cit_servicio.desde = desde
             cit_servicio.hasta = hasta
             cit_servicio.dias_habilitados = dias_habilitados
+            cit_servicio.es_activo = form.es_activo.data
             cit_servicio.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -269,6 +276,7 @@ def edit(cit_servicio_id):
     form.desde.data = cit_servicio.desde
     form.hasta.data = cit_servicio.hasta
     form.dias_habilitados.data = dias_habilitados
+    form.es_activo.data = cit_servicio.es_activo
     # Entregar formulario
     return render_template("cit_servicios/edit.jinja2", form=form, cit_servicio=cit_servicio)
 

@@ -57,6 +57,7 @@
                     <th>No. Int.</th>
                     <th>Colonia</th>
                     <th>C.P.</th>
+                    <th>Activo</th>
                 </tr>
             </thead>
         </table>
@@ -81,7 +82,8 @@
             { data: "num_ext" },
             { data: "num_int" },
             { data: "colonia" },
-            { data: "cp" }
+            { data: "cp" },
+            { data: "es_activo" },
         ];
         configDataTable['columnDefs'] = [
             {
@@ -103,6 +105,16 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return data.length > 16 ? data.substring(0, 16) + '…' : data;
+                }
+            },
+            {
+                targets: 9, // es_activo
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                 }
             }
         ];

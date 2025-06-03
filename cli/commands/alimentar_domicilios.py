@@ -37,6 +37,7 @@ def alimentar_domicilios():
             num_int = safe_string(row.get("num_int"))
             colonia = safe_string(row.get("colonia"), save_enie=True)
             cp = int(row.get("cp"))
+            es_activo = row.get("es_activo") == "1"
             estatus = row.get("estatus")
             domicilio = Domicilio(
                 clave=clave,
@@ -48,7 +49,8 @@ def alimentar_domicilios():
                 num_int=num_int,
                 colonia=colonia,
                 cp=cp,
-                completo=f"",
+                es_activo=es_activo,
+                completo="",
                 estatus=estatus,
             )
             domicilio.completo = domicilio.elaborar_completo()

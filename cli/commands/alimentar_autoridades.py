@@ -35,6 +35,7 @@ def alimentar_autoridades():
             clave = safe_clave(row.get("clave"))
             descripcion = safe_string(row.get("descripcion"), save_enie=True)
             descripcion_corta = safe_string(row.get("descripcion_corta"), save_enie=True)
+            es_activo = row.get("es_activo") == "1"
             es_jurisdiccional = row.get("es_jurisdiccional") == "1"
             estatus = row.get("estatus")
             distrito = Distrito.query.filter(Distrito.clave == distrito_clave).first()
@@ -51,6 +52,7 @@ def alimentar_autoridades():
                 clave=clave,
                 descripcion=descripcion,
                 descripcion_corta=descripcion_corta,
+                es_activo=es_activo,
                 es_jurisdiccional=es_jurisdiccional,
                 estatus=estatus,
             ).save()

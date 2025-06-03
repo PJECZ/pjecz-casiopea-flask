@@ -57,6 +57,7 @@
                     <th>Clave</th>
                     <th>Descripción corta</th>
                     <th>Distrito</th>
+                    <th>Activo</th>
                 </tr>
             </thead>
         </table>
@@ -75,7 +76,8 @@
         configDTAutoridades['columns'] = [
             { data: "detalle" },
             { data: "descripcion_corta" },
-            { data: "distrito_clave" }
+            { data: "distrito_clave" },
+            { data: "es_activo" }
         ];
         configDTAutoridades['columnDefs'] = [
             {
@@ -83,6 +85,16 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            },
+            {
+                targets: 3, // es_activo
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                 }
             }
         ];

@@ -29,6 +29,7 @@
         {{ detail.label_value('Municipio', domicilio.municipio) }}
         {{ detail.label_value('Estado', domicilio.estado) }}
         {{ detail.label_value('C.P.', domicilio.cp) }}
+        {{ detail.label_value_boolean('Activo', domicilio.es_activo) }}
     {% endcall %}
     {% if current_user.can_view('OFICINAS') %}
         {% call detail.card('Oficinas') %}

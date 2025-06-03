@@ -51,11 +51,10 @@
                     <th>Clave</th>
                     <th>Descripción</th>
                     <th>Duración</th>
-                    <th>L. de D.</th>
-                    <th>Categoría</th>
                     <th>Desde</th>
                     <th>Hasta</th>
-                    <th>Dias Habilitados</th>
+                    <th>Dias Hab.</th>
+                    <th>Categoría</th>
                 </tr>
             </thead>
         </table>
@@ -75,11 +74,10 @@
             { data: 'detalle' },
             { data: 'descripcion' },
             { data: 'duracion' },
-            { data: 'documentos_limite' },
-            { data: 'cit_categoria' },
             { data: 'desde' },
             { data: 'hasta' },
-            { data: 'dias_habilitados' }
+            { data: 'dias_habilitados' },
+            { data: 'cit_categoria' }
         ];
         configDTCitServicios['columnDefs'] = [
             {
@@ -90,7 +88,7 @@
                 }
             },
             {
-                targets: 4, // cit_categoria
+                targets: 6, // cit_categoria
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url !== '') {

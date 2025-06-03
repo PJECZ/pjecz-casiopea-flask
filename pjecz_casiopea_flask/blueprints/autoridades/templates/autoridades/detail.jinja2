@@ -30,6 +30,7 @@
                 {% endif %}
                 {{ detail.label_value('Descripción', autoridad.descripcion) }}
                 {{ detail.label_value('Descripción corta', autoridad.descripcion_corta) }}
+                {{ detail.label_value_boolean('Activo', autoridad.es_activo) }}
             </div>
         </div>
     {% endcall %}

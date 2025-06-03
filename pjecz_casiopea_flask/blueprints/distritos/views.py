@@ -65,6 +65,7 @@ def datatable_json():
                 },
                 "nombre": resultado.nombre,
                 "nombre_corto": resultado.nombre_corto,
+                "es_activo": resultado.es_activo,
                 "es_distrito": resultado.es_distrito,
                 "es_jurisdiccional": resultado.es_jurisdiccional,
             }
@@ -126,6 +127,7 @@ def new():
                 clave=clave,
                 nombre=nombre,
                 nombre_corto=safe_string(form.nombre_corto.data, save_enie=True),
+                es_activo=form.es_activo.data,
                 es_distrito_judicial=form.es_distrito_judicial.data,
                 es_distrito=form.es_distrito.data,
                 es_jurisdiccional=form.es_jurisdiccional.data,
@@ -170,6 +172,7 @@ def edit(distrito_id):
             distrito.clave = clave
             distrito.nombre = nombre
             distrito.nombre_corto = safe_string(form.nombre_corto.data, save_enie=True)
+            distrito.es_activo = form.es_activo.data
             distrito.es_distrito_judicial = form.es_distrito_judicial.data
             distrito.es_distrito = form.es_distrito.data
             distrito.es_jurisdiccional = form.es_jurisdiccional.data
@@ -186,6 +189,7 @@ def edit(distrito_id):
     form.clave.data = distrito.clave
     form.nombre.data = distrito.nombre
     form.nombre_corto.data = distrito.nombre_corto
+    form.es_activo.data = distrito.es_activo
     form.es_distrito_judicial.data = distrito.es_distrito_judicial
     form.es_distrito.data = distrito.es_distrito
     form.es_jurisdiccional.data = distrito.es_jurisdiccional
