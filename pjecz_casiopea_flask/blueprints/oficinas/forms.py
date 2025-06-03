@@ -16,13 +16,14 @@ class OficinaForm(FlaskForm):
     clave = StringField("Clave", validators=[DataRequired(), Regexp(CLAVE_REGEXP), Length(max=16)])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     descripcion_corta = StringField("Descripción Corta", validators=[DataRequired(), Length(max=64)])
-    domicilio = SelectField("Domicilio", coerce=int, validators=[DataRequired()])
+    domicilio = SelectField("Domicilio", coerce=str, validators=[DataRequired()])
     apertura = TimeField("Horario de apertura", validators=[DataRequired()], format="%H:%M")
     cierre = TimeField("Horario de cierre", validators=[DataRequired()], format="%H:%M")
     limite_personas = IntegerField("Límite de personas", validators=[DataRequired()])
     es_jurisdiccional = BooleanField("Es Jurisdiccional", validators=[Optional()])
     puede_agendar_citas = BooleanField("Puede agendar citas", validators=[Optional()])
     puede_enviar_qr = BooleanField("Puede enviar códigos QR", validators=[Optional()])
+    es_activo = BooleanField("Activo", validators=[Optional()])
     guardar = SubmitField("Guardar")
 
     def __init__(self, *args, **kwargs):

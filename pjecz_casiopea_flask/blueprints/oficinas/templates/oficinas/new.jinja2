@@ -11,16 +11,17 @@
 {% block content %}
     {% call f.card() %}
         {% call f.form_tag('oficinas.new', fid='oficina_form') %}
+            {% call f.form_group(form.domicilio) %}{% endcall %}
             {% call f.form_group(form.clave) %}{% endcall %}
             {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.descripcion_corta) %}{% endcall %}
-            {% call f.form_group(form.domicilio) %}{% endcall %}
             {% call f.form_group(form.apertura) %}{% endcall %}
             {% call f.form_group(form.cierre) %}{% endcall %}
             {% call f.form_group(form.limite_personas) %}{% endcall %}
             {% call f.form_group(form.es_jurisdiccional) %}{% endcall %}
             {% call f.form_group(form.puede_agendar_citas) %}{% endcall %}
             {% call f.form_group(form.puede_enviar_qr) %}{% endcall %}
+            {% call f.form_group(form.es_activo) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

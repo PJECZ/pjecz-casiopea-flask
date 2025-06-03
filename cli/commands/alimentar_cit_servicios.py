@@ -33,13 +33,14 @@ def alimentar_cit_servicios():
         for row in rows:
             cit_categoria_clave = safe_clave(row.get("cit_categoria_clave"))
             cit_categoria_nombre = safe_string(row.get("cit_categoria_nombre"), save_enie=True)
-            cit_categoria = None
+            cit_categoria_es_activo = row.get("cit_categoria_es_activo") == "1"
             try:
                 cit_categoria = CitCategoria.query.filter(CitCategoria.clave == cit_categoria_clave).one()
             except (MultipleResultsFound, NoResultFound):
                 cit_categoria = CitCategoria(
                     clave=cit_categoria_clave,
                     nombre=cit_categoria_nombre,
+                    es_activo=cit_categoria_es_activo,
                 )
                 cit_categoria.save()
             clave = safe_clave(row.get("clave"))
@@ -49,6 +50,7 @@ def alimentar_cit_servicios():
             desde = datetime.strptime(row.get("desde"), "%H:%M").time()
             hasta = datetime.strptime(row.get("hasta"), "%H:%M").time()
             dias_habilitados = row.get("dias_habilitados")
+            es_activo = row.get("es_activo") == "1"
             estatus = row.get("estatus")
             CitServicio(
                 cit_categoria_id=cit_categoria.id,
@@ -59,6 +61,7 @@ def alimentar_cit_servicios():
                 desde=desde,
                 hasta=hasta,
                 dias_habilitados=dias_habilitados,
+                es_activo=es_activo,
                 estatus=estatus,
             ).save()
             contador += 1

@@ -51,11 +51,11 @@
                     <th>Clave</th>
                     <th>Descripción</th>
                     <th>Duración</th>
-                    <th>L. de D.</th>
-                    <th>Categoría</th>
                     <th>Desde</th>
                     <th>Hasta</th>
-                    <th>Dias Habilitados</th>
+                    <th>Dias Hab.</th>
+                    <th>Categoría</th>
+                    <th>Activo</th>
                 </tr>
             </thead>
         </table>
@@ -75,11 +75,11 @@
             { data: 'detalle' },
             { data: 'descripcion' },
             { data: 'duracion' },
-            { data: 'documentos_limite' },
-            { data: 'cit_categoria' },
             { data: 'desde' },
             { data: 'hasta' },
-            { data: 'dias_habilitados' }
+            { data: 'dias_habilitados' },
+            { data: 'cit_categoria' },
+            { data: 'es_activo' }
         ];
         configDTCitServicios['columnDefs'] = [
             {
@@ -90,13 +90,23 @@
                 }
             },
             {
-                targets: 4, // cit_categoria
+                targets: 6, // cit_categoria
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url !== '') {
                         return '<a href="' + data.url + '">' + data.nombre + '</a>';
                     }
                     return data.clave;
+                }
+            },
+            {
+                targets: 7, // es_activo
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                 }
             }
         ];

@@ -51,8 +51,7 @@
                     <th>Clave</th>
                     <th>Nombre</th>
                     <th>Nombre corto</th>
-                    <th>Es D.</th>
-                    <th>Es J.</th>
+                    <th>Activo</th>
                 </tr>
             </thead>
         </table>
@@ -72,8 +71,7 @@
             { data: 'detalle' },
             { data: 'nombre' },
             { data: 'nombre_corto' },
-            { data: 'es_distrito' },
-            { data: 'es_jurisdiccional' }
+            { data: 'es_activo' }
         ];
         configDTDistritos['columnDefs'] = [
             {
@@ -84,10 +82,13 @@
                 }
             },
             {
-                targets: [3, 4], // es_distrito, es_jurisdiccional
+                targets: 3, // es_activo
                 data: null,
                 render: function(data, type, row, meta) {
-                    if (data) { return 'Si'; } else { return ''; }
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                 }
             }
         ];

@@ -57,6 +57,7 @@ def datatable_json():
                     "url": url_for("cit_categorias.detail", cit_categoria_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
+                "es_activo": resultado.es_activo,
             }
         )
     # Entregar JSON
@@ -116,7 +117,7 @@ def new():
             flash("El nombre es incorrecto o está vacío", "warning")
         # Si es válido, guardar
         if es_valido:
-            cit_categoria = CitCategoria(clave=clave, nombre=nombre)
+            cit_categoria = CitCategoria(clave=clave, nombre=nombre, es_valido=form.es_activo.data)
             cit_categoria.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -156,7 +157,9 @@ def edit(cit_categoria_id):
             flash("El nombre es incorrecto o está vacío", "warning")
         # Si es válido, actualizar
         if es_valido:
+            cit_categoria.clave = clave
             cit_categoria.nombre = nombre
+            cit_categoria.es_activo = form.es_activo.data
             cit_categoria.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -167,7 +170,9 @@ def edit(cit_categoria_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
+    form.clave.data = cit_categoria.clave
     form.nombre.data = cit_categoria.nombre
+    form.es_activo.data = cit_categoria.es_activo
     return render_template("cit_categorias/edit.jinja2", form=form, cit_categoria=cit_categoria)
 
 

@@ -40,6 +40,7 @@
                         <label class="btn btn-outline-primary btn-sm" for="btn-check-viernes">Viernes</label>
                         <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="button" disabled>Sábado</button>
                     </div>
+                    {% call f.form_group(form.es_activo) %}{% endcall %}
                 </div>
             </div>
             {% call f.form_group(form.guardar) %}{% endcall %}

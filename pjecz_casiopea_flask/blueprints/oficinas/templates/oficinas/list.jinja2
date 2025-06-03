@@ -50,13 +50,12 @@
                 <tr>
                     <th>Clave</th>
                     <th>Descripción corta</th>
-                    <th>Edificio</th>
                     <th><span title="Es Jurisdiccional">Es J.</span></th>
                     <th>Apertura</th>
                     <th>Cierre</th>
                     <th><span title="Límite de personas">L.P.</span></th>
-                    <th><span title="Puede agendar citas">P.A.C.</span></th>
-                    <th><span title="Puede enviar QR">QR</span></th>
+                    <th>Edificio</th>
+                    <th>Activo</th>
                 </tr>
             </thead>
         </table>
@@ -75,13 +74,12 @@
         configDTOficinas['columns'] = [
             { data: "detalle" },
             { data: "descripcion_corta" },
-            { data: "domicilio_edificio" },
             { data: "es_jurisdiccional" },
             { data: "apertura" },
             { data: "cierre" },
             { data: "limite_personas" },
-            { data: "puede_agendar_citas" },
-            { data: "puede_enviar_qr" }
+            { data: "domicilio_edificio" },
+            { data: "es_activo" },
         ];
         configDTOficinas['columnDefs'] = [
             {
@@ -99,13 +97,23 @@
                 }
             },
             {
-                targets: [3, 7, 8], // es_jurisdiccional, puede_agendar_citas, puede_enviar_qr
+                targets: 2, // es_jurisdiccional
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data) {
                         return 'SI';
                     }
                     return '';
+                }
+            },
+            {
+                targets: 7, // es_activo
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                 }
             }
         ];

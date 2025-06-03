@@ -3,8 +3,8 @@ Cit Categorías, formularios
 """
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Length, Regexp
+from wtforms import BooleanField, StringField, SubmitField
+from wtforms.validators import Optional, DataRequired, Length, Regexp
 
 from ...lib.safe_string import CLAVE_REGEXP
 
@@ -14,4 +14,5 @@ class CitCategoriaForm(FlaskForm):
 
     clave = StringField("Clave", validators=[DataRequired(), Regexp(CLAVE_REGEXP), Length(max=16)])
     nombre = StringField("Nombre", validators=[DataRequired(), Length(max=256)])
+    es_activo = BooleanField("Activo", validators=[Optional()])
     guardar = SubmitField("Guardar")

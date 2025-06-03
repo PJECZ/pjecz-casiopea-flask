@@ -26,6 +26,7 @@ class CitOficinaServicio(database.Model, UniversalMixin):
     cit_servicio: Mapped["CitServicio"] = relationship(back_populates="cit_oficinas_servicios")
     oficina_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("oficinas.id"))
     oficina: Mapped["Oficina"] = relationship(back_populates="cit_oficinas_servicios")
+    es_activo: Mapped[bool] = mapped_column(default=True)
 
     # Columnas
     descripcion: Mapped[str] = mapped_column(String(256))

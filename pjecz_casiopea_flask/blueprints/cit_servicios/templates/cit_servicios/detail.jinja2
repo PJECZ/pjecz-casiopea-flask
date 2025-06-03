@@ -39,6 +39,7 @@
             {{ detail.label_value('Horario', 'Sin horario') }}
         {% endif %}
         {{ detail.label_value('Días Hábiles', dias_habilitados ) }}
+        {{ detail.label_value_boolean('Activo', cit_servicio.es_activo) }}
     {% endcall %}
     {% if current_user.can_view('CIT CITAS') %}
         {% call detail.card('Citas') %}

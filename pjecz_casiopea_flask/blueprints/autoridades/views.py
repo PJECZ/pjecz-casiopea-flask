@@ -7,7 +7,7 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from ..autoridades.forms import AutoridadEditForm, AutoridadNewForm
+from ..autoridades.forms import AutoridadForm
 from ..autoridades.models import Autoridad
 from ..bitacoras.models import Bitacora
 from ..distritos.models import Distrito
@@ -74,6 +74,7 @@ def datatable_json():
                 "descripcion_corta": resultado.descripcion_corta,
                 "distrito_clave": resultado.distrito.clave,
                 "distrito_nombre_corto": resultado.distrito.nombre_corto,
+                "es_activo": resultado.es_activo,
             }
         )
     # Entregar JSON
@@ -114,7 +115,7 @@ def detail(autoridad_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nueva Autoridad"""
-    form = AutoridadNewForm()
+    form = AutoridadForm()
     if form.validate_on_submit():
         # Validar que la clave no se repita
         clave = safe_clave(form.clave.data)
@@ -127,6 +128,7 @@ def new():
             clave=clave,
             descripcion=safe_string(form.descripcion.data, save_enie=True),
             descripcion_corta=safe_string(form.descripcion_corta.data, save_enie=True),
+            es_activo=form.es_activo.data,
         )
         autoridad.save()
         bitacora = Bitacora(
@@ -146,7 +148,7 @@ def new():
 def edit(autoridad_id):
     """Editar Autoridad"""
     autoridad = Autoridad.query.get_or_404(autoridad_id)
-    form = AutoridadEditForm()
+    form = AutoridadForm()
     if form.validate_on_submit():
         es_valido = True
         # Si cambia la clave verificar que no este en uso
@@ -162,6 +164,7 @@ def edit(autoridad_id):
             autoridad.clave = clave
             autoridad.descripcion = safe_string(form.descripcion.data, save_enie=True)
             autoridad.descripcion_corta = safe_string(form.descripcion_corta.data, save_enie=True)
+            autoridad.es_activo = form.es_activo.data
             autoridad.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -176,6 +179,7 @@ def edit(autoridad_id):
     form.clave.data = autoridad.clave
     form.descripcion.data = autoridad.descripcion
     form.descripcion_corta.data = autoridad.descripcion_corta
+    form.es_activo.data = autoridad.es_activo
     return render_template("autoridades/edit.jinja2", form=form, autoridad=autoridad)
 
 

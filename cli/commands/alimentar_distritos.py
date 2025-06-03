@@ -31,6 +31,7 @@ def alimentar_distritos():
             clave = safe_clave(row.get("clave"))
             nombre = safe_string(row.get("nombre"), save_enie=True)
             nombre_corto = safe_string(row.get("nombre_corto"), save_enie=True)
+            es_activo = row.get("es_activo") == "1"
             es_distrito_judicial = row.get("es_distrito_judicial") == "1"
             es_distrito = row.get("es_distrito_judicial") == "1"
             es_jurisdiccional = row.get("es_distrito_judicial") == "1"
@@ -39,6 +40,7 @@ def alimentar_distritos():
                 clave=clave,
                 nombre=nombre,
                 nombre_corto=nombre_corto,
+                es_activo=es_activo,
                 es_distrito_judicial=es_distrito_judicial,
                 es_distrito=es_distrito,
                 es_jurisdiccional=es_jurisdiccional,

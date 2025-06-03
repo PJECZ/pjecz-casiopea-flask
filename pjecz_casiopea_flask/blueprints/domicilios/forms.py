@@ -3,7 +3,7 @@ Domicilios, formularios
 """
 
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, SubmitField
+from wtforms import BooleanField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
 
 from ...lib.safe_string import CLAVE_REGEXP
@@ -21,4 +21,5 @@ class DomicilioForm(FlaskForm):
     num_int = StringField("Núm. Interior", validators=[Optional()])
     colonia = StringField("Colonia", validators=[Optional(), Length(max=256)])
     cp = IntegerField("CP", validators=[DataRequired()])
+    es_activo = BooleanField("Activo", validators=[Optional()])
     guardar = SubmitField("Guardar")

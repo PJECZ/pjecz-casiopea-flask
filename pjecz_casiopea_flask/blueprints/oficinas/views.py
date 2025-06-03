@@ -74,6 +74,7 @@ def datatable_json():
                 "es_jurisdiccional": resultado.es_jurisdiccional,
                 "puede_agendar_citas": resultado.puede_agendar_citas,
                 "puede_enviar_qr": resultado.puede_enviar_qr,
+                "es_activo": resultado.es_activo,
             }
         )
     # Entregar JSON
@@ -133,6 +134,7 @@ def new():
             es_jurisdiccional=form.es_jurisdiccional.data,
             puede_agendar_citas=form.puede_agendar_citas.data,
             puede_enviar_qr=form.puede_enviar_qr.data,
+            es_activo=form.es_activo.data,
         )
         oficina.save()
         bitacora = Bitacora(
@@ -174,6 +176,7 @@ def edit(oficina_id):
             oficina.es_jurisdiccional = form.es_jurisdiccional.data
             oficina.puede_agendar_citas = form.puede_agendar_citas.data
             oficina.puede_enviar_qr = form.puede_enviar_qr.data
+            oficina.es_activo = form.es_activo.data
             oficina.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -192,8 +195,9 @@ def edit(oficina_id):
     form.cierre.data = oficina.cierre
     form.limite_personas.data = oficina.limite_personas
     form.es_jurisdiccional.data = oficina.es_jurisdiccional
-    form.puede_agendar_citas = oficina.puede_agendar_citas
-    form.puede_enviar_qr = oficina.puede_enviar_qr
+    form.puede_agendar_citas.data = oficina.puede_agendar_citas
+    form.puede_enviar_qr.data = oficina.puede_enviar_qr
+    form.es_activo.data = oficina.es_activo
     return render_template("oficinas/edit.jinja2", form=form, oficina=oficina)
 
 

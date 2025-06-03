@@ -71,6 +71,7 @@ def datatable_json():
                 "num_int": resultado.num_int,
                 "colonia": resultado.colonia,
                 "cp": resultado.cp,
+                "es_activo": resultado.es_activo,
             }
         )
     # Entregar JSON
@@ -122,6 +123,7 @@ def new():
         num_int = safe_string(form.num_int.data, max_len=24, save_enie=True)
         colonia = safe_string(form.colonia.data, max_len=256, save_enie=True)
         cp = form.cp.data
+        es_activo = form.es_activo.data
         # Validar que la clave no se repita
         if Domicilio.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
@@ -142,6 +144,7 @@ def new():
             colonia=colonia,
             cp=cp,
             completo=f"{calle} #{num_ext} {num_int}, {colonia}, {municipio}, {estado}, C.P. {cp}",
+            es_activo=es_activo,
         )
         domicilio.save()
         bitacora = Bitacora(
@@ -190,6 +193,7 @@ def edit(domicilio_id):
             domicilio.colonia = safe_string(form.colonia.data, max_len=256, save_enie=True)
             domicilio.cp = form.cp.data
             domicilio.completo = domicilio.elaborar_completo()
+            domicilio.es_activo = form.es_activo.data
             domicilio.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -209,6 +213,7 @@ def edit(domicilio_id):
     form.num_int.data = domicilio.num_int
     form.colonia.data = domicilio.colonia
     form.cp.data = domicilio.cp
+    form.es_activo.data = domicilio.es_activo
     return render_template("domicilios/edit.jinja2", form=form, domicilio=domicilio)
 
 
@@ -223,7 +228,7 @@ def delete(domicilio_id):
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
             usuario=current_user,
             descripcion=safe_message(f"Eliminado Domicilio {domicilio.edificio}"),
-            url=url_for("domicilios.detail", instance_id=domicilio.id),
+            url=url_for("domicilios.detail", domicilio_id=domicilio.id),
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")

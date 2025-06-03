@@ -41,6 +41,7 @@ def alimentar_oficinas():
             cierre = datetime.strptime(row.get("cierre"), "%H:%M").time()
             limite_personas = int(row.get("limite_personas"))
             puede_enviar_qr = row.get("puede_enviar_qr") == "1"
+            es_activo = row.get("es_activo") == "1"
             estatus = row.get("estatus")
             try:
                 domicilio = Domicilio.query.filter(Domicilio.clave == edificio_clave).one()
@@ -58,6 +59,7 @@ def alimentar_oficinas():
                 cierre=cierre,
                 limite_personas=limite_personas,
                 puede_enviar_qr=puede_enviar_qr,
+                es_activo=es_activo,
                 estatus=estatus,
             ).save()
             contador += 1
