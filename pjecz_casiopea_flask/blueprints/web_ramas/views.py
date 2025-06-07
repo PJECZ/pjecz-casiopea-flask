@@ -64,8 +64,9 @@ def datatable_json():
                 },
                 "nombre": resultado.nombre,
                 "titulo": resultado.titulo,
-                "ruta": resultado.ruta,
-                "archivado": resultado.esta_archivado,
+                "unidad_compartida": resultado.unidad_compartida,
+                "directorio": resultado.directorio,
+                "esta_archivado": resultado.esta_archivado,
             }
         )
     # Entregar JSON
@@ -104,7 +105,7 @@ def detail(web_rama_id):
 @web_ramas.route("/web_ramas/nuevo", methods=["GET", "POST"])
 @permission_required(MODULO, Permiso.CREAR)
 def new():
-    """Nuevo Web Rama"""
+    """Nueva Web Rama"""
     form = WebRamaNewForm()
     if form.validate_on_submit():
         es_valido = True
@@ -113,23 +114,20 @@ def new():
         if WebRama.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
             es_valido = False
-        # Tomar valores del formulario
-        nombre = safe_string(form.nombre.data, save_enie=True)
-        titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
-        ruta = safe_path(form.ruta.data)
         # Si es válido, guardar
         if es_valido is True:
             web_rama = WebRama(
                 clave=clave,
-                nombre=nombre,
-                titulo=titulo,
-                ruta=ruta,
+                nombre=safe_string(form.nombre.data, save_enie=True),
+                titulo=safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False),
+                unidad_compartida=form.unidad_compartida.data,
+                directorio=form.directorio.data,
             )
             web_rama.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=current_user,
-                descripcion=safe_message(f"Nuevo Web Rama {web_rama.clave}"),
+                descripcion=safe_message(f"Nueva Web Rama {web_rama.clave}"),
                 url=url_for("web_ramas.detail", web_rama_id=web_rama.id),
             )
             bitacora.save()
@@ -158,7 +156,8 @@ def edit(web_rama_id):
             web_rama.clave = clave
             web_rama.nombre = safe_string(form.nombre.data, save_enie=True)
             web_rama.titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
-            web_rama.ruta = safe_path(form.ruta.data)
+            web_rama.unidad_compartida = form.unidad_compartida.data
+            web_rama.directorio = form.directorio.data
             web_rama.esta_archivado = form.esta_archivado.data
             web_rama.save()
             bitacora = Bitacora(
@@ -173,7 +172,8 @@ def edit(web_rama_id):
     form.clave.data = web_rama.clave
     form.nombre.data = web_rama.nombre
     form.titulo.data = web_rama.titulo
-    form.ruta.data = web_rama.ruta
+    form.unidad_compartida.data = web_rama.unidad_compartida
+    form.directorio.data = web_rama.directorio
     form.esta_archivado.data = web_rama.esta_archivado
     return render_template("web_ramas/edit.jinja2", form=form, web_rama=web_rama)
 

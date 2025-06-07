@@ -19,10 +19,14 @@
 {% endblock %}
 
 {% block content %}
-    {# call detail.card(estatus=web_rama.estatus) %}
-        {{ detail.label_value('Nombre', web_rama.nombre) }}
+    {% call detail.card(estatus=web_rama.estatus) %}
         {{ detail.label_value('Clave', web_rama.clave) }}
-    {% endcall #}
+        {{ detail.label_value('Nombre', web_rama.nombre) }}
+        {{ detail.label_value('Título', web_rama.titulo) }}
+        {{ detail.label_value('Unidad compartida', web_rama.unidad_compartida) }}
+        {{ detail.label_value('Directorio', web_rama.directorio) }}
+        {{ detail.label_value('Archivado', web_rama.esta_archivado) }}
+    {% endcall %}
     {% if current_user.can_view('WEB PAGINAS') %}
         {% call detail.card('Páginas') %}
             <!-- Filtros WebPaginas -->

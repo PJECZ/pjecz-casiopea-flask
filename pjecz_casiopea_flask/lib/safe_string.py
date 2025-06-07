@@ -11,6 +11,7 @@ from unidecode import unidecode
 CLAVE_REGEXP = r"^[a-zA-Z0-9-]{1,16}$"
 CONTRASENA_REGEXP = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,48}$"
 CURP_REGEXP = r"^[a-zA-Z]{4}\d{6}[a-zA-Z]{6}[A-Z0-9]{2}$"
+DIRECTORIO_REGEXP = r"^[a-z0-9-]+$"
 EMAIL_REGEXP = r"^[\w.-]+@[\w.-]+\.\w+$"
 PATH_REGEXP = r"^[a-z0-9/_-]+$"
 SENTENCIA_REGEXP = r"^\d+/[12]\d\d\d$"

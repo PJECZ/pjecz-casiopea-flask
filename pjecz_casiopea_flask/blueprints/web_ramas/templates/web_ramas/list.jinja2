@@ -47,6 +47,10 @@
                 <tr>
                     <th>Clave</th>
                     <th>Nombre</th>
+                    <th>Título</th>
+                    <th>Unidad compartida</th>
+                    <th>Directorio</th>
+                    <th>Archivado</th>
                 </tr>
             </thead>
         </table>
@@ -64,7 +68,11 @@
         configDTWebRamas['ajax']['data'] = {{ filtros }};
         configDTWebRamas['columns'] = [
             { data: 'detalle' },
-            { data: 'nombre' }
+            { data: 'nombre' },
+            { data: 'titulo' },
+            { data: 'unidad_compartida' },
+            { data: 'directorio' },
+            { data: 'esta_archivado' }
         ];
         configDTWebRamas['columnDefs'] = [
             {
@@ -72,6 +80,16 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            },
+            {
+                targets: 5, // esta_archivado
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                 }
             }
         ];

@@ -27,7 +27,7 @@ class WebArchivo(database.Model, UniversalMixin):
     web_pagina: Mapped["WebPagina"] = relationship(back_populates="web_archivos")
 
     # Columnas
-    clave: Mapped[str] = mapped_column(String(16), unique=True)
+    clave: Mapped[str] = mapped_column(String(24), unique=True)
     nombre: Mapped[str] = mapped_column(String(256))  # Solo letras mayúsculas y números
     titulo: Mapped[str] = mapped_column(String(256))  # Como se va a ver en la web
     archivo: Mapped[str] = mapped_column(String(256))
