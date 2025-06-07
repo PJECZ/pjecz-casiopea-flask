@@ -2,9 +2,9 @@
 Web Páginas, modelos
 """
 
-from datetime import datetime, date
-from typing import List, Optional
 import uuid
+from datetime import date, datetime
+from typing import List, Optional
 
 from sqlalchemy import Enum, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -46,7 +46,7 @@ class WebPagina(database.Model, UniversalMixin):
     estado: Mapped[str] = mapped_column(Enum(*ESTADOS, name="web_paginas_estados", native_enum=False), index=True)
     tiempo_publicar: Mapped[Optional[datetime]]
     tiempo_archivar: Mapped[Optional[datetime]]
-    es_archivado: Mapped[bool] = mapped_column(default=False)
+    esta_archivado: Mapped[bool] = mapped_column(default=False)
 
     # Hijos
     web_archivos: Mapped[List["WebArchivo"]] = relationship("WebArchivo", back_populates="web_pagina")

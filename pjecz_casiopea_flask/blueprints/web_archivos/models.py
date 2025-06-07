@@ -2,8 +2,8 @@
 Web Archivos, modelos
 """
 
-from typing import Optional
 import uuid
+from typing import Optional
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
@@ -31,6 +31,7 @@ class WebArchivo(database.Model, UniversalMixin):
     clave: Mapped[str] = mapped_column(String(16), unique=True)
     descripcion: Mapped[Optional[str]] = mapped_column(String(256))
     url: Mapped[str] = mapped_column(String(256))
+    esta_archivado: Mapped[bool] = mapped_column(default=False)
 
     def __repr__(self):
         """Representación"""

@@ -2,8 +2,8 @@
 Web Ramas, modelos
 """
 
-from typing import List
 import uuid
+from typing import List
 
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
@@ -30,7 +30,8 @@ class WebRama(database.Model, UniversalMixin):
 
     # Columnas
     clave: Mapped[str] = mapped_column(String(16), unique=True)
-    nombre: Mapped[str] = mapped_column(String(256))
+    nombre: Mapped[str] = mapped_column(String(256), unique=True)
+    esta_archivado: Mapped[bool] = mapped_column(default=False)
 
     # Hijos
     web_paginas: Mapped[List["WebPagina"]] = relationship("WebPagina", back_populates="web_rama")

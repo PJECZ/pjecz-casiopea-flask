@@ -25,7 +25,7 @@ def alimentar_domicilios():
         sys.exit(1)
     click.echo("Alimentando domicilios: ", nl=False)
     contador = 0
-    with (open(ruta, encoding="utf8") as puntero):
+    with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
             clave = safe_clave(row.get("clave"))
