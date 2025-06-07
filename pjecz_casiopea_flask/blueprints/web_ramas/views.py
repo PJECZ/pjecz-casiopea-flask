@@ -8,12 +8,12 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from ...lib.safe_string import safe_clave, safe_message, safe_path, safe_string
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from .forms import WebRamaForm
+from .forms import WebRamaEditForm, WebRamaNewForm
 from .models import WebRama
 
 MODULO = "WEB RAMAS"
@@ -63,6 +63,9 @@ def datatable_json():
                     "url": url_for("web_ramas.detail", web_rama_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
+                "titulo": resultado.titulo,
+                "ruta": resultado.ruta,
+                "archivado": resultado.esta_archivado,
             }
         )
     # Entregar JSON
@@ -81,7 +84,7 @@ def list_active():
 
 
 @web_ramas.route("/web_ramas/inactivos")
-def list_active():
+def list_inactive():
     """Listado de Web Ramas inactivas"""
     return render_template(
         "web_ramas/list.jinja2",
@@ -102,7 +105,7 @@ def detail(web_rama_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo Web Rama"""
-    form = WebRamaForm()
+    form = WebRamaNewForm()
     if form.validate_on_submit():
         es_valido = True
         # Validar que la clave no se repita
@@ -110,16 +113,17 @@ def new():
         if WebRama.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
             es_valido = False
-        # Validar que el nombre no se repita
+        # Tomar valores del formulario
         nombre = safe_string(form.nombre.data, save_enie=True)
-        if WebRama.query.filter_by(nombre=nombre).first():
-            flash("La nombre ya está en uso. Debe de ser único.", "warning")
-            es_valido = False
+        titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
+        ruta = safe_path(form.ruta.data)
         # Si es válido, guardar
         if es_valido is True:
             web_rama = WebRama(
                 clave=clave,
                 nombre=nombre,
+                titulo=titulo,
+                ruta=ruta,
             )
             web_rama.save()
             bitacora = Bitacora(
@@ -139,7 +143,7 @@ def new():
 def edit(web_rama_id):
     """Editar Web Rama"""
     web_rama = WebRama.query.get_or_404(web_rama_id)
-    form = WebRamaForm()
+    form = WebRamaEditForm()
     if form.validate_on_submit():
         es_valido = True
         # Si cambia la clave verificar que no está en uso
@@ -149,17 +153,12 @@ def edit(web_rama_id):
             if web_rama_existente and web_rama_existente.id != web_rama.id:
                 es_valido = False
                 flash("La clave ya está en uso. Debe de ser única.", "warning")
-        # Si cambia el nombre verificar que no está en uso
-        nombre = safe_string(form.nombre.data, save_enie=True)
-        if web_rama.nombre != nombre:
-            web_rama_existente = WebRama.query.filter_by(nombre=nombre).first()
-            if web_rama_existente and web_rama_existente.id != web_rama.id:
-                es_valido = False
-                flash("El nombre ya está en uso. Debe de ser único.", "warning")
         # Si es válido, actualizar
         if es_valido:
             web_rama.clave = clave
-            web_rama.nombre = nombre
+            web_rama.nombre = safe_string(form.nombre.data, save_enie=True)
+            web_rama.titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
+            web_rama.ruta = safe_path(form.ruta.data)
             web_rama.esta_archivado = form.esta_archivado.data
             web_rama.save()
             bitacora = Bitacora(
@@ -173,6 +172,8 @@ def edit(web_rama_id):
             return redirect(bitacora.url)
     form.clave.data = web_rama.clave
     form.nombre.data = web_rama.nombre
+    form.titulo.data = web_rama.titulo
+    form.ruta.data = web_rama.ruta
     form.esta_archivado.data = web_rama.esta_archivado
     return render_template("web_ramas/edit.jinja2", form=form, web_rama=web_rama)
 

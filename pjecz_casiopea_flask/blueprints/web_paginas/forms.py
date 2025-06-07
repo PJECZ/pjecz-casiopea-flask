@@ -4,25 +4,29 @@ Web Páginas, formularios
 
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, DateField, DateTimeLocalField, StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Length, Optional, Regexp
+
+from ...lib.safe_string import PATH_REGEXP
 
 
 class WebPaginaNewForm(FlaskForm):
-    """Formulario WebPagina"""
+    """Formulario nuevo WebPagina"""
 
     clave = StringField("Clave", validators=[DataRequired(), Length(max=16)])
+    nombre = StringField("Nombre (solo letras mayúsculas y números)", validators=[DataRequired(), Length(max=256)])
     titulo = StringField("Título", validators=[DataRequired(), Length(max=256)])
-    ruta = StringField("Ruta", validators=[DataRequired(), Length(max=256)])
+    ruta = StringField("Ruta", validators=[DataRequired(), Length(max=256), Regexp(PATH_REGEXP)])
     guardar = SubmitField("Guardar")
 
 
 class WebPaginaEditForm(FlaskForm):
-    """Formulario WebPagina"""
+    """Formulario editar WebPagina"""
 
     clave = StringField("Clave", validators=[DataRequired(), Length(max=16)])
+    nombre = StringField("Nombre (solo letras mayúsculas y números)", validators=[DataRequired(), Length(max=256)])
     titulo = StringField("Título", validators=[DataRequired(), Length(max=256)])
+    ruta = StringField("Ruta", validators=[DataRequired(), Length(max=256), Regexp(PATH_REGEXP)])
     resumen = TextAreaField("Resumen", validators=[Optional()], render_kw={"rows": 8})
-    ruta = StringField("Ruta", validators=[DataRequired(), Length(max=256)])
     fecha_modificacion = DateField("Fecha de modificación", validators=[DataRequired()])
     responsable = StringField("Responsable", validators=[Optional(), Length(max=256)])
     etiquetas = StringField("Etiquetas", validators=[Optional(), Length(max=256)])
@@ -34,7 +38,7 @@ class WebPaginaEditForm(FlaskForm):
 
 
 class WebPaginaContenidoForm(FlaskForm):
-    """Formulario Contenido WebPagina"""
+    """Formulario contenido WebPagina"""
 
     contenido = TextAreaField("Contenido", validators=[DataRequired()], render_kw={"rows": 10})
     guardar = SubmitField("Guardar")

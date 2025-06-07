@@ -13,7 +13,7 @@ from ..usuarios.models import Usuario
 class UsuarioOficinaWithUsuarioForm(FlaskForm):
     """Formulario para crear un Usuario-Oficina con un Usuario dado"""
 
-    oficina = SelectField("Oficina", coerce=int, validators=[DataRequired()])
+    oficina = SelectField("Oficina", coerce=str, validators=[DataRequired()])
     usuario_email = StringField("Usuario e-mail")  # Read only
     usuario_nombre = StringField("Usuario nombre")  # Read only
     guardar = SubmitField("Guardar")
@@ -31,7 +31,7 @@ class UsuarioOficinaWithOficinaForm(FlaskForm):
     """Formulario para crear un Usuario-Oficina con una Oficina dada"""
 
     oficina = StringField("Oficina")  # Read only
-    usuario = SelectField("Usuario", coerce=int, validators=[DataRequired()])
+    usuario = SelectField("Usuario", coerce=str, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
     def __init__(self, *args, **kwargs):

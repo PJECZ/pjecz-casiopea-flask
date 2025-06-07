@@ -14,7 +14,7 @@ from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ..web_paginas.models import WebPagina
-from .forms import WebArchivoForm
+from .forms import WebArchivoEditForm, WebArchivoNewForm
 from .models import WebArchivo
 
 MODULO = "WEB ARCHIVOS"
@@ -65,9 +65,12 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("web_archivos.detail", web_archivo_id=resultado.id),
                 },
+                "nombre": resultado.nombre,
+                "ruta": resultado.ruta,
                 "archivo": resultado.archivo,
                 "descripcion": resultado.descripcion,
                 "web_pagina_clave": resultado.web_pagina.clave,
+                "archivado": resultado.esta_archivado,
             }
         )
     # Entregar JSON
@@ -86,7 +89,7 @@ def list_active():
 
 
 @web_archivos.route("/web_archivos/inactivos")
-def list_active():
+def list_inactive():
     """Listado de Web Archivos inactivos"""
     return render_template(
         "web_archivos/list.jinja2",
@@ -108,7 +111,7 @@ def detail(web_archivo_id):
 def new(web_pagina_id):
     """Nuevo Web Archivo"""
     web_pagina = WebPagina.query.get_or_404(web_pagina_id)
-    form = WebArchivoForm()
+    form = WebArchivoNewForm()
     if form.validate_on_submit():
         es_valido = True
         # Validar que la clave no se repita
@@ -116,14 +119,20 @@ def new(web_pagina_id):
         if WebArchivo.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
             es_valido = False
+        # Tomar valores del formulario
+        nombre = safe_string(form.nombre.data, save_enie=True)
+        titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
+        archivo = form.archivo.data.strip()
+        url = safe_url(form.url.data)
         # Si es válido, guardar
         if es_valido is True:
             web_archivo = WebArchivo(
                 web_pagina_id=web_pagina.id,
-                descripcion=safe_string(form.descripcion.data, do_unidecode=False, save_enie=True, to_uppercase=False),
                 clave=clave,
-                archivo=safe_string(form.archivo.data, to_uppercase=False),
-                url=safe_url(form.url.data),
+                nombre=nombre,
+                titulo=titulo,
+                archivo=archivo,
+                url=url,
             )
             web_archivo.save()
             bitacora = Bitacora(
@@ -135,7 +144,7 @@ def new(web_pagina_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.clave.data = web_pagina.clave + "-"
+    form.clave.data = web_pagina.clave
     return render_template("web_archivos/new.jinja2", form=form)
 
 
@@ -144,7 +153,7 @@ def new(web_pagina_id):
 def edit(web_archivo_id):
     """Editar Web Archivo"""
     web_archivo = WebArchivo.query.get_or_404(web_archivo_id)
-    form = WebArchivoForm()
+    form = WebArchivoEditForm()
     if form.validate_on_submit():
         es_valido = True
         # Si cambia la clave verificar que no está en uso
@@ -157,9 +166,11 @@ def edit(web_archivo_id):
         # Si es válido, actualizar
         if es_valido:
             web_archivo.clave = clave
-            web_archivo.descripcion = safe_string(form.descripcion.data, do_unidecode=False, save_enie=True, to_uppercase=False)
-            web_archivo.archivo = safe_string(form.archivo.data, to_uppercase=False)
+            web_archivo.nombre = safe_string(form.nombre.data, save_enie=True)
+            web_archivo.titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
+            web_archivo.archivo = form.archivo.data.strip()
             web_archivo.url = safe_url(form.url.data)
+            web_archivo.esta_archivado = form.esta_archivado.data
             web_archivo.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -171,9 +182,11 @@ def edit(web_archivo_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.clave.data = web_archivo.clave
-    form.descripcion.data = web_archivo.descripcion
+    form.nombre.data = web_archivo.nombre
+    form.titulo.data = web_archivo.titulo
     form.archivo.data = web_archivo.archivo
     form.url.data = web_archivo.url
+    form.esta_archivado.data = web_archivo.esta_archivado
     return render_template("web_archivos/edit.jinja2", form=form, web_archivo=web_archivo)
 
 

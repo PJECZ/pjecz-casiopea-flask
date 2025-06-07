@@ -30,7 +30,9 @@ class WebRama(database.Model, UniversalMixin):
 
     # Columnas
     clave: Mapped[str] = mapped_column(String(16), unique=True)
-    nombre: Mapped[str] = mapped_column(String(256), unique=True)
+    nombre: Mapped[str] = mapped_column(String(256))  # Solo letras mayúsculas y números
+    titulo: Mapped[str] = mapped_column(String(256))  # Como se va a ver en la web
+    ruta: Mapped[str] = mapped_column(String(256))
     esta_archivado: Mapped[bool] = mapped_column(default=False)
 
     # Hijos

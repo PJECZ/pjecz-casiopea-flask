@@ -9,7 +9,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from ...lib.safe_string import safe_clave, safe_message, safe_path, safe_string
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
@@ -68,12 +68,14 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("web_paginas.detail", web_pagina_id=resultado.id),
                 },
-                "titulo": resultado.titulo,
+                "nombre": resultado.nombre,
+                "ruta": resultado.ruta,
                 "fecha_modificacion": resultado.fecha_modificacion.strftime("%Y-%m-%d"),
                 "estado": resultado.estado,
                 "tiempo_publicar": resultado.tiempo_publicar.strftime("%Y-%m-%d %H:%M") if resultado.tiempo_publicar else "",
                 "tiempo_archivar": resultado.tiempo_archivar.strftime("%Y-%m-%d %H:%M") if resultado.tiempo_archivar else "",
                 "web_rama_clave": resultado.web_rama.clave,
+                "archivado": resultado.esta_archivado,
             }
         )
     # Entregar JSON
@@ -92,7 +94,7 @@ def list_active():
 
 
 @web_paginas.route("/web_paginas/inactivos")
-def list_active():
+def list_inactive():
     """Listado de Web Páginas inactivos"""
     return render_template(
         "web_paginas/list.jinja2",
@@ -122,16 +124,18 @@ def new(web_rama_id):
         if WebPagina.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
             es_valido = False
+        # Tomar valores del formulario
+        nombre = safe_string(form.nombre.data, save_enie=True)
+        titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
+        ruta = safe_path(form.ruta.data)
         # Si es válido, guardar
         if es_valido is True:
             web_pagina = WebPagina(
                 web_rama_id=web_rama.id,
                 clave=clave,
-                titulo=safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False),
-                fecha_modificacion=date.today(),
-                ruta=form.ruta.data.strip(),
-                contenido="",
-                estado="BORRADOR",
+                nombre=nombre,
+                titulo=titulo,
+                ruta=ruta,
             )
             web_pagina.save()
             bitacora = Bitacora(
@@ -143,8 +147,8 @@ def new(web_rama_id):
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
-    form.clave.data = web_rama.clave + "-"
-    form.ruta.data = web_rama.nombre + "/"
+    form.clave.data = web_rama.clave
+    form.ruta.data = web_rama.nombre
     return render_template("web_paginas/new.jinja2", form=form)
 
 
@@ -166,11 +170,10 @@ def edit(web_pagina_id):
         # Si es válido, actualizar
         if es_valido:
             web_pagina.clave = clave
+            web_pagina.nombre = safe_string(form.nombre.data, save_enie=True)
             web_pagina.titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
-            web_pagina.resumen = safe_string(
-                form.resumen.data, do_unidecode=False, save_enie=True, to_uppercase=False, max_len=1000
-            )
-            web_pagina.ruta = form.ruta.data.strip()
+            web_pagina.ruta = safe_path(form.ruta.data)
+            web_pagina.resumen = safe_string(form.resumen.data, save_enie=True)
             web_pagina.fecha_modificacion = form.fecha_modificacion.data
             web_pagina.responsable = safe_string(form.responsable.data, save_enie=True, to_uppercase=False)
             web_pagina.etiquetas = safe_string(form.etiquetas.data, save_enie=True, to_uppercase=False)
@@ -189,9 +192,10 @@ def edit(web_pagina_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.clave.data = web_pagina.clave
+    form.nombre.data = web_pagina.nombre
     form.titulo.data = web_pagina.titulo
-    form.resumen.data = web_pagina.resumen
     form.ruta.data = web_pagina.ruta
+    form.resumen.data = web_pagina.resumen
     form.fecha_modificacion.data = web_pagina.fecha_modificacion
     form.responsable.data = web_pagina.responsable
     form.etiquetas.data = web_pagina.etiquetas

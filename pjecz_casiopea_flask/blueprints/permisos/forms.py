@@ -30,7 +30,7 @@ class PermisoNewWithModuloForm(FlaskForm):
     """Formulario para agregar Permiso con el módulo como parámetro"""
 
     modulo = StringField("Módulo")  # Solo lectura
-    rol = SelectField("Rol", coerce=int, validators=[DataRequired()])
+    rol = SelectField("Rol", coerce=str, validators=[DataRequired()])
     nivel = RadioField("Nivel", coerce=int, choices=NIVELES, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
@@ -43,9 +43,9 @@ class PermisoNewWithModuloForm(FlaskForm):
 class PermisoNewWithRolForm(FlaskForm):
     """Formulario para agregar Permiso con el rol como parametro"""
 
-    modulo = SelectField("Modulo", coerce=int, validators=[DataRequired()])
+    modulo = SelectField("Modulo", coerce=str, validators=[DataRequired()])
     rol = StringField("Rol")  # Solo lectura
-    nivel = RadioField("Nivel", validators=[DataRequired()], choices=NIVELES, coerce=int)
+    nivel = RadioField("Nivel", coerce=int, choices=NIVELES, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
     def __init__(self, *args, **kwargs):
