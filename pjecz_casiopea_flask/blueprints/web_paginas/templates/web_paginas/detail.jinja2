@@ -10,7 +10,7 @@
         {{ topbar.button_previous('Rama ' + web_pagina.web_rama.nombre, url_for('web_ramas.detail', web_rama_id=web_pagina.web_rama_id)) }}
         {% if current_user.can_edit('WEB PAGINAS') %}
             {{ topbar.button_edit('Editar metadatos', url_for('web_paginas.edit', web_pagina_id=web_pagina.id)) }}
-            {{ topbar.button_edit('Editar contenido', url_for('web_paginas.content', web_pagina_id=web_pagina.id)) }}
+            {# topbar.button_edit('Editar contenido', url_for('web_paginas.content', web_pagina_id=web_pagina.id)) #}
         {% endif %}
         {% if current_user.can_admin('WEB PAGINAS') %}
             {% if web_pagina.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('web_paginas.delete', web_pagina_id=web_pagina.id)) }}{% endif %}
@@ -43,19 +43,19 @@
             <div class="row">
                 <div class="col">
                     <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosWebArchivos.buscar(); return false;">
-                        <div class="col-4">
+                        <div class="col-2">
                             <div class="form-floating">
                                 <input id="filtroWebArchivoClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
                                 <label for="filtroWebArchivoClave">Clave</label>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="form-floating">
                                 <input id="filtroWebArchivoDescripcion" type="text" class="form-control" aria-label="Descripción">
                                 <label for="filtroWebArchivoDescripcion">Descripción</label>
                             </div>
                         </div>
-                        <div class="col-2 text-end">
+                        <div class="col-6 text-end">
                             <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosWebArchivos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                             <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosWebArchivos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                         </div>
@@ -81,8 +81,8 @@
 
 {% block custom_javascript %}
     {% if current_user.can_admin('WEB PAGINAS') %}
-        {% if web_pagina.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + web_pagina.titulo + '?') }}{% endif %}
-        {% if web_pagina.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + web_pagina.titulo + '?') }}{% endif %}
+        {% if web_pagina.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + web_pagina.clave + '?') }}{% endif %}
+        {% if web_pagina.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + web_pagina.clave + '?') }}{% endif %}
     {% endif %}
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
@@ -92,7 +92,7 @@
             const constructorDataTable = new ConfigDataTable('{{ csrf_token() }}');
             let configDTWebArchivos = constructorDataTable.config();
             configDTWebArchivos['ajax']['url'] = '/web_archivos/datatable_json';
-            configDTWebArchivos['ajax']['data'] = {estatus: "A", web_pagina_id: {{ web_pagina.id}}};
+            configDTWebArchivos['ajax']['data'] = { estatus: "A", web_pagina_id: '{{ web_pagina.id }}' };
             configDTWebArchivos['columns'] = [
                 { data: 'detalle' },
                 { data: 'descripcion' },
@@ -110,7 +110,7 @@
             // Filtros WebArchivos
             const filtrosWebArchivos = new FiltrosDataTable('#web_archivos_datatable', configDTWebArchivos);
             filtrosWebArchivos.agregarInput('filtroWebArchivoClave', 'clave');
-            filtrosWebArchivos.agregarInput('filtroWebArchivoDescripcion', 'descripcion', ''); // cambiar caseSensitive a ''
+            filtrosWebArchivos.agregarInput('filtroWebArchivoDescripcion', 'descripcion');
             filtrosWebArchivos.precargar();
         </script>
     {% endif %}

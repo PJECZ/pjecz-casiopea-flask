@@ -25,13 +25,13 @@
                             <label for="filtroWebPaginaClave">Clave</label>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         <div class="form-floating">
-                            <input id="filtroWebPaginaTitulo" type="text" class="form-control" aria-label="Título">
-                            <label for="filtroWebPaginaTitulo">Título</label>
+                            <input id="filtroWebPaginaNombre" type="text" class="form-control" aria-label="Nombre">
+                            <label for="filtroWebPaginaNombre">Nombre</label>
                         </div>
                     </div>
-                    <div class="col-2">
+                    <div class="col-4">
                         <div class="form-floating">
                             <select id="filtroWebPaginaEstado" class="form-select" aria-label="Estado">
                                 <option value="">Todos</option>
@@ -53,12 +53,13 @@
             <thead>
                 <tr>
                     <th>Clave</th>
+                    <th>Nombre</th>
                     <th>Título</th>
-                    <th>F. modificación</th>
                     <th>Estado</th>
-                    <th>Cuándo publicar</th>
-                    <th>Cuándo archivar</th>
+                    <th>Publicar en</th>
+                    <th>Archivar en</th>
                     <th>Rama clave</th>
+                    <th>Archivado</th>
                 </tr>
             </thead>
         </table>
@@ -70,18 +71,19 @@
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
         // DataTable WebPaginas
-        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        const constructorDataTable = new ConfigDataTable('{{ csrf_token() }}');
         let configDTWebPaginas = constructorDataTable.config();
         configDTWebPaginas['ajax']['url'] = '/web_paginas/datatable_json';
         configDTWebPaginas['ajax']['data'] = {{ filtros }};
         configDTWebPaginas['columns'] = [
             { data: 'detalle' },
+            { data: 'nombre' },
             { data: 'titulo' },
-            { data: 'fecha_modificacion' },
             { data: 'estado' },
             { data: 'tiempo_publicar' },
             { data: 'tiempo_archivar' },
-            { data: 'web_rama_clave' }
+            { data: 'web_rama_clave' },
+            { data: 'esta_archivado' }
         ];
         configDTWebPaginas['columnDefs'] = [
             {
@@ -92,20 +94,30 @@
                 }
             },
             {
-                targets: 1, // titulo
+                targets: [1, 2], // nombre, título
                 data: null,
                 render: function(data, type, row, meta) {
-                    if (data.length > 48) {
+                    if (data.length > 24) {
                         return '<span title="' + data + '">' + data.substring(0, 48) + '…</span>';
                     }
                     return data;
+                }
+            },
+            {
+                targets: 7, // esta_archivado
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                 }
             }
         ];
         // Filtros WebPaginas
         const filtrosWebPaginas = new FiltrosDataTable('#web_paginas_datatable', configDTWebPaginas);
         filtrosWebPaginas.agregarInput('filtroWebPaginaClave', 'clave');
-        filtrosWebPaginas.agregarInput('filtroWebPaginaTitulo', 'titulo');
+        filtrosWebPaginas.agregarInput('filtroWebPaginaNombre', 'nombre');
         filtrosWebPaginas.agregarSelect('filtroWebPaginaEstado', 'estado');
         filtrosWebPaginas.precargar();
     </script>

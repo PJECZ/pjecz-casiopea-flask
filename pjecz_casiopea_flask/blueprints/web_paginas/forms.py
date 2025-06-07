@@ -17,7 +17,10 @@ class WebPaginaNewForm(FlaskForm):
     )
     nombre = StringField("Nombre (solo letras mayúsculas y números)", validators=[DataRequired(), Length(max=256)])
     titulo = StringField("Título", validators=[DataRequired(), Length(max=256)])
-    ruta = StringField("Ruta", validators=[DataRequired(), Length(max=256), Regexp(PATH_REGEXP)])
+    ruta = StringField(
+        "Ruta (letras minúsculas, números, guiones y diagonales)",
+        validators=[DataRequired(), Length(max=256), Regexp(PATH_REGEXP)],
+    )
     guardar = SubmitField("Guardar")
 
 
@@ -29,7 +32,10 @@ class WebPaginaEditForm(FlaskForm):
     )
     nombre = StringField("Nombre (solo letras mayúsculas y números)", validators=[DataRequired(), Length(max=256)])
     titulo = StringField("Título", validators=[DataRequired(), Length(max=256)])
-    ruta = StringField("Ruta", validators=[DataRequired(), Length(max=256), Regexp(PATH_REGEXP)])
+    ruta = StringField(
+        "Ruta (letras minúsculas, números, guiones y diagonales)",
+        validators=[DataRequired(), Length(max=256), Regexp(PATH_REGEXP)],
+    )
     resumen = TextAreaField("Resumen", validators=[Optional()], render_kw={"rows": 8})
     fecha_modificacion = DateField("Fecha de modificación", validators=[DataRequired()])
     responsable = StringField("Responsable", validators=[Optional(), Length(max=256)])

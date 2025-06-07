@@ -145,7 +145,7 @@ def new(web_pagina_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.clave.data = web_pagina.clave
-    return render_template("web_archivos/new.jinja2", form=form)
+    return render_template("web_archivos/new.jinja2", form=form, web_pagina=web_pagina)
 
 
 @web_archivos.route("/web_archivos/edicion/<web_archivo_id>", methods=["GET", "POST"])

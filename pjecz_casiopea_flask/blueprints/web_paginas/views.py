@@ -69,13 +69,12 @@ def datatable_json():
                     "url": url_for("web_paginas.detail", web_pagina_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "ruta": resultado.ruta,
-                "fecha_modificacion": resultado.fecha_modificacion.strftime("%Y-%m-%d"),
+                "titulo": resultado.titulo,
                 "estado": resultado.estado,
                 "tiempo_publicar": resultado.tiempo_publicar.strftime("%Y-%m-%d %H:%M") if resultado.tiempo_publicar else "",
                 "tiempo_archivar": resultado.tiempo_archivar.strftime("%Y-%m-%d %H:%M") if resultado.tiempo_archivar else "",
                 "web_rama_clave": resultado.web_rama.clave,
-                "archivado": resultado.esta_archivado,
+                "esta_archivado": resultado.esta_archivado,
             }
         )
     # Entregar JSON
@@ -148,8 +147,8 @@ def new(web_rama_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.clave.data = web_rama.clave
-    form.ruta.data = web_rama.nombre
-    return render_template("web_paginas/new.jinja2", form=form)
+    form.ruta.data = f"{web_rama.directorio}/"
+    return render_template("web_paginas/new.jinja2", form=form, web_rama=web_rama)
 
 
 @web_paginas.route("/web_paginas/edicion/<web_pagina_id>", methods=["GET", "POST"])

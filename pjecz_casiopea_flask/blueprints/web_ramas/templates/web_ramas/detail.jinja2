@@ -39,13 +39,13 @@
                                 <label for="filtroWebPaginaClave">Clave</label>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="form-floating">
-                                <input id="filtroWebPaginaTitulo" type="text" class="form-control" aria-label="Título">
-                                <label for="filtroWebPaginaTitulo">Título</label>
+                                <input id="filtroWebPaginaNombre" type="text" class="form-control" aria-label="Nombre">
+                                <label for="filtroWebPaginaNombre">Nombre</label>
                             </div>
                         </div>
-                        <div class="col-2">
+                        <div class="col-4">
                             <div class="form-floating">
                                 <select id="filtroWebPaginaEstado" class="form-select" aria-label="Estado">
                                     <option value="">Todos</option>
@@ -63,15 +63,16 @@
                 </div>
             </div>
             <!-- DataTable WebPaginas -->
-            <table id="web_paginas_datatable" class="table display nowrap" style="width:100%">
+            <table id="web_paginas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>Clave</th>
+                        <th>Nombre</th>
                         <th>Título</th>
-                        <th>F. modificación</th>
                         <th>Estado</th>
-                        <th>Cuándo publicar</th>
-                        <th>Cuándo archivar</th>
+                        <th>Publicar</th>
+                        <th>Archivar</th>
+                        <th>Archivado</th>
                     </tr>
                 </thead>
             </table>
@@ -84,10 +85,8 @@
 
 {% block custom_javascript %}
     {% if current_user.can_admin('WEB RAMAS') %}
-        {% if web_rama.estatus == 'A' %}
-            {{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + web_rama.clave + '?') }}{% endif %}
-        {% if web_rama.estatus == 'B' %}
-            {{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + web_rama.clave + '?') }}{% endif %}
+        {% if web_rama.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + web_rama.clave + '?') }}{% endif %}
+        {% if web_rama.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + web_rama.clave + '?') }}{% endif %}
     {% endif %}
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
@@ -97,39 +96,50 @@
             const constructorDataTable = new ConfigDataTable('{{ csrf_token() }}');
             let configDTWebPaginas = constructorDataTable.config();
             configDTWebPaginas['ajax']['url'] = '/web_paginas/datatable_json';
-            configDTWebPaginas['ajax']['data'] = {estatus: "A", web_rama_id: {{ web_rama.id}}};
+            configDTWebPaginas['ajax']['data'] = { estatus: "A", web_rama_id: '{{ web_rama.id }}' };
             configDTWebPaginas['columns'] = [
                 { data: 'detalle' },
+                { data: 'nombre' },
                 { data: 'titulo' },
-                { data: 'fecha_modificacion' },
                 { data: 'estado' },
                 { data: 'tiempo_publicar' },
-                { data: 'tiempo_archivar' }
+                { data: 'tiempo_archivar' },
+                { data: 'esta_archivado' }
             ];
             configDTWebPaginas['columnDefs'] = [
                 {
                     targets: 0, // detalle
                     data: null,
-                    render: function (data, type, row, meta) {
+                    render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
                 },
                 {
-                    targets: 1, // titulo
+                    targets: [1, 2], // nombre, título
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data.length > 48) {
+                        if (data.length > 24) {
                             return '<span title="' + data + '">' + data.substring(0, 48) + '…</span>';
                         }
                         return data;
+                    }
+                },
+                {
+                    targets: 6, // esta_archivado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data) {
+                            return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                        }
+                        return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
                     }
                 }
             ];
             // Filtros WebPaginas
             const filtrosWebPaginas = new FiltrosDataTable('#web_paginas_datatable', configDTWebPaginas);
             filtrosWebPaginas.agregarInput('filtroWebPaginaClave', 'clave');
-            filtrosWebPaginas.agregarInput('filtroWebPaginaTitulo', 'titulo', ''); // cambiar caseSensitive a ''
-            filtrosWebPaginas.agregarInput('filtroWebPaginaEstado', 'estado');
+            filtrosWebPaginas.agregarInput('filtroWebPaginaNombre', 'nombre');
+            filtrosWebPaginas.agregarSelect('filtroWebPaginaEstado', 'estado');
             filtrosWebPaginas.precargar();
         </script>
     {% endif %}

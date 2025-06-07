@@ -30,7 +30,7 @@
 
 {% block custom_javascript %}
     {% if current_user.can_admin('WEB ARCHIVOS') %}
-        {% if web_archivo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + web_archivo.archivo + '?') }}{% endif %}
-        {% if web_archivo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + web_archivo.archivo + '?') }}{% endif %}
+        {% if web_archivo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + web_archivo.clave + '?') }}{% endif %}
+        {% if web_archivo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + web_archivo.clave + '?') }}{% endif %}
     {% endif %}
 {% endblock %}
