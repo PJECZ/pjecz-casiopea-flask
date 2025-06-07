@@ -33,6 +33,23 @@
         {{ detail.label_value('Cuándo publicar', web_pagina.tiempo_publicar) }}
         {{ detail.label_value('Cuándo archivar', web_pagina.tiempo_archivar) }}
         {{ detail.label_value('Estado', web_pagina.estado) }}
+        <hr>
+        <div class="row">
+            <!-- Botón "Cancelar" -->
+            <div class="col-md-3"></div>
+            <!-- Botón "Editar" -->
+            <div class="col-md-3">
+                {{ detail.button_lg(
+                    label="CKEditor5",
+                    url=url_for('web_paginas.edit_ckeditor5', web_pagina_id=web_pagina.id),
+                    icon='mdi:edit',
+                    color_class='btn-info') }}
+            </div>
+            <!-- Botón "Publicar" -->
+            <div class="col-md-3"></div>
+            <!-- Botón "Borrador" -->
+            <div class="col-md-3"></div>
+        </div>
     {% endcall %}
     {% call detail.card('Contenido') %}
         {{ web_pagina.contenido }}

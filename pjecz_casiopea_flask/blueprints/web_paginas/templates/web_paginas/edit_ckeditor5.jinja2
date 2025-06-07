@@ -18,7 +18,7 @@
 {% block content %}
     {% call f.card() %}
         {% set form_kwargs = {'web_pagina_id': web_pagina.id} %}
-        {% call f.form_tag('web_paginas.content', fid='web_pagina_form', **form_kwargs) %}
+        {% call f.form_tag('web_paginas.edit_ckeditor5', fid='web_pagina_form', **form_kwargs) %}
             <div class="main-container">
                 <div class="editor-container editor-container_classic-editor editor-container_include-fullscreen" id="editor-container">
                     <div class="editor-container__editor"><div id="editor"></div></div>
