@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = get_secret("redis_url")
     SALT: str = get_secret("salt")
     SECRET_KEY: str = get_secret("secret_key")
+    SYNCFUSION_LICENSE_KEY: str = get_secret("syncfusion_license_key")
     SQLALCHEMY_DATABASE_URI: str = get_secret("sqlalchemy_database_uri")
     TASK_QUEUE: str = get_secret("task_queue")
     TZ: str = get_secret("tz")

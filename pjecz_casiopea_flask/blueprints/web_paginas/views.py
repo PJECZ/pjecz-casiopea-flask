@@ -4,7 +4,7 @@ Web Páginas, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
@@ -247,7 +247,12 @@ def edit_syncfusion_document(web_pagina_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.contenido_sfdt.data = web_pagina.contenido_sfdt
-    return render_template("web_paginas/edit_syncfusion_document.jinja2", form=form, web_pagina=web_pagina)
+    return render_template(
+        "web_paginas/edit_syncfusion_document.jinja2",
+        form=form,
+        web_pagina=web_pagina,
+        syncfusion_license_key=current_app.config["SYNCFUSION_LICENSE_KEY"],
+    )
 
 
 @web_paginas.route("/web_paginas/edicion_syncfusion_markdown/<web_pagina_id>", methods=["GET", "POST"])
