@@ -7,7 +7,7 @@ from datetime import date, datetime
 from typing import List, Optional
 
 from sqlalchemy import Enum, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...config.extensions import database
@@ -50,8 +50,9 @@ class WebPagina(database.Model, UniversalMixin):
     esta_archivado: Mapped[bool] = mapped_column(default=False)
 
     # Columnas contenido
-    contenido_html: Mapped[str] = mapped_column(Text, default="")
-    contenido_md: Mapped[str] = mapped_column(Text, default="")
+    contenido_html: Mapped[Optional[str]] = mapped_column(Text)
+    contenido_md: Mapped[Optional[str]] = mapped_column(Text)  # CKEditor5
+    contenido_sfdt: Mapped[Optional[JSONB]] = mapped_column(Text)  # Syncfusion Document Editor
 
     # Hijos
     web_archivos: Mapped[List["WebArchivo"]] = relationship("WebArchivo", back_populates="web_pagina")

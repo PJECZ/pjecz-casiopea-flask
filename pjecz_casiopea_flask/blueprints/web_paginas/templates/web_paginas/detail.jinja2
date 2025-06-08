@@ -19,6 +19,7 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Detalle -->
     {% call detail.card(estatus=web_pagina.estatus) %}
         {{ detail.label_value_big('Clave', web_pagina.clave) }}
         {{ detail.label_value('Descripción', web_pagina.descripcion) }}
@@ -35,25 +36,39 @@
         {{ detail.label_value_boolean('Archivado', web_pagina.esta_archivado) }}
         <hr>
         <div class="row">
-            <!-- Botón "Cancelar" -->
-            <div class="col-md-3"></div>
-            <!-- Botón "Editar" -->
-            <div class="col-md-3">
+            <!-- Botón Editor CKEditor5 -->
+            <div class="col-md-4">
                 {{ detail.button_lg(
-                    label="CKEditor5",
+                    label="Editar markdown en CKEditor5",
                     url=url_for('web_paginas.edit_ckeditor5', web_pagina_id=web_pagina.id),
                     icon='mdi:edit',
                     color_class='btn-info') }}
             </div>
-            <!-- Botón "Publicar" -->
-            <div class="col-md-3"></div>
-            <!-- Botón "Borrador" -->
-            <div class="col-md-3"></div>
+            <!-- Botón -->
+            <div class="col-md-4">
+                {{ detail.button_lg(
+                    label="Editar markdown en Syncfusion Rich Text Editor",
+                    url=url_for('web_paginas.edit_syncfusion_markdown', web_pagina_id=web_pagina.id),
+                    icon='mdi:edit',
+                    color_class='btn-info') }}
+            </div>
+            <!-- Botón Editor Syncfusion -->
+            <div class="col-md-4">
+                {{ detail.button_lg(
+                    label="Editar documento en Syncfusion Documentos",
+                    url=url_for('web_paginas.edit_syncfusion_document', web_pagina_id=web_pagina.id),
+                    icon='mdi:edit',
+                    color_class='btn-info') }}
+            </div>
         </div>
     {% endcall %}
-    {% call detail.card('Contenido HTML') %}
-        {{ web_pagina.contenido_html }}
-    {% endcall %}
+    <!-- Contenido HTML -->
+    {% if web_pagina.contenido_html %}
+        {% call detail.card('Contenido HTML') %}
+            {{ web_pagina.contenido_html }}
+        {% endcall %}
+    {% endif %}
+    <!-- Tabla WebArchivos -->
     {% if current_user.can_view('WEB ARCHIVOS') %}
         {% call detail.card('Archivos') %}
             <!-- Filtros WebArchivos -->
