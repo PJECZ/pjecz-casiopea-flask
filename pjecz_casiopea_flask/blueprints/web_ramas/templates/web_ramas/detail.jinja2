@@ -6,7 +6,7 @@
 {% block title %}Rama {{ web_rama.clave }}{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Rama ' + web_rama.nombre) %}
+    {% call topbar.page_buttons('Rama ' + web_rama.descripcion) %}
         {{ topbar.button_previous('Ramas', url_for('web_ramas.list_active')) }}
         {% if current_user.can_edit('WEB RAMAS') %}
             {{ topbar.button_edit('Editar', url_for('web_ramas.edit', web_rama_id=web_rama.id)) }}
@@ -20,12 +20,12 @@
 
 {% block content %}
     {% call detail.card(estatus=web_rama.estatus) %}
-        {{ detail.label_value('Clave', web_rama.clave) }}
-        {{ detail.label_value('Nombre', web_rama.nombre) }}
+        {{ detail.label_value_big('Clave', web_rama.clave) }}
+        {{ detail.label_value('Descripción', web_rama.descripcion) }}
         {{ detail.label_value('Título', web_rama.titulo) }}
         {{ detail.label_value('Unidad compartida', web_rama.unidad_compartida) }}
         {{ detail.label_value('Directorio', web_rama.directorio) }}
-        {{ detail.label_value('Archivado', web_rama.esta_archivado) }}
+        {{ detail.label_value_boolean('Archivado', web_rama.esta_archivado) }}
     {% endcall %}
     {% if current_user.can_view('WEB PAGINAS') %}
         {% call detail.card('Páginas') %}
@@ -41,8 +41,8 @@
                         </div>
                         <div class="col-4">
                             <div class="form-floating">
-                                <input id="filtroWebPaginaNombre" type="text" class="form-control" aria-label="Nombre">
-                                <label for="filtroWebPaginaNombre">Nombre</label>
+                                <input id="filtroWebPaginaDescripcion" type="text" class="form-control" aria-label="Descripción">
+                                <label for="filtroWebPaginaDescripcion">Descripción</label>
                             </div>
                         </div>
                         <div class="col-4">
@@ -67,7 +67,7 @@
                 <thead>
                     <tr>
                         <th>Clave</th>
-                        <th>Nombre</th>
+                        <th>Descripción</th>
                         <th>Título</th>
                         <th>Estado</th>
                         <th>Publicar</th>
@@ -99,7 +99,7 @@
             configDTWebPaginas['ajax']['data'] = { estatus: "A", web_rama_id: '{{ web_rama.id }}' };
             configDTWebPaginas['columns'] = [
                 { data: 'detalle' },
-                { data: 'nombre' },
+                { data: 'descripcion' },
                 { data: 'titulo' },
                 { data: 'estado' },
                 { data: 'tiempo_publicar' },
@@ -115,7 +115,7 @@
                     }
                 },
                 {
-                    targets: [1, 2], // nombre, título
+                    targets: [1, 2], // descripcion, título
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.length > 24) {
@@ -138,7 +138,7 @@
             // Filtros WebPaginas
             const filtrosWebPaginas = new FiltrosDataTable('#web_paginas_datatable', configDTWebPaginas);
             filtrosWebPaginas.agregarInput('filtroWebPaginaClave', 'clave');
-            filtrosWebPaginas.agregarInput('filtroWebPaginaNombre', 'nombre');
+            filtrosWebPaginas.agregarInput('filtroWebPaginaDescripcion', 'descripcion');
             filtrosWebPaginas.agregarSelect('filtroWebPaginaEstado', 'estado');
             filtrosWebPaginas.precargar();
         </script>

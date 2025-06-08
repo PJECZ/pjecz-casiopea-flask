@@ -30,8 +30,8 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="filtroWebRamaNombre" type="text" class="form-control" aria-label="Nombre">
-                            <label for="filtroWebRamaNombre">Nombre</label>
+                            <input id="filtroWebRamaDescripcion" type="text" class="form-control" aria-label="Descripción">
+                            <label for="filtroWebRamaDescripcion">Descripción</label>
                         </div>
                     </div>
                     <div class="col-6 text-end">
@@ -46,7 +46,7 @@
             <thead>
                 <tr>
                     <th>Clave</th>
-                    <th>Nombre</th>
+                    <th>Descripción</th>
                     <th>Título</th>
                     <th>Unidad compartida</th>
                     <th>Directorio</th>
@@ -68,7 +68,7 @@
         configDTWebRamas['ajax']['data'] = {{ filtros }};
         configDTWebRamas['columns'] = [
             { data: 'detalle' },
-            { data: 'nombre' },
+            { data: 'descripcion' },
             { data: 'titulo' },
             { data: 'unidad_compartida' },
             { data: 'directorio' },
@@ -83,7 +83,7 @@
                 }
             },
             {
-                targets: [1, 2], // nombre, título
+                targets: [1, 2], // descripcion, título
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 24) {
@@ -106,7 +106,7 @@
         // Filtros WebRamas
         const filtrosWebRamas = new FiltrosDataTable('#web_ramas_datatable', configDTWebRamas);
         filtrosWebRamas.agregarInput('filtroWebRamaClave', 'clave');
-        filtrosWebRamas.agregarInput('filtroWebRamaNombre', 'nombre');
+        filtrosWebRamas.agregarInput('filtroWebRamaDescripcion', 'descripcion');
         filtrosWebRamas.precargar();
     </script>
 {% endblock %}

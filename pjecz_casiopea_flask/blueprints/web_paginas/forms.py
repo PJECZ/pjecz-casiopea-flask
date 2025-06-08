@@ -12,10 +12,8 @@ from ...lib.safe_string import PATH_REGEXP
 class WebPaginaNewForm(FlaskForm):
     """Formulario nuevo WebPagina"""
 
-    clave = StringField(
-        "Clave (solo letras mayúsculas y números hasta 16 caracteres)", validators=[DataRequired(), Length(max=16)]
-    )
-    nombre = StringField("Nombre (solo letras mayúsculas y números)", validators=[DataRequired(), Length(max=256)])
+    clave = StringField("Clave (letras mayúsculas y números, hasta 14 caracteres)", validators=[DataRequired(), Length(max=14)])
+    descripcion = StringField("Descripción (letras mayúsculas y números)", validators=[DataRequired(), Length(max=256)])
     titulo = StringField("Título", validators=[DataRequired(), Length(max=256)])
     ruta = StringField(
         "Ruta (letras minúsculas, números, guiones y diagonales)",
@@ -27,16 +25,13 @@ class WebPaginaNewForm(FlaskForm):
 class WebPaginaEditForm(FlaskForm):
     """Formulario editar WebPagina"""
 
-    clave = StringField(
-        "Clave (solo letras mayúsculas y números hasta 16 caracteres)", validators=[DataRequired(), Length(max=16)]
-    )
-    nombre = StringField("Nombre (solo letras mayúsculas y números)", validators=[DataRequired(), Length(max=256)])
+    clave = StringField("Clave (letras mayúsculas y números, hasta 14 caracteres)", validators=[DataRequired(), Length(max=14)])
+    descripcion = StringField("Descripción (letras mayúsculas y números)", validators=[DataRequired(), Length(max=256)])
     titulo = StringField("Título", validators=[DataRequired(), Length(max=256)])
     ruta = StringField(
         "Ruta (letras minúsculas, números, guiones y diagonales)",
         validators=[DataRequired(), Length(max=256), Regexp(PATH_REGEXP)],
     )
-    resumen = TextAreaField("Resumen", validators=[Optional()], render_kw={"rows": 8})
     fecha_modificacion = DateField("Fecha de modificación", validators=[DataRequired()])
     responsable = StringField("Responsable", validators=[Optional(), Length(max=256)])
     etiquetas = StringField("Etiquetas", validators=[Optional(), Length(max=256)])
@@ -47,8 +42,9 @@ class WebPaginaEditForm(FlaskForm):
     guardar = SubmitField("Guardar")
 
 
-class WebPaginaContenidoForm(FlaskForm):
+class WebPaginaEditCKEditor5Form(FlaskForm):
     """Formulario contenido WebPagina"""
 
-    contenido = TextAreaField("Contenido", validators=[DataRequired()], render_kw={"rows": 10})
+    contenido_md = TextAreaField("Contenido MD", validators=[Optional()], render_kw={"rows": 10})
+    contenido_html = TextAreaField("Contenido HTML", validators=[Optional()], render_kw={"rows": 10})
     guardar = SubmitField("Guardar")

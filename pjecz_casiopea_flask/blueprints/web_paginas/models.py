@@ -34,22 +34,24 @@ class WebPagina(database.Model, UniversalMixin):
     web_rama: Mapped["WebRama"] = relationship(back_populates="web_paginas")
 
     # Columnas
-    clave: Mapped[str] = mapped_column(String(24), unique=True)
-    nombre: Mapped[str] = mapped_column(String(256))  # Solo letras mayúsculas y números
+    clave: Mapped[str] = mapped_column(String(16), unique=True)
+    descripcion: Mapped[str] = mapped_column(String(256))  # Solo letras mayúsculas y números
     titulo: Mapped[str] = mapped_column(String(256))  # Como se va a ver en la web
-    resumen: Mapped[Optional[str]] = mapped_column(Text)  # Solo letras mayúsculas y números
-    contenido: Mapped[str] = mapped_column(Text, default="")  # Como se va a ver en la web
     ruta: Mapped[str] = mapped_column(String(256))
     fecha_modificacion: Mapped[date] = mapped_column(default=date.today())
     responsable: Mapped[Optional[str]] = mapped_column(String(256))
     etiquetas: Mapped[Optional[str]] = mapped_column(String(256))
     vista_previa: Mapped[Optional[str]] = mapped_column(String(256))
+    tiempo_publicar: Mapped[Optional[datetime]]
+    tiempo_archivar: Mapped[Optional[datetime]]
     estado: Mapped[str] = mapped_column(
         Enum(*ESTADOS, name="web_paginas_estados", native_enum=False), index=True, default="BORRADOR"
     )
-    tiempo_publicar: Mapped[Optional[datetime]]
-    tiempo_archivar: Mapped[Optional[datetime]]
     esta_archivado: Mapped[bool] = mapped_column(default=False)
+
+    # Columnas contenido
+    contenido_html: Mapped[str] = mapped_column(Text, default="")
+    contenido_md: Mapped[str] = mapped_column(Text, default="")
 
     # Hijos
     web_archivos: Mapped[List["WebArchivo"]] = relationship("WebArchivo", back_populates="web_pagina")

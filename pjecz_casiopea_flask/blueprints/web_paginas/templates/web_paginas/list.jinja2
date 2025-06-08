@@ -27,8 +27,8 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="filtroWebPaginaNombre" type="text" class="form-control" aria-label="Nombre">
-                            <label for="filtroWebPaginaNombre">Nombre</label>
+                            <input id="filtroWebPaginaDescripcion" type="text" class="form-control" aria-label="Descripción">
+                            <label for="filtroWebPaginaDescripcion">Descripción</label>
                         </div>
                     </div>
                     <div class="col-4">
@@ -53,7 +53,7 @@
             <thead>
                 <tr>
                     <th>Clave</th>
-                    <th>Nombre</th>
+                    <th>Descripción</th>
                     <th>Título</th>
                     <th>Estado</th>
                     <th>Publicar en</th>
@@ -77,7 +77,7 @@
         configDTWebPaginas['ajax']['data'] = {{ filtros }};
         configDTWebPaginas['columns'] = [
             { data: 'detalle' },
-            { data: 'nombre' },
+            { data: 'descripcion' },
             { data: 'titulo' },
             { data: 'estado' },
             { data: 'tiempo_publicar' },
@@ -94,7 +94,7 @@
                 }
             },
             {
-                targets: [1, 2], // nombre, título
+                targets: [1, 2], // descripcion, título
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 24) {
@@ -117,7 +117,7 @@
         // Filtros WebPaginas
         const filtrosWebPaginas = new FiltrosDataTable('#web_paginas_datatable', configDTWebPaginas);
         filtrosWebPaginas.agregarInput('filtroWebPaginaClave', 'clave');
-        filtrosWebPaginas.agregarInput('filtroWebPaginaNombre', 'nombre');
+        filtrosWebPaginas.agregarInput('filtroWebPaginaDescripcion', 'descripcion');
         filtrosWebPaginas.agregarSelect('filtroWebPaginaEstado', 'estado');
         filtrosWebPaginas.precargar();
     </script>

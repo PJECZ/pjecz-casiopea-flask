@@ -29,8 +29,8 @@ class WebRama(database.Model, UniversalMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # Columnas
-    clave: Mapped[str] = mapped_column(String(24), unique=True)
-    nombre: Mapped[str] = mapped_column(String(256))  # Solo letras mayúsculas y números
+    clave: Mapped[str] = mapped_column(String(16), unique=True)
+    descripcion: Mapped[str] = mapped_column(String(256))  # Solo letras mayúsculas y números
     titulo: Mapped[str] = mapped_column(String(256))  # Como se va a ver en la web
     unidad_compartida: Mapped[str] = mapped_column(String(64))
     directorio: Mapped[str] = mapped_column(String(64))  # Letras minúsculas y números

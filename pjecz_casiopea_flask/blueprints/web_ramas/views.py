@@ -44,10 +44,10 @@ def datatable_json():
         clave = safe_clave(request.form["clave"])
         if clave != "":
             consulta = consulta.filter(WebRama.clave.contains(clave))
-    if "nombre" in request.form:
-        nombre = safe_string(request.form["nombre"], save_enie=True, to_uppercase=False)
-        if nombre != "":
-            consulta = consulta.filter(WebRama.nombre.contains(nombre))
+    if "descripcion" in request.form:
+        descripcion = safe_string(request.form["descripcion"], save_enie=True)
+        if descripcion != "":
+            consulta = consulta.filter(WebRama.descripcion.contains(descripcion))
     if "esta_archivado" in request.form:
         consulta = consulta.filter(WebRama.esta_archivado == bool(request.form["esta_archivado"]))
     # Ordenar y paginar
@@ -62,7 +62,7 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("web_ramas.detail", web_rama_id=resultado.id),
                 },
-                "nombre": resultado.nombre,
+                "descripcion": resultado.descripcion,
                 "titulo": resultado.titulo,
                 "unidad_compartida": resultado.unidad_compartida,
                 "directorio": resultado.directorio,
@@ -118,7 +118,7 @@ def new():
         if es_valido is True:
             web_rama = WebRama(
                 clave=clave,
-                nombre=safe_string(form.nombre.data, save_enie=True),
+                descripcion=safe_string(form.descripcion.data, save_enie=True),
                 titulo=safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False),
                 unidad_compartida=form.unidad_compartida.data,
                 directorio=form.directorio.data,
@@ -154,7 +154,7 @@ def edit(web_rama_id):
         # Si es válido, actualizar
         if es_valido:
             web_rama.clave = clave
-            web_rama.nombre = safe_string(form.nombre.data, save_enie=True)
+            web_rama.descripcion = safe_string(form.descripcion.data, save_enie=True)
             web_rama.titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
             web_rama.unidad_compartida = form.unidad_compartida.data
             web_rama.directorio = form.directorio.data
@@ -170,7 +170,7 @@ def edit(web_rama_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.clave.data = web_rama.clave
-    form.nombre.data = web_rama.nombre
+    form.descripcion.data = web_rama.descripcion
     form.titulo.data = web_rama.titulo
     form.unidad_compartida.data = web_rama.unidad_compartida
     form.directorio.data = web_rama.directorio

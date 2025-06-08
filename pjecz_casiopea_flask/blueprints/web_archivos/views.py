@@ -48,9 +48,9 @@ def datatable_json():
         if clave != "":
             consulta = consulta.filter(WebArchivo.clave.contains(clave))
     if "descripcion" in request.form:
-        descripcion = safe_string(request.form["nombre"], save_enie=True)
+        descripcion = safe_string(request.form["descripcion"], save_enie=True)
         if descripcion != "":
-            consulta = consulta.filter(WebArchivo.nombre.contains(descripcion))
+            consulta = consulta.filter(WebArchivo.descripcion.contains(descripcion))
     if "esta_archivado" in request.form:
         consulta = consulta.filter(WebArchivo.esta_archivado == bool(request.form["esta_archivado"]))
     # Ordenar y paginar
@@ -65,10 +65,8 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("web_archivos.detail", web_archivo_id=resultado.id),
                 },
-                "nombre": resultado.nombre,
-                "ruta": resultado.ruta,
-                "archivo": resultado.archivo,
                 "descripcion": resultado.descripcion,
+                "archivo": resultado.archivo,
                 "web_pagina_clave": resultado.web_pagina.clave,
                 "archivado": resultado.esta_archivado,
             }
@@ -119,20 +117,15 @@ def new(web_pagina_id):
         if WebArchivo.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
             es_valido = False
-        # Tomar valores del formulario
-        nombre = safe_string(form.nombre.data, save_enie=True)
-        titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
-        archivo = form.archivo.data.strip()
-        url = safe_url(form.url.data)
         # Si es válido, guardar
         if es_valido is True:
             web_archivo = WebArchivo(
                 web_pagina_id=web_pagina.id,
                 clave=clave,
-                nombre=nombre,
-                titulo=titulo,
-                archivo=archivo,
-                url=url,
+                descripcion=safe_string(form.descripcion.data, save_enie=True),
+                titulo=safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False),
+                archivo=form.archivo.data.strip(),
+                url=safe_url(form.url.data),
             )
             web_archivo.save()
             bitacora = Bitacora(

@@ -19,20 +19,56 @@
     {% call f.card() %}
         {% set form_kwargs = {'web_pagina_id': web_pagina.id} %}
         {% call f.form_tag('web_paginas.edit_ckeditor5', fid='web_pagina_form', **form_kwargs) %}
+            <div style="display:none">
+                {% call f.form_group(form.contenido_html) %}{% endcall %}
+                {% call f.form_group(form.contenido_md) %}{% endcall %}
+            </div>
             <div class="main-container">
                 <div class="editor-container editor-container_classic-editor editor-container_include-fullscreen" id="editor-container">
-                    <div class="editor-container__editor"><div id="editor"></div></div>
+                    <div class="editor-container__editor">
+                        <div id="editor"></div>
+                    </div>
                 </div>
-    		</div>
-            {% call f.form_group(form.contenido) %}{% endcall %}
+            </div>
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Marked -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- CKEditor 5 -->
     <script src="https://cdn.ckeditor.com/ckeditor5/45.2.0/ckeditor5.umd.js" crossorigin></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/45.2.0/translations/es.umd.js" crossorigin></script>
     <script src="{{ url_for('static', filename='js/ckeditor5.js') }}"></script>
+    <script>
+        // Obtener los elementos
+        const editorElement = document.getElementById('editor');
+        const webPaginaForm = document.getElementById('web_pagina_form');
+        const contenidoHtmlTextArea = document.getElementById('contenido_html');
+        const contenidoMdTextArea = document.getElementById('contenido_md');
+        // Inicializar el editor
+        let ckEditorInstance;
+        ClassicEditor
+            .create(editorElement, editorConfig)
+            .then( editor => {
+                ckEditorInstance = editor;
+                console.log('editor inicializado');
+                editor.setData(contenidoMdTextArea.value); // Al inicializar copiamos el contenido
+            })
+            .catch( error => {
+                console.error('ERROR al inicializar el editor', error);
+            });
+        // Antes de enviar el formulario, vamos a actualizar el contenido
+        webPaginaForm.addEventListener('submit', function(event) {
+            if (ckEditorInstance && typeof marked !== 'undefined') {
+                const contenidoMd = ckEditorInstance.getData();
+                contenidoMdTextArea.value = contenidoMd;
+                contenidoHtmlTextArea.value = marked.parse(contenidoMd);
+            } else {
+                console.error('ERROR al copiar y convertir el contenido');
+            }
+        });
+    </script>
 {% endblock %}

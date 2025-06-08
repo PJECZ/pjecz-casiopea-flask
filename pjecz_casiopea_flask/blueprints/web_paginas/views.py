@@ -15,7 +15,7 @@ from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ..web_ramas.models import WebRama
-from .forms import WebPaginaContenidoForm, WebPaginaEditForm, WebPaginaNewForm
+from .forms import WebPaginaEditCKEditor5Form, WebPaginaEditForm, WebPaginaNewForm
 from .models import WebPagina
 
 MODULO = "WEB PAGINAS"
@@ -48,10 +48,10 @@ def datatable_json():
         clave = safe_clave(request.form["clave"])
         if clave != "":
             consulta = consulta.filter(WebPagina.clave.contains(clave))
-    if "titulo" in request.form:
-        titulo = safe_string(request.form["nombre"], do_unidecode=False, save_enie=True, to_uppercase=False)
-        if titulo != "":
-            consulta = consulta.filter(WebPagina.nombre.contains(titulo))
+    if "descripcion" in request.form:
+        descripcion = safe_string(request.form["descripcion"], save_enie=True)
+        if descripcion != "":
+            consulta = consulta.filter(WebPagina.descripcion.contains(descripcion))
     if "estado" in request.form:
         consulta = consulta.filter_by(estado=request.form["estado"])
     if "esta_archivado" in request.form:
@@ -68,7 +68,7 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("web_paginas.detail", web_pagina_id=resultado.id),
                 },
-                "nombre": resultado.nombre,
+                "descripcion": resultado.descripcion,
                 "titulo": resultado.titulo,
                 "estado": resultado.estado,
                 "tiempo_publicar": resultado.tiempo_publicar.strftime("%Y-%m-%d %H:%M") if resultado.tiempo_publicar else "",
@@ -123,18 +123,14 @@ def new(web_rama_id):
         if WebPagina.query.filter_by(clave=clave).first():
             flash("La clave ya está en uso. Debe de ser única.", "warning")
             es_valido = False
-        # Tomar valores del formulario
-        nombre = safe_string(form.nombre.data, save_enie=True)
-        titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
-        ruta = safe_path(form.ruta.data)
         # Si es válido, guardar
         if es_valido is True:
             web_pagina = WebPagina(
                 web_rama_id=web_rama.id,
                 clave=clave,
-                nombre=nombre,
-                titulo=titulo,
-                ruta=ruta,
+                descripcion=safe_string(form.descripcion.data, save_enie=True),
+                titulo=safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False),
+                ruta=safe_path(form.ruta.data),
             )
             web_pagina.save()
             bitacora = Bitacora(
@@ -169,10 +165,9 @@ def edit(web_pagina_id):
         # Si es válido, actualizar
         if es_valido:
             web_pagina.clave = clave
-            web_pagina.nombre = safe_string(form.nombre.data, save_enie=True)
+            web_pagina.descripcion = safe_string(form.descripcion.data, save_enie=True)
             web_pagina.titulo = safe_string(form.titulo.data, do_unidecode=False, save_enie=True, to_uppercase=False)
             web_pagina.ruta = safe_path(form.ruta.data)
-            web_pagina.resumen = safe_string(form.resumen.data, save_enie=True)
             web_pagina.fecha_modificacion = form.fecha_modificacion.data
             web_pagina.responsable = safe_string(form.responsable.data, save_enie=True, to_uppercase=False)
             web_pagina.etiquetas = safe_string(form.etiquetas.data, save_enie=True, to_uppercase=False)
@@ -191,10 +186,9 @@ def edit(web_pagina_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.clave.data = web_pagina.clave
-    form.nombre.data = web_pagina.nombre
+    form.descripcion.data = web_pagina.descripcion
     form.titulo.data = web_pagina.titulo
     form.ruta.data = web_pagina.ruta
-    form.resumen.data = web_pagina.resumen
     form.fecha_modificacion.data = web_pagina.fecha_modificacion
     form.responsable.data = web_pagina.responsable
     form.etiquetas.data = web_pagina.etiquetas
@@ -210,9 +204,10 @@ def edit(web_pagina_id):
 def edit_ckeditor5(web_pagina_id):
     """Editar contenido de Web Página"""
     web_pagina = WebPagina.query.get_or_404(web_pagina_id)
-    form = WebPaginaContenidoForm()
+    form = WebPaginaEditCKEditor5Form()
     if form.validate_on_submit():
-        web_pagina.contenido = form.contenido.data.strip()
+        web_pagina.contenido_html = form.contenido_html.data.strip()
+        web_pagina.contenido_md = form.contenido_md.data.strip()
         web_pagina.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -223,7 +218,8 @@ def edit_ckeditor5(web_pagina_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
-    form.contenido.data = web_pagina.contenido
+    form.contenido_html.data = web_pagina.contenido_html
+    form.contenido_md.data = web_pagina.contenido_md
     return render_template("web_paginas/edit_ckeditor5.jinja2", form=form, web_pagina=web_pagina)
 
 
