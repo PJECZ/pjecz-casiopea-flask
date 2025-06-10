@@ -27,7 +27,7 @@
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="filtroWebPaginaDescripcion" type="text" class="form-control" aria-label="Descripción">
+                            <input id="filtroWebPaginaDescripcion" type="text" class="form-control" aria-label="Descripción" style="text-transform: uppercase;">
                             <label for="filtroWebPaginaDescripcion">Descripción</label>
                         </div>
                     </div>
@@ -56,10 +56,9 @@
                     <th>Descripción</th>
                     <th>Título</th>
                     <th>Estado</th>
-                    <th>Publicar en</th>
-                    <th>Archivar en</th>
-                    <th>Rama clave</th>
-                    <th>Archivado</th>
+                    <th>Arch</th>
+                    <th>CKE5</th>
+                    <th>SF</th>
                 </tr>
             </thead>
         </table>
@@ -80,10 +79,9 @@
             { data: 'descripcion' },
             { data: 'titulo' },
             { data: 'estado' },
-            { data: 'tiempo_publicar' },
-            { data: 'tiempo_archivar' },
-            { data: 'web_rama_clave' },
-            { data: 'esta_archivado' }
+            { data: 'esta_archivado' },
+            { data: 'edit_ckeditor5_url' },
+            { data: 'edit_syncfusion_document_url' }
         ];
         configDTWebPaginas['columnDefs'] = [
             {
@@ -104,13 +102,37 @@
                 }
             },
             {
-                targets: 7, // esta_archivado
+                targets: 4, // esta_archivado
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data) {
                         return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
                     }
                     return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
+                }
+            },
+            {
+                targets: 5, // edit_ckeditor5_url
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<a href="' + data + '">' +
+                            '<span class="iconify" data-icon="mdi:text-box-edit" style="font-size: 1.4em"></span>' +
+                            '</a>';
+                    }
+                    return '';
+                }
+            },
+            {
+                targets: 6, // edit_syncfusion_document_url
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<a href="' + data + '">' +
+                            '<span class="iconify" data-icon="mdi:file-document-edit" style="font-size: 1.4em"></span>' +
+                            '</a>';
+                    }
+                    return '';
                 }
             }
         ];

@@ -70,9 +70,9 @@
                         <th>Descripción</th>
                         <th>Título</th>
                         <th>Estado</th>
-                        <th>Publicar</th>
-                        <th>Archivar</th>
                         <th>Archivado</th>
+                        <th>CKEditor5</th>
+                        <th>Syncfusion</th>
                     </tr>
                 </thead>
             </table>
@@ -102,9 +102,9 @@
                 { data: 'descripcion' },
                 { data: 'titulo' },
                 { data: 'estado' },
-                { data: 'tiempo_publicar' },
-                { data: 'tiempo_archivar' },
-                { data: 'esta_archivado' }
+                { data: 'esta_archivado' },
+                { data: 'edit_ckeditor5_url' },
+                { data: 'edit_syncfusion_document_url' }
             ];
             configDTWebPaginas['columnDefs'] = [
                 {
@@ -125,13 +125,37 @@
                     }
                 },
                 {
-                    targets: 6, // esta_archivado
+                    targets: 4, // esta_archivado
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data) {
                             return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
                         }
                         return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
+                    }
+                },
+                {
+                    targets: 5, // edit_ckeditor5_url
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data) {
+                            return '<a href="' + data + '">' +
+                                '<span class="iconify" data-icon="mdi:text-box-edit" style="font-size: 1.4em"></span>' +
+                                '</a>';
+                        }
+                        return '';
+                    }
+                },
+                {
+                    targets: 6, // edit_syncfusion_document_url
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data) {
+                            return '<a href="' + data + '">' +
+                                '<span class="iconify" data-icon="mdi:file-document-edit" style="font-size: 1.4em"></span>' +
+                                '</a>';
+                        }
+                        return '';
                     }
                 }
             ];

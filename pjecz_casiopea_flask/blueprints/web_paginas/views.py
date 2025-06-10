@@ -76,10 +76,14 @@ def datatable_json():
                 "descripcion": resultado.descripcion,
                 "titulo": resultado.titulo,
                 "estado": resultado.estado,
-                "tiempo_publicar": resultado.tiempo_publicar.strftime("%Y-%m-%d %H:%M") if resultado.tiempo_publicar else "",
-                "tiempo_archivar": resultado.tiempo_archivar.strftime("%Y-%m-%d %H:%M") if resultado.tiempo_archivar else "",
                 "web_rama_clave": resultado.web_rama.clave,
                 "esta_archivado": resultado.esta_archivado,
+                "edit_ckeditor5_url": url_for("web_paginas.edit_ckeditor5", web_pagina_id=resultado.id)
+                if resultado.contenido_md
+                else "",
+                "edit_syncfusion_document_url": url_for("web_paginas.edit_syncfusion_document", web_pagina_id=resultado.id)
+                if resultado.contenido_sfdt
+                else "",
             }
         )
     # Entregar JSON
