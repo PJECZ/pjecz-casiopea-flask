@@ -4,11 +4,11 @@ Web Páginas, vistas
 
 import json
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_path, safe_string
+from ...lib.safe_string import safe_clave, safe_message, safe_path, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
@@ -111,6 +111,9 @@ def list_inactive():
 @web_paginas.route("/web_paginas/<web_pagina_id>")
 def detail(web_pagina_id):
     """Detalle de un Web Página"""
+    web_pagina_id = safe_uuid(web_pagina_id)
+    if web_pagina_id == "":
+        abort(400)
     web_pagina = WebPagina.query.get_or_404(web_pagina_id)
     return render_template("web_paginas/detail.jinja2", web_pagina=web_pagina)
 
@@ -156,6 +159,9 @@ def new(web_rama_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(web_pagina_id):
     """Editar Web Página"""
+    web_pagina_id = safe_uuid(web_pagina_id)
+    if web_pagina_id == "":
+        abort(400)
     web_pagina = WebPagina.query.get_or_404(web_pagina_id)
     form = WebPaginaEditForm()
     if form.validate_on_submit():
@@ -208,6 +214,9 @@ def edit(web_pagina_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit_ckeditor5(web_pagina_id):
     """Editar contenido de Web Página con CKEditor5"""
+    web_pagina_id = safe_uuid(web_pagina_id)
+    if web_pagina_id == "":
+        abort(400)
     web_pagina = WebPagina.query.get_or_404(web_pagina_id)
     form = WebPaginaEditCKEditor5Form()
     if form.validate_on_submit():

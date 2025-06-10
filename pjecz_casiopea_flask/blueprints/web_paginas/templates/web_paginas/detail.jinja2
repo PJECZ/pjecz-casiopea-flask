@@ -6,7 +6,7 @@
 {% block title %}Página {{ web_pagina.clave }}{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Página ' + web_pagina.descripcion) %}
+    {% call topbar.page_buttons('Página ' + web_pagina.clave) %}
         {{ topbar.button_previous('Rama ' + web_pagina.web_rama.clave, url_for('web_ramas.detail', web_rama_id=web_pagina.web_rama_id)) }}
         {% if current_user.can_edit('WEB PAGINAS') %}
             {{ topbar.button_edit('Editar', url_for('web_paginas.edit', web_pagina_id=web_pagina.id)) }}
@@ -21,7 +21,7 @@
 {% block content %}
     <!-- Detalle -->
     {% call detail.card(estatus=web_pagina.estatus) %}
-        {{ detail.label_value_big('Clave', web_pagina.clave) }}
+        {# detail.label_value_big('Clave', web_pagina.clave) #}
         {{ detail.label_value('Descripción', web_pagina.descripcion) }}
         {{ detail.label_value('Título', web_pagina.titulo) }}
         {{ detail.label_value('Ruta', web_pagina.ruta) }}

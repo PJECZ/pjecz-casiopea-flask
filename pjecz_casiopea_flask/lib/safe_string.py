@@ -135,3 +135,12 @@ def safe_url(input_str):
     if re.match(URL_REGEXP, input_str) is None:
         return ""
     return input_str
+
+
+def safe_uuid(input_str: str) -> str:
+    """Safe UUID"""
+    try:
+        uuid.UUID(input_str)
+        return input_str
+    except ValueError:
+        return ""
