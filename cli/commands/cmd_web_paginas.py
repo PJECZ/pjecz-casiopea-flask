@@ -13,7 +13,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from pjecz_casiopea_flask.blueprints.web_paginas.models import WebPagina
 from pjecz_casiopea_flask.blueprints.web_ramas.models import WebRama
-from pjecz_casiopea_flask.config.extensions import database, pwd_context
+from pjecz_casiopea_flask.config.extensions import database
 from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_string
 from pjecz_casiopea_flask.main import app
 
@@ -30,29 +30,34 @@ def cli():
 
 
 @click.command()
-def alimentar_noticias():
-    """Agregar páginas de la rama Noticias"""
+@click.argument("web_rama_clave", type=str)
+def alimentar(web_rama_clave):
+    """Agregar páginas de la rama"""
+
+    # Validar la clave de la rama
+    web_rama_clave = safe_string(web_rama_clave)
+    if web_rama_clave == "":
+        click.echo("ERROR: NO válida la clave de la rama.")
+        sys.exit(1)
+    web_rama = WebRama.query.filter_by(clave=web_rama_clave).first()
+    if web_rama is None:
+        click.echo(f"ERROR: NO existe la rama con la clave {web_rama_clave}.")
+        sys.exit(1)
 
     # Validar el directorio
-    noticias_path = Path(f"{UNIDADES_COMPARTIDAS_DIR}/Noticias")
-    if not noticias_path.exists():
-        click.echo("AVISO: NO existe el directorio de Noticias.")
+    web_rama_unidad_compartida = f"{UNIDADES_COMPARTIDAS_DIR}/{web_rama.unidad_compartida}"
+    web_rama_unidad_compartida_path = Path(web_rama_unidad_compartida)
+    if not web_rama_unidad_compartida_path.exists():
+        click.echo(f"ERROR: NO existe el directorio {web_rama_unidad_compartida_path}")
         sys.exit(1)
-    if not noticias_path.is_dir():
-        click.echo("AVISO: NO es un directorio. No puedo buscar Noticias.")
-        sys.exit(1)
-
-    # Consultar la rama Noticias
-    try:
-        web_rama = WebRama.query.filter_by(clave="NT").one()
-    except (MultipleResultsFound, NoResultFound):
-        click.echo("AVISO: No se encontró la rama Noticias")
+    if not web_rama_unidad_compartida_path.is_dir():
+        click.echo(f"ERROR: NO es un directorio {web_rama_unidad_compartida_path}")
         sys.exit(1)
 
     # Bucle por los archivos MD
     contador = 0
-    archivos_md = list(Path(noticias_path).rglob("*.md"))
-    click.echo("Leyendo los archivos MD con Noticias: ", nl=False)
+    archivos_md = list(Path(web_rama_unidad_compartida_path).rglob("*.md"))
+    click.echo(f"Leyendo los archivos MD con Key en {web_rama_unidad_compartida}: ", nl=False)
     for archivo_md in archivos_md:
         # Inicializar el listado con las líneas sin metadatos
         contenido = []
@@ -79,10 +84,10 @@ def alimentar_noticias():
         # Validar clave
         clave = metadatos.get("Key")
         if not clave:
-            click.echo(click.style("[k]", fg="yellow"), nl=False)
+            click.echo(click.style("[?]", fg="yellow"), nl=False)
             continue  # Se omite esta página porque no tiene clave
         if WebPagina.query.filter_by(clave=clave).first():
-            click.echo(click.style("[.]", fg="blue"), nl=False)
+            click.echo(click.style("[OK]", fg="blue"), nl=False)
             continue  # Se omite esta página porque ya está en la base de datos
         # Validar título
         titulo = "Sin título"
@@ -127,7 +132,7 @@ def alimentar_noticias():
 
     # Mensaje final
     click.echo()
-    click.echo(click.style(f"  {contador} noticias alimentadas.", fg="green"))
+    click.echo(click.style(f"  {contador} páginas alimentadas.", fg="green"))
 
 
-cli.add_command(alimentar_noticias)
+cli.add_command(alimentar)

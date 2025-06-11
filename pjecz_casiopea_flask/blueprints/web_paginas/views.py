@@ -78,12 +78,14 @@ def datatable_json():
                 "estado": resultado.estado,
                 "web_rama_clave": resultado.web_rama.clave,
                 "esta_archivado": resultado.esta_archivado,
-                "edit_ckeditor5_url": url_for("web_paginas.edit_ckeditor5", web_pagina_id=resultado.id)
-                if resultado.contenido_md
-                else "",
-                "edit_syncfusion_document_url": url_for("web_paginas.edit_syncfusion_document", web_pagina_id=resultado.id)
-                if resultado.contenido_sfdt
-                else "",
+                "edit_ckeditor5_url": (
+                    url_for("web_paginas.edit_ckeditor5", web_pagina_id=resultado.id) if resultado.contenido_md else ""
+                ),
+                "edit_syncfusion_document_url": (
+                    url_for("web_paginas.edit_syncfusion_document", web_pagina_id=resultado.id)
+                    if resultado.contenido_sfdt
+                    else ""
+                ),
             }
         )
     # Entregar JSON
