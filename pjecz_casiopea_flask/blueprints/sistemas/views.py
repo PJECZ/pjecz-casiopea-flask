@@ -45,6 +45,12 @@ def page_not_found(error):
     return render_template("sistemas/404.jinja2"), 404
 
 
+@sistemas.app_errorhandler(413)
+def request_entity_too_large(error):
+    """Error lo que se recibe sobrepasa la capacidad"""
+    return render_template("sistemas/413.jinja2"), 413
+
+
 @sistemas.app_errorhandler(500)
 def internal_server_error(error):
     """Error del servidor"""

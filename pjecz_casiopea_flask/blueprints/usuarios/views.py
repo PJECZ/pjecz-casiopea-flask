@@ -6,12 +6,18 @@ import json
 import re
 from datetime import datetime, timedelta
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required, login_user, logout_user
 import google.auth.transport.requests
 import google.oauth2.id_token
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
 from pytz import timezone
 
+from ...config.firebase import get_firebase_settings
+from ...lib.cryptography_api_key import generate_api_key
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.pwgen import generar_contrasena
+from ...lib.safe_next_url import safe_next_url
+from ...lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string
 from ..bitacoras.models import Bitacora
 from ..distritos.models import Distrito
 from ..entradas_salidas.models import EntradaSalida
@@ -20,19 +26,6 @@ from ..permisos.models import Permiso
 from ..usuarios.decorators import anonymous_required, permission_required
 from ..usuarios.forms import AccesoForm, UsuarioForm
 from ..usuarios.models import Usuario
-from ...config.firebase import get_firebase_settings
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.cryptography_api_key import generate_api_key
-from ...lib.pwgen import generar_contrasena
-from ...lib.safe_next_url import safe_next_url
-from ...lib.safe_string import (
-    CONTRASENA_REGEXP,
-    EMAIL_REGEXP,
-    TOKEN_REGEXP,
-    safe_email,
-    safe_message,
-    safe_string,
-)
 
 HTTP_REQUEST = google.auth.transport.requests.Request()
 
@@ -106,7 +99,7 @@ def login():
         "usuarios/login.jinja2",
         form=form,
         firebase_settings=firebase_settings,
-        title="Sistema de Citas",
+        title="Plataforma Casiopea",
     )
 
 

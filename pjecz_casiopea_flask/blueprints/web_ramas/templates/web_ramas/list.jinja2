@@ -1,0 +1,112 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_admin('WEB RAMAS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('web_ramas.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('web_ramas.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('WEB RAMAS') %}
+            {{ topbar.button_new('Nueva Rama', url_for('web_ramas.new')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <!-- Filtros WebRamas -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosWebRamas.buscar(); return false;">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroWebRamaClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
+                            <label for="filtroWebRamaClave">Clave</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroWebRamaDescripcion" type="text" class="form-control" aria-label="Descripción" style="text-transform: uppercase;">
+                            <label for="filtroWebRamaDescripcion">Descripción</label>
+                        </div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosWebRamas.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosWebRamas.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- DataTable WebRamas -->
+        <table id="web_ramas_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Clave</th>
+                    <th>Descripción</th>
+                    <th>Título</th>
+                    <th>Unidad compartida</th>
+                    <th>Directorio</th>
+                    <th>Archivado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
+    <script>
+        // DataTable WebRamas
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDTWebRamas = constructorDataTable.config();
+        configDTWebRamas['ajax']['url'] = '/web_ramas/datatable_json';
+        configDTWebRamas['ajax']['data'] = {{ filtros }};
+        configDTWebRamas['columns'] = [
+            { data: 'detalle' },
+            { data: 'descripcion' },
+            { data: 'titulo' },
+            { data: 'unidad_compartida' },
+            { data: 'directorio' },
+            { data: 'esta_archivado' }
+        ];
+        configDTWebRamas['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            },
+            {
+                targets: [1, 2], // descripcion, título
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 24) {
+                        return '<span title="' + data + '">' + data.substring(0, 48) + '…</span>';
+                    }
+                    return data;
+                }
+            },
+            {
+                targets: 5, // esta_archivado
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
+                    }
+                    return '<span class="iconify text-secondary" data-icon="mdi:checkbox-blank-outline" style="font-size: 1.4em"></span>';
+                }
+            }
+        ];
+        // Filtros WebRamas
+        const filtrosWebRamas = new FiltrosDataTable('#web_ramas_datatable', configDTWebRamas);
+        filtrosWebRamas.agregarInput('filtroWebRamaClave', 'clave');
+        filtrosWebRamas.agregarInput('filtroWebRamaDescripcion', 'descripcion');
+        filtrosWebRamas.precargar();
+    </script>
+{% endblock %}

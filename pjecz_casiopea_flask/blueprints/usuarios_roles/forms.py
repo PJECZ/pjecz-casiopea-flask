@@ -14,7 +14,7 @@ class UsuarioRolNewWithRolForm(FlaskForm):
     """Formulario para agregar Usuario-Rol con el rol como parametro"""
 
     rol_nombre = StringField("Rol")  # Solo lectura
-    usuario = SelectField("Usuario", coerce=int, validators=[DataRequired()])
+    usuario = SelectField("Usuario", coerce=str, validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
     def __init__(self, *args, **kwargs):
@@ -26,7 +26,7 @@ class UsuarioRolNewWithRolForm(FlaskForm):
 class UsuarioRolNewWithUsuarioForm(FlaskForm):
     """Formulario para agregar Usuario-Rol con el usuario como parametro"""
 
-    rol = SelectField("Rol", coerce=int, validators=[DataRequired()])
+    rol = SelectField("Rol", coerce=str, validators=[DataRequired()])
     usuario_email = StringField("Usuario e-mail")  # Solo lectura
     usuario_nombre = StringField("Usuario nombre")  # Solo lectura
     usuario_puesto = StringField("Usuario puesto")  # Solo lectura

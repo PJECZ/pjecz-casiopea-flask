@@ -3,9 +3,9 @@ Alimentar Cit Servicios
 """
 
 import csv
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
 import click
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
@@ -29,20 +29,12 @@ def alimentar_cit_servicios():
     click.echo("Alimentando cit_servicios: ", nl=False)
     contador = 0
     with open(ruta, encoding="utf8") as puntero:
+        cit_categoria_clave = None
         rows = csv.DictReader(puntero)
         for row in rows:
-            cit_categoria_clave = safe_clave(row.get("cit_categoria_clave"))
-            cit_categoria_nombre = safe_string(row.get("cit_categoria_nombre"), save_enie=True)
-            cit_categoria_es_activo = row.get("cit_categoria_es_activo") == "1"
-            try:
+            if cit_categoria_clave is None or cit_categoria_clave != row.get("cit_categoria_clave"):
+                cit_categoria_clave = row.get("cit_categoria_clave")
                 cit_categoria = CitCategoria.query.filter(CitCategoria.clave == cit_categoria_clave).one()
-            except (MultipleResultsFound, NoResultFound):
-                cit_categoria = CitCategoria(
-                    clave=cit_categoria_clave,
-                    nombre=cit_categoria_nombre,
-                    es_activo=cit_categoria_es_activo,
-                )
-                cit_categoria.save()
             clave = safe_clave(row.get("clave"))
             descripcion = safe_string(row.get("descripcion"), save_enie=True)
             duracion = datetime.strptime(row.get("duracion"), "%H:%M").time()

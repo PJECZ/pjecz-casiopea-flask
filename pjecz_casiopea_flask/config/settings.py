@@ -12,6 +12,7 @@ from pydantic_settings import BaseSettings
 load_dotenv()
 PROJECT_ID = os.getenv("PROJECT_ID", "")  # Por defecto está vacío, esto significa estamos en modo local
 SERVICE_PREFIX = os.getenv("SERVICE_PREFIX", "pjecz_casiopea_api_key")
+MEGABYTE = (2**10) ** 2
 
 
 def get_secret(secret_id: str) -> str:
@@ -43,9 +44,14 @@ class Settings(BaseSettings):
     REDIS_URL: str = get_secret("redis_url")
     SALT: str = get_secret("salt")
     SECRET_KEY: str = get_secret("secret_key")
+    SYNCFUSION_LICENSE_KEY: str = get_secret("syncfusion_license_key")
     SQLALCHEMY_DATABASE_URI: str = get_secret("sqlalchemy_database_uri")
     TASK_QUEUE: str = get_secret("task_queue")
     TZ: str = get_secret("tz")
+
+    # Incrementar el tamaño de lo que se sube en los formularios para Syncfusion Document Editor
+    MAX_CONTENT_LENGTH: int | None = None
+    MAX_FORM_MEMORY_SIZE: int = 50 * MEGABYTE
 
     class Config:
         """Load configuration"""

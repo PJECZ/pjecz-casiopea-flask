@@ -31,6 +31,9 @@ from .blueprints.usuarios.models import Usuario
 from .blueprints.usuarios.views import usuarios
 from .blueprints.usuarios_oficinas.views import usuarios_oficinas
 from .blueprints.usuarios_roles.views import usuarios_roles
+from .blueprints.web_archivos.views import web_archivos
+from .blueprints.web_paginas.views import web_paginas
+from .blueprints.web_ramas.views import web_ramas
 from .config.extensions import authentication, csrf, database, login_manager, moment
 from .config.settings import Settings
 
@@ -69,6 +72,10 @@ app.register_blueprint(tareas)
 app.register_blueprint(usuarios)
 app.register_blueprint(usuarios_oficinas)
 app.register_blueprint(usuarios_roles)
+app.register_blueprint(web_archivos)
+app.register_blueprint(web_paginas)
+app.register_blueprint(web_ramas)
+
 
 # Cargar extensiones
 csrf.init_app(app)

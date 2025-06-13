@@ -7,6 +7,8 @@ import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string
 from ..autoridades.forms import AutoridadForm
 from ..autoridades.models import Autoridad
 from ..bitacoras.models import Bitacora
@@ -14,8 +16,6 @@ from ..distritos.models import Distrito
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
 
 MODULO = "AUTORIDADES"
 
@@ -244,10 +244,8 @@ def select_autoridades_json():
     """Proporcionar el JSON de autoridades para elegir con un Select"""
     # Consultar
     consulta = Autoridad.query.filter(Autoridad.estatus == "A")
-    if "es_archivo_solicitante" in request.form:
-        consulta = consulta.filter_by(es_archivo_solicitante=request.form["es_archivo_solicitante"] == "true")
-    if "es_extinto" in request.form:
-        consulta = consulta.filter_by(es_extinto=request.form["es_extinto"] == "true")
+    if "es_activo" in request.form:
+        consulta = consulta.filter_by(es_activo=request.form["es_activo"] == "true")
     if "es_jurisdiccional" in request.form:
         consulta = consulta.filter_by(es_jurisdiccional=request.form["es_jurisdiccional"] == "true")
     if "clave" in request.form:
