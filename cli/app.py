@@ -34,7 +34,7 @@ class CLI(click.Group):
         commands.sort()
         return commands
 
-    def get_command(self, ctx: click.Context, name: str) -> click.BaseCommand:
+    def get_command(self, ctx: click.Context, name: str) -> click.Command:
         """
         Loads a command by its name.
         It looks for a file named 'cmd_<name>.py' in CMD_FOLDER,
@@ -66,7 +66,7 @@ class CLI(click.Group):
                 del sys.modules[module_name_in_sys]  # Clean up from sys.modules if loading failed
             sys.exit(1)
         command_obj = getattr(module, "cli")
-        if not isinstance(command_obj, click.BaseCommand):
+        if not isinstance(command_obj, click.Command):
             click.echo(f"Error: The 'cli' attribute in '{CMD_PREFIX}{name}.py' is not a Click command instance")
             if module_name_in_sys in sys.modules:  # Cleanup
                 del sys.modules[module_name_in_sys]
