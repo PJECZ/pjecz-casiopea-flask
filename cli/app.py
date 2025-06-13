@@ -12,8 +12,11 @@ CMD_FOLDER = os.path.join(os.path.dirname(__file__), "commands")
 CMD_PREFIX = "cmd_"
 
 
-class CLI(click.MultiCommand):
-    """Para que cada archivo en commands que empiece con cmd_ sea una orden"""
+class CLI(click.Group):
+    """
+    A custom Click Group that dynamically loads commands from Python files
+    in the 'commands' directory that start with 'cmd_'.
+    """
 
     def list_commands(self, ctx: click.Context) -> list[str]:
         """
@@ -72,7 +75,7 @@ class CLI(click.MultiCommand):
 
 
 @click.command(cls=CLI, name="cli")  # 'name' sets the invocation name of this group
-def main_cli_entry_point():
+def cli():
     """
     Herramienta CLI principal que carga comandos dinámicamente desde la carpeta 'commands'.
 
@@ -82,4 +85,4 @@ def main_cli_entry_point():
 
 
 if __name__ == "__main__":
-    main_cli_entry_point()
+    cli()
