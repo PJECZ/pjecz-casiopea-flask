@@ -11,6 +11,7 @@ import click
 from dotenv import load_dotenv
 
 from cli.commands.alimentar_autoridades import alimentar_autoridades
+from cli.commands.alimentar_cit_categorias import alimentar_cit_categorias
 from cli.commands.alimentar_cit_dias_inhabiles import alimentar_cit_dias_inhabiles
 from cli.commands.alimentar_cit_oficinas_servicios import alimentar_cit_oficinas_servicios
 from cli.commands.alimentar_cit_servicios import alimentar_cit_servicios
@@ -19,12 +20,12 @@ from cli.commands.alimentar_domicilios import alimentar_domicilios
 from cli.commands.alimentar_materias import alimentar_materias
 from cli.commands.alimentar_modulos import alimentar_modulos
 from cli.commands.alimentar_oficinas import alimentar_oficinas
-from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_permisos import alimentar_permisos
+from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
-from pjecz_casiopea_flask.main import app
 from pjecz_casiopea_flask.config.extensions import database
+from pjecz_casiopea_flask.main import app
 
 app.app_context().push()
 database.app = app
@@ -65,6 +66,7 @@ def alimentar():
     alimentar_usuarios_roles()
     alimentar_domicilios()
     alimentar_oficinas()
+    alimentar_cit_categorias()
     alimentar_cit_servicios()
     alimentar_cit_oficinas_servicios()
     alimentar_cit_dias_inhabiles()

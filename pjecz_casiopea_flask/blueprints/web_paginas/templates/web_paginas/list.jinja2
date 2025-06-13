@@ -56,9 +56,8 @@
                     <th>Descripción</th>
                     <th>Título</th>
                     <th>Estado</th>
-                    <th>Arch</th>
-                    <th>CKE5</th>
-                    <th>SF</th>
+                    <th>Arch.</th>
+                    <th>Cont.</th>
                 </tr>
             </thead>
         </table>
@@ -80,8 +79,7 @@
             { data: 'titulo' },
             { data: 'estado' },
             { data: 'esta_archivado' },
-            { data: 'edit_ckeditor5_url' },
-            { data: 'edit_syncfusion_document_url' }
+            { data: 'edit_ckeditor5_url' }
         ];
         configDTWebPaginas['columnDefs'] = [
             {
@@ -118,18 +116,6 @@
                     if (data) {
                         return '<a href="' + data + '">' +
                             '<span class="iconify" data-icon="mdi:text-box-edit" style="font-size: 1.4em"></span>' +
-                            '</a>';
-                    }
-                    return '';
-                }
-            },
-            {
-                targets: 6, // edit_syncfusion_document_url
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data) {
-                        return '<a href="' + data + '">' +
-                            '<span class="iconify" data-icon="mdi:file-document-edit" style="font-size: 1.4em"></span>' +
                             '</a>';
                     }
                     return '';

@@ -39,26 +39,16 @@
             <!-- Botón Editor CKEditor5 -->
             <div class="col-md-4">
                 {{ detail.button_lg(
-                    label="Editar contenido en CKEditor5",
+                    label="Editar contenido",
                     url=url_for('web_paginas.edit_ckeditor5', web_pagina_id=web_pagina.id),
                     icon='mdi:edit',
                     color_class='btn-info') }}
             </div>
-            <!-- Botón -->
+            <!-- Botón Pendiente -->
             <div class="col-md-4">
-                {{ detail.button_lg(
-                    label="Editar contenido en Syncfusion Rich Text Editor",
-                    url=url_for('web_paginas.edit_syncfusion_markdown', web_pagina_id=web_pagina.id),
-                    icon='mdi:edit',
-                    color_class='btn-info') }}
             </div>
-            <!-- Botón Editor Syncfusion -->
+            <!-- Botón Pendiente -->
             <div class="col-md-4">
-                {{ detail.button_lg(
-                    label="Editar contenido en Syncfusion Documentos",
-                    url=url_for('web_paginas.edit_syncfusion_document', web_pagina_id=web_pagina.id),
-                    icon='mdi:edit',
-                    color_class='btn-info') }}
             </div>
         </div>
     {% endcall %}
