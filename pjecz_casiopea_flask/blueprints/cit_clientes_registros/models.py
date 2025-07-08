@@ -2,8 +2,8 @@
 Cit Clientes Registros, modelos
 """
 
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
@@ -33,6 +33,11 @@ class CitClienteRegistro(database.Model, UniversalMixin):
     cadena_validar: Mapped[str] = mapped_column(String(256))
     mensajes_cantidad: Mapped[int] = mapped_column(default=0)
     ya_registrado: Mapped[bool] = mapped_column(default=False)
+
+    @property
+    def nombre(self):
+        """Junta nombres, apellido_primero y apellido segundo"""
+        return self.nombres + " " + self.apellido_primero + " " + self.apellido_segundo
 
     def __repr__(self):
         """Representación"""

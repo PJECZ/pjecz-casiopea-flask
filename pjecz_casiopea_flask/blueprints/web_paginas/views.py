@@ -247,6 +247,11 @@ def edit_ckeditor5(web_pagina_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit_syncfusion_document(web_pagina_id):
     """Editar contenido de Web Página con Syncfusion Document Editor"""
+    # Validar que esté definida la variable de entorno SYNCFUSION_LICENSE_KEY
+    if not current_app.config.get("SYNCFUSION_LICENSE_KEY"):
+        flash("No está definida la variable de entorno SYNCFUSION_LICENSE_KEY", "danger")
+        return redirect(url_for("web_paginas.list_active"))
+    # Consultar
     web_pagina = WebPagina.query.get_or_404(web_pagina_id)
     form = WebPaginaEditSyncfusionDocumentEditorForm()
     if form.validate_on_submit():
