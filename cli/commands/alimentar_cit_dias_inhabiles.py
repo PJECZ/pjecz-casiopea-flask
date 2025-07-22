@@ -3,12 +3,12 @@ Alimentar Cit Días Inhábiles
 """
 
 import csv
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
 import click
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from pjecz_casiopea_flask.blueprints.cit_dias_inhabiles.models import CitDiaInhabil
 from pjecz_casiopea_flask.lib.safe_string import safe_string

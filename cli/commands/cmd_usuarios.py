@@ -12,12 +12,11 @@ from datetime import datetime, timedelta
 import click
 
 from pjecz_casiopea_flask.blueprints.usuarios.models import Usuario
-from pjecz_casiopea_flask.config.extensions import database, pwd_context
+from pjecz_casiopea_flask.config.extensions import pwd_context
 from pjecz_casiopea_flask.lib.cryptography_api_key import convert_string_to_fernet_key, decode_api_key, generate_api_key
 from pjecz_casiopea_flask.main import app
 
 app.app_context().push()
-database.app = app
 
 
 @click.group()

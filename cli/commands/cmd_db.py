@@ -24,11 +24,9 @@ from cli.commands.alimentar_permisos import alimentar_permisos
 from cli.commands.alimentar_roles import alimentar_roles
 from cli.commands.alimentar_usuarios import alimentar_usuarios
 from cli.commands.alimentar_usuarios_roles import alimentar_usuarios_roles
-from pjecz_casiopea_flask.config.extensions import database
 from pjecz_casiopea_flask.main import app
 
 app.app_context().push()
-database.app = app
 
 load_dotenv()  # Take environment variables from .env
 DEPLOYMENT_ENVIRONMENT = os.environ.get("DEPLOYMENT_ENVIRONMENT", "develop").upper()

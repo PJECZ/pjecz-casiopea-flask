@@ -3,12 +3,12 @@ Alimentar Cit Oficinas Servicios
 """
 
 import csv
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
 import click
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from pjecz_casiopea_flask.blueprints.cit_oficinas_servicios.models import CitOficinaServicio
 from pjecz_casiopea_flask.blueprints.cit_servicios.models import CitServicio
