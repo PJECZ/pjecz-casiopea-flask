@@ -9,11 +9,10 @@ from pathlib import Path
 
 import click
 from markdown import markdown
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from pjecz_casiopea_flask.blueprints.web_paginas.models import WebPagina
 from pjecz_casiopea_flask.blueprints.web_ramas.models import WebRama
-from pjecz_casiopea_flask.config.extensions import database
 from pjecz_casiopea_flask.lib.safe_string import safe_clave, safe_string
 from pjecz_casiopea_flask.main import app
 
@@ -21,7 +20,6 @@ METADATO_REGEXP = r"^(\w+)\s*:\s*(.+)$"
 UNIDADES_COMPARTIDAS_DIR = "/var/mnt/demeter/Sitios Web/pjecz.gob.mx"
 
 app.app_context().push()
-database.app = app
 
 
 @click.group()

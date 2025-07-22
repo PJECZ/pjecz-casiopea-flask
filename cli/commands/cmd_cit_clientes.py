@@ -5,16 +5,16 @@ CLI Cit Clientes
 - cambiar_contrasena: Cambiar la contraseña de un cliente
 """
 
-from datetime import datetime, timedelta
 import random
 import sys
+from datetime import datetime, timedelta
 
 import click
 from faker import Faker
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from pjecz_casiopea_flask.blueprints.cit_clientes.models import CitCliente
-from pjecz_casiopea_flask.config.extensions import database, pwd_context
+from pjecz_casiopea_flask.config.extensions import pwd_context
 from pjecz_casiopea_flask.lib.curp_generator import generar_curp_falso, generar_nacimiento_falso
 from pjecz_casiopea_flask.lib.pwgen import generar_contrasena
 from pjecz_casiopea_flask.lib.safe_string import safe_email, safe_string
@@ -24,7 +24,6 @@ LIMITE_CITAS_PENDIENTES = 3
 RENOVACION_DIAS = 365
 
 app.app_context().push()
-database.app = app
 
 
 @click.group()

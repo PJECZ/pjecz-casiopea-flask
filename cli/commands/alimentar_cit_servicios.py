@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 import click
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from pjecz_casiopea_flask.blueprints.cit_categorias.models import CitCategoria
 from pjecz_casiopea_flask.blueprints.cit_servicios.models import CitServicio

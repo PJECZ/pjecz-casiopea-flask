@@ -2,35 +2,19 @@
 Cit Clientes Registros, tareas en el fondo
 """
 
-import logging
-import os
-from datetime import datetime
-
-import pytz
-import sendgrid
-from jinja2 import Environment, FileSystemLoader
-from sendgrid.helpers.mail import Content, Email, Mail, To
-
-from pjecz_casiopea_flask.blueprints.cit_clientes_registros.models import CitClienteRegistro
-from pjecz_casiopea_flask.config.extensions import database
+from pjecz_casiopea_flask.blueprints.cit_clientes_registros.communications.send_to_sendgrid import enviar_a_sendgrid
+from pjecz_casiopea_flask.lib.exceptions import MyAnyError
 from pjecz_casiopea_flask.lib.tasks import set_task_error, set_task_progress
-from pjecz_casiopea_flask.main import app
-
-app.app_context().push()
-database.app = app
 
 
-def enviar():
-    """Enviar mensaje via email con un URL para confirmar su registro"""
-
-
-def reenviar():
-    """Reenviar mensajes via email con un URL a quienes deben confirmar su registro"""
-
-
-def lanzar_enviar():
-    """Lanzar la tarea en el fondo para enviar"""
-
-
-def lanzar_reenviar():
-    """Lanzar la tarea en el fondo para reenviar"""
+def lanzar_enviar_a_sendgrid(cit_cliente_registro_id: str) -> str:
+    """Lanzar tarea en el fondo para para enviar a Sendgrid"""
+    set_task_progress(0, "Se ha lanzado la tarea en el fondo para enviar a Sendgrid" "")
+    try:
+        mensaje_termino, _, _ = enviar_a_sendgrid(cit_cliente_registro_id)
+    except MyAnyError as error:
+        mensaje_error = str(error)
+        set_task_error(mensaje_error)
+        return mensaje_error
+    set_task_progress(100, mensaje_termino)
+    return mensaje_termino

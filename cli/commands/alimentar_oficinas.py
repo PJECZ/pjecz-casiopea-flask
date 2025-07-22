@@ -3,12 +3,12 @@ Alimentar Oficinas
 """
 
 import csv
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
 import click
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from pjecz_casiopea_flask.blueprints.domicilios.models import Domicilio
 from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
