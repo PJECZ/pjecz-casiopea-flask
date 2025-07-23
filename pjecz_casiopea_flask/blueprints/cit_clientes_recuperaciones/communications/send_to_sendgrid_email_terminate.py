@@ -1,0 +1,129 @@
+"""
+Communications, enviar a Sendgrid un mensaje para terminar
+"""
+
+import os
+from datetime import datetime
+
+import pytz
+import sendgrid
+from dotenv import load_dotenv
+from sendgrid.helpers.mail import Content, Email, Mail, To
+
+from pjecz_casiopea_flask.lib.safe_string import safe_uuid
+from pjecz_casiopea_flask.main import app
+
+from ....lib.exceptions import (
+    MyIsDeletedError,
+    MyMissingConfigurationError,
+    MyNotExistsError,
+    MyNotValidParamError,
+    MyRequestError,
+)
+from ..models import CitClienteRecuperacion
+from . import bitacora
+
+# Cargar variables de entorno
+load_dotenv()
+HOST = os.getenv("HOST", "http://localhost:5000")
+NEW_ACCOUNT_CONFIRM_URL = os.getenv("NEW_ACCOUNT_CONFIRM_URL", "")
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
+SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL", "")
+TZ = os.getenv("TZ", "America/Mexico_City")
+
+# Cargar la aplicación para tener acceso a la base de datos
+app.app_context().push()
+
+
+def enviar_a_sendgrid_mensaje_terminar(cit_cliente_recuperacion_id: str) -> tuple[str, str, str]:
+    """Enviar a Sendgrid un mensaje para terminar"""
+    mensajes = []
+    mensaje_info = "Inicia enviar a Sendgrid un mensaje para terminar"
+    mensajes.append(mensaje_info)
+    bitacora.info(mensaje_info)
+
+    # Validar que esté definida la variable de entorno NEW_ACCOUNT_CONFIRM_URL
+    if not NEW_ACCOUNT_CONFIRM_URL:
+        mensaje_error = "La variable de entorno NEW_ACCOUNT_CONFIRM_URL no está definida"
+        bitacora.error(mensaje_error)
+        raise MyMissingConfigurationError(mensaje_error)
+
+    # Validar que esté definida la variable de entorno SENDGRID_API_KEY
+    if not SENDGRID_API_KEY:
+        mensaje_error = "La variable de entorno SENDGRID_API_KEY no está definida"
+        bitacora.error(mensaje_error)
+        raise MyMissingConfigurationError(mensaje_error)
+
+    # Validar que esté definida la variable de entorno SENDGRID_FROM_EMAIL
+    if not SENDGRID_FROM_EMAIL:
+        mensaje_error = "La variable de entorno SENDGRID_FROM_EMAIL no está definida"
+        bitacora.error(mensaje_error)
+        raise MyMissingConfigurationError(mensaje_error)
+
+    # Consultar el cit_cliente_recuperacion
+    cit_cliente_recuperacion_id = safe_uuid(cit_cliente_recuperacion_id)
+    if not cit_cliente_recuperacion_id:
+        mensaje_error = "ID de recuperación inválido"
+        bitacora.error(mensaje_error)
+        raise MyNotValidParamError(mensaje_error)
+    cit_cliente_recuperacion = CitClienteRecuperacion.query.get(cit_cliente_recuperacion_id)
+    if not cit_cliente_recuperacion:
+        mensaje_error = "La recuperación no existe"
+        bitacora.error(mensaje_error)
+        raise MyNotExistsError(mensaje_error)
+
+    # Validar el estatus, que no esté eliminada
+    if cit_cliente_recuperacion.estatus != "A":
+        mensaje_error = "La recuperación está eliminada"
+        bitacora.error(mensaje_error)
+        raise MyIsDeletedError(mensaje_error)
+
+    # Validar que ya haya completado su recuperación
+    if cit_cliente_recuperacion.ya_recuperado is False:
+        mensaje_error = "La recuperación aun NO ha sido completada"
+        bitacora.error(mensaje_error)
+        raise MyRequestError(mensaje_error)
+
+    # Elaborar el asunto del mensaje
+    asunto_str = "Se ha completado la recuperación de su cuenta en el Sistema de Citas PJECZ"
+
+    # Elaborar el contenido del mensaje
+    fecha_envio = datetime.now(tz=pytz.timezone(TZ)).strftime("%d/%b/%Y %H:%M")
+    contenidos = []
+    contenidos.append(f"<h2>{asunto_str}</h2>")
+    contenidos.append(f"<p>Enviado el {fecha_envio}</p>")
+    contenidos.append("<p><strong>Ha cambiado su contraseña y ya puede ir a...</strong></p>")
+    contenidos.append("<ul>")
+    contenidos.append(f'<li><a href="{HOST}">{HOST}</a></li>')
+    contenidos.append("</ul>")
+    contenidos.append("<p>Use esta dirección de correo electrónico y su contraseña para ingresar.</p>")
+    contenidos.append("<p>Este mensaje fue enviado por un programa. <em>NO RESPONDA ESTE MENSAJE.</em></p>")
+    contenido_html = "\n".join(contenidos)
+
+    # Enviar el e-mail
+    send_grid = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+    to_email = To(cit_cliente_recuperacion.cit_cliente.email)
+    remitente_email = Email(SENDGRID_FROM_EMAIL)
+    contenido = Content("text/html", contenido_html)
+    mail = Mail(
+        from_email=remitente_email,
+        to_emails=to_email,
+        subject=asunto_str,
+        html_content=contenido,
+    )
+
+    # Enviar mensaje de correo electrónico
+    try:
+        send_grid.send(mail)
+    except Exception as error:
+        mensaje_error = f"Error al enviar el mensaje por Sendgrid: {str(error)}"
+        bitacora.error(mensaje_error)
+        raise MyRequestError(mensaje_error)
+
+    # Elaborar mensaje_termino
+    mensaje_termino = f"Se ha enviado un mensaje por Sendgrid a {cit_cliente_recuperacion.cit_cliente.email} para confirmar."
+    mensajes.append(mensaje_termino)
+    bitacora.info(mensaje_termino)
+
+    # Entregar mensaje_termino, nombre_archivo y url_publica
+    return "\n".join(mensajes), "", ""
