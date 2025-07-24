@@ -84,7 +84,7 @@ def enviar_a_sendgrid_mensaje_validar(cit_cliente_registro_id: str) -> tuple[str
         raise MyIsDeletedError(mensaje_error)
 
     # Elaborar el asunto del mensaje
-    asunto_str = "PJECZ Sistema de Citas: Validación de la cuenta de correo electrónico"
+    asunto_str = "Validar su cuenta de correo electrónico en el Sistema de Citas PJECZ"
 
     # Elaborar el URL de verificación
     verificacion_url = (
@@ -96,9 +96,7 @@ def enviar_a_sendgrid_mensaje_validar(cit_cliente_registro_id: str) -> tuple[str
     contenidos = []
     contenidos.append(f"<h2>{asunto_str}</h2>")
     contenidos.append(f"<p>Enviado el {fecha_envio}</p>")
-    contenidos.append(
-        "<p><strong>Antes de 48 horas vaya a este URL para validar su cuenta y definir su contraseña:</strong></p>"
-    )
+    contenidos.append("<p><strong>Antes de 48 horas vaya a este URL para validar y definir su contraseña:</strong></p>")
     contenidos.append("<ul>")
     contenidos.append(f"<li>{verificacion_url}</li>")
     contenidos.append("</ul>")

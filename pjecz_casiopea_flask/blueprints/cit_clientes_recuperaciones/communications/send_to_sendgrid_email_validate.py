@@ -34,7 +34,7 @@ TZ = os.getenv("TZ", "America/Mexico_City")
 app.app_context().push()
 
 
-def enviar_a_sendgrid_mensaje_validar(cit_cliente_id: str) -> tuple[str, str, str]:
+def enviar_a_sendgrid_mensaje_validar(cit_cliente_recuperacion_id: str) -> tuple[str, str, str]:
     """Enviar a Sendgrid un mensaje para validar"""
     mensajes = []
     mensaje_info = "Inicia enviar a Sendgrid un mensaje para validar"
@@ -59,20 +59,20 @@ def enviar_a_sendgrid_mensaje_validar(cit_cliente_id: str) -> tuple[str, str, st
         bitacora.error(mensaje_error)
         raise MyMissingConfigurationError(mensaje_error)
 
-    # Consultar el cit_cliente
-    cit_cliente_id = safe_uuid(cit_cliente_id)
-    if not cit_cliente_id:
+    # Consultar el cit_cliente_recuperacion
+    cit_cliente_recuperacion_id = safe_uuid(cit_cliente_recuperacion_id)
+    if not cit_cliente_recuperacion_id:
         mensaje_error = "ID del cliente inválido"
         bitacora.error(mensaje_error)
         raise MyNotValidParamError(mensaje_error)
-    cit_cliente = CitCliente.query.get(cit_cliente_id)
-    if not cit_cliente:
+    cit_cliente_recuperacion = CitClienteRecuperacion.query.get(cit_cliente_recuperacion_id)
+    if not cit_cliente_recuperacion:
         mensaje_error = "El cliente no existe"
         bitacora.error(mensaje_error)
         raise MyNotExistsError(mensaje_error)
 
     # Validar el estatus, que no esté eliminado
-    if cit_cliente.estatus != "A":
+    if cit_cliente_recuperacion.estatus != "A":
         mensaje_error = "El cliente está eliminado"
         bitacora.error(mensaje_error)
         raise MyIsDeletedError(mensaje_error)

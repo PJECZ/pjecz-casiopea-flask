@@ -1,7 +1,9 @@
 """
 CIT Cit Clientes Registros
 
-- enviar-a-sendgrid: Lanzar tarea en el fondo para enviar un mensaje por Sendgrid
+- eliminar: Eliminar registros
+- enviar: Enviar mensaje de correo electrónico por SendGrid para validar
+- reenviar: Reenviar mensajes a quienes no han terminado su registro
 """
 
 import os
@@ -25,8 +27,8 @@ def cli():
 
 @click.command()
 @click.argument("cit_cliente_registro_id", type=str)
-def enviar_a_sendgrid(cit_cliente_registro_id):
-    """Lanzar tarea en el fondo para enviar un mensaje por Sendgrid"""
+def enviar(cit_cliente_registro_id):
+    """Enviar mensaje de correo electrónico por SendGrid para validar"""
 
     # Obtener la conexión a Redis
     pool = ConnectionPool.from_url(url=REDIS_URL)
@@ -53,4 +55,4 @@ def enviar_a_sendgrid(cit_cliente_registro_id):
     click.echo(f"Se lanzado la tarea en el fondo {rq_job.id} para enviar un mensaje por Sendgrid")
 
 
-cli.add_command(enviar_a_sendgrid)
+cli.add_command(enviar)

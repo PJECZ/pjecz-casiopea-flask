@@ -92,7 +92,7 @@ def enviar_a_sendgrid_mensaje_terminar(cit_cliente_registro_id: str) -> tuple[st
     contenidos = []
     contenidos.append(f"<h2>{asunto_str}</h2>")
     contenidos.append(f"<p>Enviado el {fecha_envio}</p>")
-    contenidos.append("<p><strong>Su cuenta está lista y ya puede ingresar a ...</strong></p>")
+    contenidos.append("<p><strong>Su cuenta está lista y ya puede ingresar al Sistema de Citas PJECZ</strong></p>")
     contenidos.append("<ul>")
     contenidos.append(f'<li><a href="{HOST}">{HOST}</a></li>')
     contenidos.append("</ul>")
