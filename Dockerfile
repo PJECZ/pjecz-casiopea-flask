@@ -29,17 +29,18 @@ RUN poetry install --no-dev
 COPY . ./
 
 # PORT is automatically provided by Cloud Run, typically 8080
-# EXPOSE 8080
+ENV PORT=8080
+EXPOSE $PORT
 
 # Run the web service on container startup
 # Set desired Gunicorn worker count (adjust based on Cloud Run CPU/Memory and expected load)
 # Cloud Run v2 usually provides at least 1 CPU, v1 might share, start with 1 or 2
-# Use Uvicorn as the worker class for async support
+# Removed: use Uvicorn as the worker class for async support
+#  --worker-class uvicorn.workers.UvicornWorker \
 # Timeout is set to 0 to disable the timeouts of the workers to allow Cloud Run to handle instance scaling
 CMD exec gunicorn \
     --bind :$PORT \
     --workers 1 \
-    --threads 4 \
+    --threads 2 \
     --timeout 0 \
-    --worker-class uvicorn.workers.UvicornWorker \
     pjecz_casiopea_flask.main:app
