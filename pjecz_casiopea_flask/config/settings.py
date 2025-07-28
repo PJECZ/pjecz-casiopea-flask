@@ -12,7 +12,7 @@ from pydantic_settings import BaseSettings
 
 load_dotenv()
 PROJECT_ID = os.getenv("PROJECT_ID", "")  # Por defecto está vacío, esto significa estamos en modo local
-SERVICE_PREFIX = os.getenv("SERVICE_PREFIX", "pjecz_casiopea_api_key")
+SERVICE_PREFIX = os.getenv("SERVICE_PREFIX", "pjecz_casiopea_flask")
 MEGABYTE = (2**10) ** 2
 
 
