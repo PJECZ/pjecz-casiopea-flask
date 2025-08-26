@@ -117,7 +117,7 @@ def eliminar(horas):
     # Definir el tiempo límite
     tiempo_limite = datetime.now() - timedelta(hours=horas)
     # Consultar las citas a eliminar
-    citas = CitCita.query.filter(CitCita.inicio < tiempo_limite).all()
+    citas = CitCita.query.filter(CitCita.inicio < tiempo_limite).filter(CitCita.estatus == "A").all()
     # Contador
     contador = 0
     # Bucle entre las citas

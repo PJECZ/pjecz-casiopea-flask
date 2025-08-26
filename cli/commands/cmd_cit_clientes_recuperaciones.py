@@ -52,7 +52,9 @@ def eliminar(horas):
     # Consultar los CitClienteRecuperaciones cuyo tiempo de creación sea mayor a las horas especificadas
     tiempo_limite = datetime.now() - timedelta(hours=horas)
     recuperaciones = (
-        CitClienteRecuperacion.query.filter(CitClienteRecuperacion.creado < tiempo_limite).filter_by(estatus="A").all()
+        CitClienteRecuperacion.query.filter(CitClienteRecuperacion.creado < tiempo_limite)
+        .filter(CitClienteRecuperacion.estatus == "A")
+        .all()
     )
     if not recuperaciones:
         click.echo("No hay recuperaciones para eliminar")

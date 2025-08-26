@@ -51,7 +51,11 @@ def eliminar(horas):
     """Eliminar registros"""
     # Consultar los CitClienteRegistro cuyo tiempo de creación sea mayor a las horas especificadas
     tiempo_limite = datetime.now() - timedelta(hours=horas)
-    registros = CitClienteRegistro.query.filter(CitClienteRegistro.creado < tiempo_limite).filter_by(estatus="A").all()
+    registros = (
+        CitClienteRegistro.query.filter(CitClienteRegistro.creado < tiempo_limite)
+        .filter(CitClienteRegistro.estatus == "A")
+        .all()
+    )
     if not registros:
         click.echo("No hay registros para eliminar")
         sys.exit(0)
