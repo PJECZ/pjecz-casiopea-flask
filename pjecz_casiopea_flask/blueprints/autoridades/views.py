@@ -4,18 +4,18 @@ Autoridades, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
-from ..autoridades.forms import AutoridadForm
-from ..autoridades.models import Autoridad
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..distritos.models import Distrito
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
+from .forms import AutoridadForm
+from .models import Autoridad
 
 MODULO = "AUTORIDADES"
 
@@ -107,6 +107,9 @@ def list_inactive():
 @autoridades.route("/autoridades/<autoridad_id>")
 def detail(autoridad_id):
     """Detalle de una Autoridad"""
+    autoridad_id = safe_uuid(autoridad_id)
+    if autoridad_id == "":
+        abort(400)
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     return render_template("autoridades/detail.jinja2", autoridad=autoridad)
 
@@ -147,6 +150,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(autoridad_id):
     """Editar Autoridad"""
+    autoridad_id = safe_uuid(autoridad_id)
+    if autoridad_id == "":
+        abort(400)
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     form = AutoridadForm()
     if form.validate_on_submit():
@@ -187,6 +193,9 @@ def edit(autoridad_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(autoridad_id):
     """Eliminar Autoridad"""
+    autoridad_id = safe_uuid(autoridad_id)
+    if autoridad_id == "":
+        abort(400)
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad.estatus == "A":
         autoridad.delete()
@@ -205,6 +214,9 @@ def delete(autoridad_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(autoridad_id):
     """Recuperar Autoridad"""
+    autoridad_id = safe_uuid(autoridad_id)
+    if autoridad_id == "":
+        abort(400)
     autoridad = Autoridad.query.get_or_404(autoridad_id)
     if autoridad.estatus == "B":
         autoridad.recover()
@@ -223,6 +235,9 @@ def recover(autoridad_id):
 def query_autoridades_json(distrito_id):
     """Proporcionar el JSON de autoridades para elegir con un Select"""
     # Consultar
+    distrito_id = safe_uuid(distrito_id)
+    if distrito_id == "":
+        abort(400)
     consulta = Autoridad.query.filter_by(estatus="A").filter_by(distrito_id=distrito_id)
     # Ordenar
     consulta = consulta.order_by(Autoridad.descripcion_corta)

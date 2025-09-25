@@ -2,21 +2,21 @@
 Cit Clientes, vistas
 """
 
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from .forms import CitClienteForm
-from .models import CitCliente
+from ...config.extensions import pwd_context
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_curp, safe_email, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...config.extensions import pwd_context
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_curp, safe_email, safe_message, safe_string
+from .forms import CitClienteForm
+from .models import CitCliente
 
 LIMITE_CITAS_PENDIENTES = 3
 RENOVACION_DIAS = 365
@@ -107,6 +107,9 @@ def list_inactive():
 @cit_clientes.route("/cit_clientes/<cit_cliente_id>")
 def detail(cit_cliente_id):
     """Detalle de un Cit Cliente"""
+    cit_cliente_id = safe_uuid(cit_cliente_id)
+    if cit_cliente_id == "":
+        abort(400)
     cit_cliente = CitCliente.query.get_or_404(cit_cliente_id)
     return render_template("cit_clientes/detail.jinja2", cit_cliente=cit_cliente)
 
@@ -167,6 +170,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_cliente_id):
     """Editar Cit Cliente"""
+    cit_cliente_id = safe_uuid(cit_cliente_id)
+    if cit_cliente_id == "":
+        abort(400)
     cit_cliente = CitCliente.query.get_or_404(cit_cliente_id)
     form = CitClienteForm()
     if form.validate_on_submit():
@@ -230,6 +236,9 @@ def edit(cit_cliente_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cit_cliente_id):
     """Eliminar Cit Cliente"""
+    cit_cliente_id = safe_uuid(cit_cliente_id)
+    if cit_cliente_id == "":
+        abort(400)
     cit_cliente = CitCliente.query.get_or_404(cit_cliente_id)
     if cit_cliente.estatus == "A":
         cit_cliente.delete()
@@ -248,6 +257,9 @@ def delete(cit_cliente_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cit_cliente_id):
     """Recuperar Cit Cliente"""
+    cit_cliente_id = safe_uuid(cit_cliente_id)
+    if cit_cliente_id == "":
+        abort(400)
     cit_cliente = CitCliente.query.get_or_404(cit_cliente_id)
     if cit_cliente.estatus == "B":
         cit_cliente.recover()

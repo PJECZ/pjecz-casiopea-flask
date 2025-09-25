@@ -36,21 +36,16 @@
         {{ detail.label_value_boolean('Archivado', web_pagina.esta_archivado) }}
         <hr>
         <div class="row">
-            <!-- Botón Editor CKEditor5 -->
+            <!-- Botón Editar -->
             <div class="col-md-4">
                 {{ detail.button_md(
-                    label="Editar contenido con CKEditor5",
+                    label="Editar contenido",
                     url=url_for('web_paginas.edit_ckeditor5', web_pagina_id=web_pagina.id),
                     icon='mdi:edit',
                     color_class='btn-info') }}
             </div>
             <!-- Botón Pendiente -->
             <div class="col-md-4">
-                {{ detail.button_md(
-                    label="Editar contenido con Syncfusion",
-                    url=url_for('web_paginas.edit_syncfusion_document', web_pagina_id=web_pagina.id),
-                    icon='mdi:edit',
-                    color_class='btn-info') }}
             </div>
             <!-- Botón Pendiente -->
             <div class="col-md-4">

@@ -4,17 +4,17 @@ Materias, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..materias.forms import MateriaForm
-from ..materias.models import Materia
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from .forms import MateriaForm
+from .models import Materia
 
 MODULO = "MATERIAS"
 
@@ -105,6 +105,9 @@ def list_inactive():
 @materias.route("/materias/<materia_id>")
 def detail(materia_id):
     """Detalle de una Materia"""
+    materia_id = safe_uuid(materia_id)
+    if materia_id == "":
+        abort(400)
     materia = Materia.query.get_or_404(materia_id)
     return render_template("materias/detail.jinja2", materia=materia)
 
@@ -151,6 +154,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(materia_id):
     """Editar Materia"""
+    materia_id = safe_uuid(materia_id)
+    if materia_id == "":
+        abort(400)
     materia = Materia.query.get_or_404(materia_id)
     form = MateriaForm()
     if form.validate_on_submit():
@@ -198,6 +204,9 @@ def edit(materia_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(materia_id):
     """Eliminar Materia"""
+    materia_id = safe_uuid(materia_id)
+    if materia_id == "":
+        abort(400)
     materia = Materia.query.get_or_404(materia_id)
     if materia.estatus == "A":
         materia.delete()
@@ -216,6 +225,9 @@ def delete(materia_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(materia_id):
     """Recuperar Materia"""
+    materia_id = safe_uuid(materia_id)
+    if materia_id == "":
+        abort(400)
     materia = Materia.query.get_or_404(materia_id)
     if materia.estatus == "B":
         materia.recover()

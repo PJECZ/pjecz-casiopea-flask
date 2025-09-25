@@ -4,17 +4,17 @@ Cit Clientes Recuperaciones, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_email, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..cit_clientes.models import CitCliente
-from ..cit_clientes_recuperaciones.models import CitClienteRecuperacion
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_email, safe_message, safe_string
+from .models import CitClienteRecuperacion
 
 MODULO = "CIT CLIENTES RECUPERACIONES"
 
@@ -112,5 +112,8 @@ def list_inactive():
 @cit_clientes_recuperaciones.route("/cit_clientes_recuperaciones/<cit_cliente_recuperacion_id>")
 def detail(cit_cliente_recuperacion_id):
     """Detalle de un Cit Cliente Recuperacion"""
+    cit_cliente_recuperacion_id = safe_uuid(cit_cliente_recuperacion_id)
+    if cit_cliente_recuperacion_id == "":
+        abort(400)
     cit_cliente_recuperacion = CitClienteRecuperacion.query.get_or_404(cit_cliente_recuperacion_id)
     return render_template("cit_clientes_recuperaciones/detail.jinja2", cit_cliente_recuperacion=cit_cliente_recuperacion)

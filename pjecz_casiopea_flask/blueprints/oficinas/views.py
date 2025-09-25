@@ -4,18 +4,18 @@ Oficinas, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
-from ..oficinas.forms import OficinaForm
-from ..oficinas.models import Oficina
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from .forms import OficinaForm
+from .models import Oficina
 
 MODULO = "OFICINAS"
 
@@ -107,6 +107,9 @@ def list_inactive():
 @oficinas.route("/oficinas/<oficina_id>")
 def detail(oficina_id):
     """Detalle de una Oficina"""
+    oficina_id = safe_uuid(oficina_id)
+    if oficina_id == "":
+        abort(400)
     oficina = Oficina.query.get_or_404(oficina_id)
     return render_template("oficinas/detail.jinja2", oficina=oficina)
 
@@ -153,6 +156,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(oficina_id):
     """Editar Oficina"""
+    oficina_id = safe_uuid(oficina_id)
+    if oficina_id == "":
+        abort(400)
     oficina = Oficina.query.get_or_404(oficina_id)
     form = OficinaForm()
     if form.validate_on_submit():
@@ -205,6 +211,9 @@ def edit(oficina_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(oficina_id):
     """Eliminar Oficina"""
+    oficina_id = safe_uuid(oficina_id)
+    if oficina_id == "":
+        abort(400)
     oficina = Oficina.query.get_or_404(oficina_id)
     if oficina.estatus == "A":
         oficina.delete()
@@ -223,6 +232,9 @@ def delete(oficina_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(oficina_id):
     """Recuperar Oficina"""
+    oficina_id = safe_uuid(oficina_id)
+    if oficina_id == "":
+        abort(400)
     oficina = Oficina.query.get_or_404(oficina_id)
     if oficina.estatus == "B":
         oficina.recover()

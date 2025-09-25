@@ -48,18 +48,3 @@ class WebPaginaEditCKEditor5Form(FlaskForm):
     contenido_md = TextAreaField("Contenido MD", validators=[Optional()], render_kw={"rows": 10})
     contenido_html = TextAreaField("Contenido HTML", validators=[Optional()], render_kw={"rows": 10})
     guardar = SubmitField("Guardar")
-
-
-class WebPaginaEditSyncfusionDocumentEditorForm(FlaskForm):
-    """Formulario editar contenido WebPagina con Syncfusion Document Editor"""
-
-    contenido_sfdt = TextAreaField("Contenido SFDT", validators=[Optional()], render_kw={"rows": 10})
-    guardar = SubmitField("Guardar")
-
-
-class WebPaginaEditSyncfusionMarkdownEditorForm(FlaskForm):
-    """Formulario editar contenido WebPagina con Syncfusion Markdown Editor"""
-
-    contenido_md = TextAreaField("Contenido MD", validators=[Optional()], render_kw={"rows": 10})
-    contenido_html = TextAreaField("Contenido HTML", validators=[Optional()], render_kw={"rows": 10})
-    guardar = SubmitField("Guardar")

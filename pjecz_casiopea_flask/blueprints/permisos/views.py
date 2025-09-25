@@ -4,17 +4,17 @@ Permisos, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
-from ..permisos.forms import PermisoEditForm, PermisoNewWithModuloForm, PermisoNewWithRolForm
-from ..permisos.models import Permiso
 from ..roles.models import Rol
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_message, safe_string
+from .forms import PermisoEditForm, PermisoNewWithModuloForm, PermisoNewWithRolForm
+from .models import Permiso
 
 MODULO = "PERMISOS"
 
@@ -105,6 +105,9 @@ def list_inactive():
 @permisos.route("/permisos/<permiso_id>")
 def detail(permiso_id):
     """Detalle de un Permiso"""
+    permiso_id = safe_uuid(permiso_id)
+    if permiso_id == "":
+        abort(400)
     permiso = Permiso.query.get_or_404(permiso_id)
     return render_template("permisos/detail.jinja2", permiso=permiso)
 
@@ -113,6 +116,9 @@ def detail(permiso_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_rol(rol_id):
     """Nuevo Permiso con Rol"""
+    rol_id = safe_uuid(rol_id)
+    if rol_id == "":
+        abort(400)
     rol = Rol.query.get_or_404(rol_id)
     form = PermisoNewWithRolForm()
     if form.validate_on_submit():
@@ -151,6 +157,9 @@ def new_with_rol(rol_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_modulo(modulo_id):
     """Nuevo Permiso con Modulo"""
+    modulo_id = safe_uuid(modulo_id)
+    if modulo_id == "":
+        abort(400)
     modulo = Modulo.query.get_or_404(modulo_id)
     form = PermisoNewWithModuloForm()
     if form.validate_on_submit():
@@ -189,6 +198,9 @@ def new_with_modulo(modulo_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(permiso_id):
     """Editar Permiso"""
+    permiso_id = safe_uuid(permiso_id)
+    if permiso_id == "":
+        abort(400)
     permiso = Permiso.query.get_or_404(permiso_id)
     form = PermisoEditForm()
     if form.validate_on_submit():
@@ -214,6 +226,9 @@ def edit(permiso_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(permiso_id):
     """Eliminar Permiso"""
+    permiso_id = safe_uuid(permiso_id)
+    if permiso_id == "":
+        abort(400)
     permiso = Permiso.query.get_or_404(permiso_id)
     if permiso.estatus == "A":
         permiso.delete()
@@ -232,6 +247,9 @@ def delete(permiso_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(permiso_id):
     """Recuperar Permiso"""
+    permiso_id = safe_uuid(permiso_id)
+    if permiso_id == "":
+        abort(400)
     permiso = Permiso.query.get_or_404(permiso_id)
     if permiso.estatus == "B":
         permiso.recover()

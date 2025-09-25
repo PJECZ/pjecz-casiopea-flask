@@ -14,13 +14,7 @@ from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ..web_ramas.models import WebRama
-from .forms import (
-    WebPaginaEditCKEditor5Form,
-    WebPaginaEditForm,
-    WebPaginaEditSyncfusionDocumentEditorForm,
-    WebPaginaEditSyncfusionMarkdownEditorForm,
-    WebPaginaNewForm,
-)
+from .forms import WebPaginaEditCKEditor5Form, WebPaginaEditForm, WebPaginaNewForm
 from .models import WebPagina
 
 MODULO = "WEB PAGINAS"
@@ -81,11 +75,6 @@ def datatable_json():
                 "edit_ckeditor5_url": (
                     url_for("web_paginas.edit_ckeditor5", web_pagina_id=resultado.id) if resultado.contenido_md else ""
                 ),
-                "edit_syncfusion_document_url": (
-                    url_for("web_paginas.edit_syncfusion_document", web_pagina_id=resultado.id)
-                    if resultado.contenido_sfdt
-                    else ""
-                ),
             }
         )
     # Entregar JSON
@@ -128,6 +117,9 @@ def detail(web_pagina_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new(web_rama_id):
     """Nuevo Web Página"""
+    web_rama_id = safe_uuid(web_rama_id)
+    if web_rama_id == "":
+        abort(400)
     web_rama = WebRama.query.get_or_404(web_rama_id)
     form = WebPaginaNewForm()
     if form.validate_on_submit():
@@ -241,62 +233,6 @@ def edit_ckeditor5(web_pagina_id):
     form.contenido_html.data = web_pagina.contenido_html
     form.contenido_md.data = web_pagina.contenido_md
     return render_template("web_paginas/edit_ckeditor5.jinja2", form=form, web_pagina=web_pagina)
-
-
-@web_paginas.route("/web_paginas/edicion_syncfusion_document/<web_pagina_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
-def edit_syncfusion_document(web_pagina_id):
-    """Editar contenido de Web Página con Syncfusion Document Editor"""
-    # Validar que esté definida la variable de entorno SYNCFUSION_LICENSE_KEY
-    if not current_app.config.get("SYNCFUSION_LICENSE_KEY"):
-        flash("No está definida la variable de entorno SYNCFUSION_LICENSE_KEY", "danger")
-        return redirect(url_for("web_paginas.list_active"))
-    # Consultar
-    web_pagina = WebPagina.query.get_or_404(web_pagina_id)
-    form = WebPaginaEditSyncfusionDocumentEditorForm()
-    if form.validate_on_submit():
-        web_pagina.contenido_sfdt = form.contenido_sfdt.data.strip()
-        web_pagina.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado contenido de Web Página {web_pagina.clave} con Syncfusion Document Editor"),
-            url=url_for("web_paginas.detail", web_pagina_id=web_pagina.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    form.contenido_sfdt.data = web_pagina.contenido_sfdt
-    return render_template(
-        "web_paginas/edit_syncfusion_document.jinja2",
-        form=form,
-        web_pagina=web_pagina,
-        syncfusion_license_key=current_app.config["SYNCFUSION_LICENSE_KEY"],
-    )
-
-
-@web_paginas.route("/web_paginas/edicion_syncfusion_markdown/<web_pagina_id>", methods=["GET", "POST"])
-@permission_required(MODULO, Permiso.MODIFICAR)
-def edit_syncfusion_markdown(web_pagina_id):
-    """Editar contenido de Web Página con Syncfusion Markdown Editor"""
-    web_pagina = WebPagina.query.get_or_404(web_pagina_id)
-    form = WebPaginaEditSyncfusionMarkdownEditorForm()
-    if form.validate_on_submit():
-        web_pagina.contenido_html = form.contenido_html.data.strip()
-        web_pagina.contenido_md = form.contenido_md.data.strip()
-        web_pagina.save()
-        bitacora = Bitacora(
-            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-            usuario=current_user,
-            descripcion=safe_message(f"Editado contenido de Web Página {web_pagina.clave} con Syncfusion Markdown Editor"),
-            url=url_for("web_paginas.detail", web_pagina_id=web_pagina.id),
-        )
-        bitacora.save()
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
-    form.contenido_html.data = web_pagina.contenido_html
-    form.contenido_md.data = web_pagina.contenido_md
-    return render_template("web_paginas/edit_syncfusion_markdown.jinja2", form=form, web_pagina=web_pagina)
 
 
 @web_paginas.route("/web_paginas/eliminar/<web_pagina_id>")

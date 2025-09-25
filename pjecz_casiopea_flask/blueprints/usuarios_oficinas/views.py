@@ -4,19 +4,19 @@ Usuarios-Oficinas, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..oficinas.models import Oficina
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ..usuarios.models import Usuario
-from ..usuarios_oficinas.forms import UsuarioOficinaWithOficinaForm, UsuarioOficinaWithUsuarioForm
-from ..usuarios_oficinas.models import UsuarioOficina
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_message, safe_string
+from .forms import UsuarioOficinaWithOficinaForm, UsuarioOficinaWithUsuarioForm
+from .models import UsuarioOficina
 
 MODULO = "USUARIOS OFICINAS"
 
@@ -104,6 +104,9 @@ def list_inactive():
 @usuarios_oficinas.route("/usuarios_oficinas/<usuario_oficina_id>")
 def detail(usuario_oficina_id):
     """Detalle de un Usuario-Oficina"""
+    usuario_oficina_id = safe_uuid(usuario_oficina_id)
+    if usuario_oficina_id == "":
+        abort(400)
     usuario_oficina = UsuarioOficina.query.get_or_404(usuario_oficina_id)
     return render_template("usuarios_oficinas/detail.jinja2", usuario_oficina=usuario_oficina)
 
@@ -112,6 +115,9 @@ def detail(usuario_oficina_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_oficina(oficina_id):
     """Nuevo Usuario-Oficina con Oficina"""
+    oficina_id = safe_uuid(oficina_id)
+    if oficina_id == "":
+        abort(400)
     oficina = Oficina.query.get_or_404(oficina_id)
     form = UsuarioOficinaWithOficinaForm()
     if form.validate_on_submit():
@@ -164,6 +170,9 @@ def new_with_oficina(oficina_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_usuario(usuario_id):
     """Nuevo Usuario-Oficina con Usuario"""
+    usuario_id = safe_uuid(usuario_id)
+    if usuario_id == "":
+        abort(400)
     usuario = Usuario.query.get_or_404(usuario_id)
     form = UsuarioOficinaWithUsuarioForm()
     if form.validate_on_submit():
@@ -217,6 +226,9 @@ def new_with_usuario(usuario_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(usuario_oficina_id):
     """Eliminar Usuario-Oficina"""
+    usuario_oficina_id = safe_uuid(usuario_oficina_id)
+    if usuario_oficina_id == "":
+        abort(400)
     usuario_oficina = UsuarioOficina.query.get_or_404(usuario_oficina_id)
     if usuario_oficina.estatus == "A":
         usuario_oficina.delete()
@@ -235,6 +247,9 @@ def delete(usuario_oficina_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(usuario_oficina_id):
     """Recuperar Usuario-Oficina"""
+    usuario_oficina_id = safe_uuid(usuario_oficina_id)
+    if usuario_oficina_id == "":
+        abort(400)
     usuario_oficina = UsuarioOficina.query.get_or_404(usuario_oficina_id)
     if usuario_oficina.estatus == "B":
         usuario_oficina.recover()

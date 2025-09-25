@@ -4,17 +4,17 @@ Distritos, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..distritos.forms import DistritoForm
-from ..distritos.models import Distrito
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from .forms import DistritoForm
+from .models import Distrito
 
 MODULO = "DISTRITOS"
 
@@ -100,6 +100,9 @@ def list_inactive():
 @distritos.route("/distritos/<distrito_id>")
 def detail(distrito_id):
     """Detalle de un Distrito"""
+    distrito_id = safe_uuid(distrito_id)
+    if distrito_id == "":
+        abort(400)
     distrito = Distrito.query.get_or_404(distrito_id)
     return render_template("distritos/detail.jinja2", distrito=distrito)
 
@@ -149,6 +152,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(distrito_id):
     """Editar Distrito"""
+    distrito_id = safe_uuid(distrito_id)
+    if distrito_id == "":
+        abort(400)
     distrito = Distrito.query.get_or_404(distrito_id)
     form = DistritoForm()
     if form.validate_on_submit():
@@ -200,6 +206,9 @@ def edit(distrito_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(distrito_id):
     """Eliminar Distrito"""
+    distrito_id = safe_uuid(distrito_id)
+    if distrito_id == "":
+        abort(400)
     distrito = Distrito.query.get_or_404(distrito_id)
     if distrito.estatus == "A":
         distrito.delete()
@@ -218,6 +227,9 @@ def delete(distrito_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(distrito_id):
     """Recuperar Distrito"""
+    distrito_id = safe_uuid(distrito_id)
+    if distrito_id == "":
+        abort(400)
     distrito = Distrito.query.get_or_404(distrito_id)
     if distrito.estatus == "B":
         distrito.recover()

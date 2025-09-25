@@ -4,15 +4,15 @@ Pag Pagos, vistas
 
 import json
 
-from flask import Blueprint, render_template, request, url_for
+from flask import Blueprint, abort, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_email, safe_message, safe_string
-from ..pag_pagos.models import PagPago
+from ...lib.safe_string import safe_clave, safe_email, safe_message, safe_string, safe_uuid
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ..usuarios.models import Usuario
+from .models import PagPago
 
 MODULO = "PAG PAGOS"
 
@@ -119,6 +119,9 @@ def list_inactive():
 @pag_pagos.route("/pag_pagos/<int:pag_pago_id>")
 def detail(pag_pago_id):
     """Detalle de un pago"""
+    pag_pago_id = safe_uuid(pag_pago_id)
+    if pag_pago_id == "":
+        abort(400)
     pag_pago = PagPago.query.get_or_404(pag_pago_id)
     return render_template(
         "pag_pagos/detail.jinja2",

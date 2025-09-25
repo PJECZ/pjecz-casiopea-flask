@@ -4,16 +4,16 @@ Cit Clientes Registros, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_email, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..cit_clientes_registros.models import CitClienteRegistro
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_email, safe_message, safe_string
+from .models import CitClienteRegistro
 
 MODULO = "CIT CLIENTES REGISTROS"
 
@@ -98,5 +98,8 @@ def list_inactive():
 @cit_clientes_registros.route("/cit_clientes_registros/<cit_cliente_registro_id>")
 def detail(cit_cliente_registro_id):
     """Detalle de un Cit Cliente Registro"""
+    cit_cliente_registro_id = safe_uuid(cit_cliente_registro_id)
+    if cit_cliente_registro_id == "":
+        abort(400)
     cit_cliente_registro = CitClienteRegistro.query.get_or_404(cit_cliente_registro_id)
     return render_template("cit_clientes_registros/detail.jinja2", cit_cliente_registro=cit_cliente_registro)

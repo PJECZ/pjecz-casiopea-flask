@@ -4,15 +4,15 @@ Pag Trámites Servicios, vistas
 
 import json
 
-from flask import Blueprint, render_template, request, url_for
+from flask import Blueprint, abort, render_template, request, url_for
 from flask_login import login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
-from ..pag_tramites_servicios.models import PagTramiteServicio
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ..usuarios.models import Usuario
+from .models import PagTramiteServicio
 
 MODULO = "PAG TRAMITES SERVICIOS"
 
@@ -92,6 +92,9 @@ def list_inactive():
 @pag_tramites_servicios.route("/pag_tramites_servicios/<pag_tramite_servicio_id>")
 def detail(pag_tramite_servicio_id):
     """Detalle de PagTramiteServicio"""
+    pag_tramite_servicio_id = safe_uuid(pag_tramite_servicio_id)
+    if pag_tramite_servicio_id == "":
+        abort(400)
     pag_tramite_servicio = PagTramiteServicio.query.get_or_404(pag_tramite_servicio_id)
     return render_template(
         "pag_tramites_servicios/detail.jinja2",
