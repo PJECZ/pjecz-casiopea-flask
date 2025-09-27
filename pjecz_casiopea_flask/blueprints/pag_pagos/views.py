@@ -4,14 +4,15 @@ Pag Pagos, vistas
 
 import json
 
-from flask import Blueprint, abort, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_email, safe_message, safe_string, safe_uuid
+from ...lib.safe_string import safe_email, safe_message, safe_string, safe_uuid
+from ..bitacoras.models import Bitacora
+from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ..usuarios.models import Usuario
 from .models import PagPago
 
 MODULO = "PAG PAGOS"
@@ -62,35 +63,23 @@ def datatable_json():
                 },
                 "cit_cliente": {
                     "nombre": f"{resultado.cit_cliente.nombre}",
-                    "url": url_for("cit_clientes.detail", cit_cliente_id=resultado.cit_cliente_id)
-                    if current_user.can_view("CIT CLIENTES")
-                    else "",
+                    "url": (
+                        url_for("cit_clientes.detail", cit_cliente_id=resultado.cit_cliente_id)
+                        if current_user.can_view("CIT CLIENTES")
+                        else ""
+                    ),
                 },
                 "email": resultado.cit_cliente.email,
-                "pag_tramite_servicio": {
-                    "clave": resultado.pag_tramite_servicio.clave,
-                    "url": url_for("pag_tramites_servicios.detail", pag_tramite_servicio_id=resultado.pag_tramite_servicio_id)
-                    if current_user.can_view("PAG TRAMITES SERVICIOS")
-                    else "",
-                },
-                "distrito": {
-                    "clave": resultado.distrito.clave,
-                    "url": url_for("distritos.detail", distrito_id=resultado.distrito_id)
-                    if current_user.can_view("DISTRITOS")
-                    else "",
-                },
-                "autoridad": {
-                    "clave": resultado.autoridad.clave,
-                    "url": url_for("autoridades.detail", autoridad_id=resultado.autoridad_id)
-                    if current_user.can_view("AUTORIDADES")
-                    else "",
-                },
+                "pag_tramite_servicio_clave": resultado.pag_tramite_servicio.clave,
+                "distrito_clave": resultado.distrito.clave,
+                "autoridad_clave": resultado.autoridad.clave,
                 "estado": resultado.estado,
                 "folio": resultado.folio,
                 "total": resultado.total,
             }
         )
-    return output_datatable_json(draw, total, total, data)
+    # Entregar JSON
+    return output_datatable_json(draw, total, data)
 
 
 @pag_pagos.route("/pag_pagos")
@@ -127,3 +116,45 @@ def detail(pag_pago_id):
         "pag_pagos/detail.jinja2",
         pag_pago=pag_pago,
     )
+
+
+@pag_pagos.route("/pag_pagos/eliminar/<int:pag_pago_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def delete(pag_pago_id):
+    """Eliminar pago"""
+    pag_pago_id = safe_uuid(pag_pago_id)
+    if pag_pago_id == "":
+        abort(400)
+    pag_pago = PagPago.query.get_or_404(pag_pago_id)
+    if pag_pago.estatus == "A":
+        pag_pago.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado pago {pag_pago.id}"),
+            url=url_for("pag_pagos.detail", pag_pago_id=pag_pago.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("pag_pagos.detail", pag_pago_id=pag_pago.id))
+
+
+@pag_pagos.route("/pag_pagos/recuperar/<int:pag_pago_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def recover(pag_pago_id):
+    """Recuperar Pago"""
+    pag_pago_id = safe_uuid(pag_pago_id)
+    if pag_pago_id == "":
+        abort(400)
+    pag_pago = PagPago.query.get_or_404(pag_pago_id)
+    if pag_pago.estatus == "B":
+        pag_pago.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado Pago {pag_pago.id}"),
+            url=url_for("pag_pagos.detail", pag_pago_id=pag_pago.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("pag_pagos.detail", pag_pago_id=pag_pago.id))

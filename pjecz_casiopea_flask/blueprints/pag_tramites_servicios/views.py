@@ -4,14 +4,15 @@ Pag Trámites Servicios, vistas
 
 import json
 
-from flask import Blueprint, abort, render_template, request, url_for
-from flask_login import login_required
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
 from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
+from ..bitacoras.models import Bitacora
+from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ..usuarios.models import Usuario
 from .models import PagTramiteServicio
 
 MODULO = "PAG TRAMITES SERVICIOS"
@@ -100,3 +101,45 @@ def detail(pag_tramite_servicio_id):
         "pag_tramites_servicios/detail.jinja2",
         pag_tramite_servicio=pag_tramite_servicio,
     )
+
+
+@pag_tramites_servicios.route("/pag_tramites_servicios/eliminar/<int:pag_tramite_servicio_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def delete(pag_tramite_servicio_id):
+    """Eliminar PagTramiteServicio"""
+    pag_tramite_servicio_id = safe_uuid(pag_tramite_servicio_id)
+    if pag_tramite_servicio_id == "":
+        abort(400)
+    pag_tramite_servicio = PagTramiteServicio.query.get_or_404(pag_tramite_servicio_id)
+    if pag_tramite_servicio.estatus == "A":
+        pag_tramite_servicio.delete()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Eliminado PagTramiteServicio {pag_tramite_servicio.clave}"),
+            url=url_for("pag_tramites_servicios.detail", pag_tramite_servicio_id=pag_tramite_servicio.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("pag_tramites_servicios.detail", pag_tramite_servicio_id=pag_tramite_servicio.id))
+
+
+@pag_tramites_servicios.route("/pag_tramites_servicios/recuperar/<int:pag_tramite_servicio_id>")
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def recover(pag_tramite_servicio_id):
+    """Recuperar PagTramiteServicio"""
+    pag_tramite_servicio_id = safe_uuid(pag_tramite_servicio_id)
+    if pag_tramite_servicio_id == "":
+        abort(400)
+    pag_tramite_servicio = PagTramiteServicio.query.get_or_404(pag_tramite_servicio_id)
+    if pag_tramite_servicio.estatus == "B":
+        pag_tramite_servicio.recover()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Recuperado PagTramiteServicio {pag_tramite_servicio.clave}"),
+            url=url_for("pag_tramites_servicios.detail", pag_tramite_servicio_id=pag_tramite_servicio.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+    return redirect(url_for("pag_tramites_servicios.detail", pag_tramite_servicio_id=pag_tramite_servicio.id))
