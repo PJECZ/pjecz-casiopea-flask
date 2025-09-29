@@ -1,7 +1,10 @@
 """
 CLI Base de Datos
 
-- cambiar_contrasena: Cambiar contraseña de un cliente
+- inicializar: Crear las tablas en la base de datos
+- alimentar: Alimentar las tablas con datos iniciales
+- reiniciar: Ejecuta inicializar y alimentar
+- respaldar: Crear un respaldo de la base de datos
 """
 
 import os
