@@ -13,7 +13,7 @@ def copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla pag_tramites_servicios de la base de datos ANTERIOR a la NUEVA"""
     # Leer registros de la tabla pag_tramites_servicios en la base de datos ANTERIOR
     try:
-        cursor_old.execute("SELECT clave, descripcion, costo, url FROM pag_tramites_servicios")
+        cursor_old.execute("SELECT clave, descripcion, costo, url, estatus, creado, modificado FROM pag_tramites_servicios")
         rows = cursor_old.fetchall()
     except Exception as error:
         raise Exception(f"Error al leer registros de la BD ANTERIOR: {error}")
@@ -24,8 +24,8 @@ def copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new):
     contador = 0
     click.echo(click.style("Copiando registros en pag_tramites_servicios: ", fg="white"), nl=False)
     insert_query = """
-        INSERT INTO pag_tramites_servicios (id, clave, descripcion, costo, url)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO pag_tramites_servicios (id, clave, descripcion, costo, url, estatus, creado, modificado)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
     try:
         for row in rows:
@@ -46,4 +46,4 @@ def copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new):
     # Mensaje final
     click.echo()
     if contador > 0:
-        click.echo(click.style(f"{contador} pag_tramites_servicios copiados.", fg="green"))
+        click.echo(click.style(f"  {contador} pag_tramites_servicios copiados.", fg="green"))

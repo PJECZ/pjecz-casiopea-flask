@@ -22,6 +22,7 @@
     {% call detail.card(estatus=pag_tramite_servicio.estatus) %}
         {{ detail.label_value_big('Clave', pag_tramite_servicio.clave) }}
         {{ detail.label_value('Descripción', pag_tramite_servicio.descripcion) }}
+        {{ detail.label_value_currency('Costo', pag_tramite_servicio.costo) }}
         {{ detail.label_value('URL', pag_tramite_servicio.url, pag_tramite_servicio.url) }}
     {% endcall %}
 {% endblock %}

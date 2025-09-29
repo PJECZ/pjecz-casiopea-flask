@@ -7,7 +7,11 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_view('PAG TRAMITES SERVICIOS') %}
-            {{ topbar.button('Trámites y Servicios', url_for('pag_tramites_servicios.list_active'), 'mdi:folder') }}
+            {{ topbar.button('Trámites y Servicios', url_for('pag_tramites_servicios.list_active'), 'mdi:cart') }}
+        {% endif %}
+        {% if current_user.can_admin('PAG PAGOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('pag_pagos.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('pag_pagos.list_active')) }}{% endif %}
         {% endif %}
     {% endcall %}
 {% endblock %}

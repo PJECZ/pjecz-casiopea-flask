@@ -25,7 +25,7 @@ def alimentar_cit_categorias():
     if not ruta.is_file():
         click.echo(f"AVISO: {ruta.name} no es un archivo.")
         sys.exit(1)
-    click.echo("Alimentando cit_servicios: ", nl=False)
+    click.echo("Alimentando cit_categorias: ", nl=False)
     cit_categorias_claves = []
     contador = 0
     with open(ruta, encoding="utf8") as puntero:

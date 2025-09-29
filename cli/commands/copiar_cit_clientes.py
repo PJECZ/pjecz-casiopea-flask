@@ -61,4 +61,4 @@ def copiar_cit_clientes(conn_old, cursor_old, conn_new, cursor_new):
     # Mensaje final
     click.echo()
     if contador > 0:
-        click.echo(click.style(f"{contador} cit_clientes copiados.", fg="green"))
+        click.echo(click.style(f"  {contador} cit_clientes copiados.", fg="green"))

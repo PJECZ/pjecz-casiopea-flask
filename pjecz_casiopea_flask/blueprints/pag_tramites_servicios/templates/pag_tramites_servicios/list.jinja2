@@ -7,7 +7,14 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_view('PAG PAGOS') %}
-            {{ topbar.button('Pagos', url_for('pag_pagos.list_active'), 'mdi:folder') }}
+            {{ topbar.button('Pagos', url_for('pag_pagos.list_active'), 'mdi:account-cash') }}
+        {% endif %}
+        {% if current_user.can_admin('PAG TRAMITES SERVICIOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('pag_tramites_servicios.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('pag_tramites_servicios.list_active')) }}{% endif %}
+        {% endif %}
+        {% if current_user.can_insert('PAG TRAMITES SERVICIOS') %}
+            {{ topbar.button_new('Nueva Trámite o Servicio', url_for('pag_tramites_servicios.new')) }}
         {% endif %}
     {% endcall %}
 {% endblock %}
