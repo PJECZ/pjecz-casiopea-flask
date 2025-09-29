@@ -11,6 +11,11 @@ import click
 import psycopg2
 from dotenv import load_dotenv
 
+from cli.commands.copiar_cit_citas import copiar_cit_citas
+from cli.commands.copiar_cit_clientes import copiar_cit_clientes
+from cli.commands.copiar_cit_clientes_recuperaciones import copiar_cit_clientes_recuperaciones
+from cli.commands.copiar_cit_clientes_registros import copiar_cit_clientes_registros
+from cli.commands.copiar_pag_pagos import copiar_pag_pagos
 from cli.commands.copiar_pag_tramites_servicios import copiar_pag_tramites_servicios
 
 load_dotenv()  # Take environment variables from .env
@@ -64,8 +69,25 @@ def copiar():
     except Exception as e:
         click.echo(click.style(f"Error al conectar a la BD NUEVA: {e}", fg="red"))
         sys.exit(1)
-    # Ejecutar las copias
-    copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new)
+    # Ejecutar las copias en el orden correcto
+    try:
+        copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_cit_clientes(conn_old, cursor_old, conn_new, cursor_new)
+        # TODO: copiar_cit_citas
+        # TODO: copiar_cit_clientes_recuperaciones
+        # TODO: copiar_pag_pagos
+        # TODO: copiar_cit_clientes_registros
+    except Exception as error:
+        click.echo(click.style(f"Error durante la copia: {error}", fg="red"))
+        sys.exit(1)
+    # Cerrar las conexiones (si no se cerraron ya en las funciones)
+    try:
+        cursor_old.close()
+        conn_old.close()
+        cursor_new.close()
+        conn_new.close()
+    except Exception:
+        pass
 
 
 cli.add_command(copiar)
