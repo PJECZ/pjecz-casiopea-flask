@@ -19,8 +19,7 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
                 domicilios.clave AS domicilio_clave,
                 oficinas.clave, oficinas.descripcion, oficinas.descripcion_corta,
                 oficinas.es_jurisdiccional, oficinas.puede_agendar_citas,
-                oficinas.apertura, oficinas.cierre, oficinas.limite_personas,
-                oficinas.puede_enviar_qr, oficinas.es_activo,
+                oficinas.apertura, oficinas.cierre, oficinas.limite_personas, oficinas.puede_enviar_qr,
                 oficinas.estatus, oficinas.creado, oficinas.modificado
             FROM oficinas
                 JOIN domicilios ON oficinas.domicilio_id = domicilios.id
@@ -39,14 +38,16 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
     insert_query = """
         INSERT INTO oficinas (id,
             domicilio_id,
-            clave, descripcion, descripcion_corta, es_jurisdiccional, puede_agendar_citas,
-            apertura, cierre, limite_personas, puede_enviar_qr, es_activo,
-            estatus, creado, modificado)
+            clave, descripcion, descripcion_corta,
+            es_jurisdiccional, puede_agendar_citas,
+            apertura, cierre, limite_personas, puede_enviar_qr,
+            estatus, creado, modificado, es_activo)
         VALUES (%s,
             (SELECT id FROM domicilios WHERE clave = %s),
-            %s, %s, %s, %s, %s,
-            %s, %s, %s, %s, %s,
-            %s, %s, %s)
+            %s, %s, %s,
+            %s, %s,
+            %s, %s, %s, %s,
+            %s, %s, %s, true)
     """
     try:
         for row in rows:

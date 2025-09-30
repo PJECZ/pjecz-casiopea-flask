@@ -11,3 +11,4 @@ import click
 
 def copiar_cit_servicios(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla cit_servicios de la base de datos ANTERIOR a la NUEVA"""
+    click.echo(click.style(f"  Falta programar copiar cit_servicios.", fg="yellow"))

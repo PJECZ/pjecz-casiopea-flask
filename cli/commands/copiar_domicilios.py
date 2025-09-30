@@ -16,10 +16,10 @@ def copiar_domicilios(conn_old, cursor_old, conn_new, cursor_new):
         cursor_old.execute(
             """
             SELECT
-                clave, edificio, estado, municipio, calle, num_ext, num_int, colonia, cp, completo, es_activo,
+                clave, edificio, estado, municipio, calle, num_ext, num_int, colonia, cp, completo,
                 estatus, creado, modificado
             FROM
-                oficinas
+                domicilios
             ORDER BY
                 clave ASC
         """
@@ -35,11 +35,13 @@ def copiar_domicilios(conn_old, cursor_old, conn_new, cursor_new):
     click.echo(click.style("Copiando registros en domicilios: ", fg="white"), nl=False)
     insert_query = """
         INSERT INTO domicilios (id,
-            clave, edificio, estado, municipio, calle, num_ext, num_int, colonia, cp, completo, es_activo,
-            estatus, creado, modificado)
+            clave, edificio, estado, municipio, calle, num_ext, num_int, colonia, cp, completo,
+            estatus, creado, modificado,
+            es_activo)
         VALUES (%s,
-            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s)
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s,
+            true)
     """
     try:
         for row in rows:
