@@ -157,9 +157,9 @@ def edit(pag_tramite_servicio_id):
         # Si es válido, actualizar
         if es_valido:
             pag_tramite_servicio.clave = clave
-            pag_tramite_servicio.descripcion = safe_string(form.clave.descripcion, save_enie=True)
+            pag_tramite_servicio.descripcion = safe_string(form.descripcion.data, save_enie=True)
             pag_tramite_servicio.costo = form.costo.data
-            pag_tramite_servicio.url = safe_url(form.clave.url)
+            pag_tramite_servicio.url = safe_url(form.url.data)
             pag_tramite_servicio.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),

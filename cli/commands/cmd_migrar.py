@@ -11,10 +11,15 @@ import click
 import psycopg2
 from dotenv import load_dotenv
 
+from cli.commands.copiar_cit_categorias import copiar_cit_categorias
 from cli.commands.copiar_cit_citas import copiar_cit_citas
 from cli.commands.copiar_cit_clientes import copiar_cit_clientes
 from cli.commands.copiar_cit_clientes_recuperaciones import copiar_cit_clientes_recuperaciones
 from cli.commands.copiar_cit_clientes_registros import copiar_cit_clientes_registros
+from cli.commands.copiar_cit_oficinas_servicios import copiar_cit_oficinas_servicios
+from cli.commands.copiar_cit_servicios import copiar_cit_servicios
+from cli.commands.copiar_domicilios import copiar_domicilios
+from cli.commands.copiar_oficinas import copiar_oficinas
 from cli.commands.copiar_pag_pagos import copiar_pag_pagos
 from cli.commands.copiar_pag_tramites_servicios import copiar_pag_tramites_servicios
 
@@ -71,12 +76,17 @@ def copiar():
         sys.exit(1)
     # Ejecutar las copias en el orden correcto
     try:
-        copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_domicilios(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_cit_categorias(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_cit_servicios(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_cit_oficinas_servicios(conn_old, cursor_old, conn_new, cursor_new)
         copiar_cit_clientes(conn_old, cursor_old, conn_new, cursor_new)
-        # TODO: copiar_cit_citas
-        # TODO: copiar_cit_clientes_recuperaciones
-        # TODO: copiar_pag_pagos
-        # TODO: copiar_cit_clientes_registros
+        copiar_cit_clientes_recuperaciones(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_cit_clientes_registros(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new)
+        copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new)
     except Exception as error:
         click.echo(click.style(f"Error durante la copia: {error}", fg="red"))
         sys.exit(1)

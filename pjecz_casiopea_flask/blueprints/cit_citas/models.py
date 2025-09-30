@@ -49,6 +49,9 @@ class CitCita(database.Model, UniversalMixin):
     codigo_acceso_id: Mapped[Optional[int]]
     codigo_acceso_imagen: Mapped[Optional[bytes]] = mapped_column(BYTEA)
 
+    # Para los registros copiados desde pjecz_citas_v2 se incluye el id entero original
+    id_original: Mapped[Optional[int]] = mapped_column(index=True)
+
     def __repr__(self):
         """Representación"""
         return f"<CitCita {self.id}>"
