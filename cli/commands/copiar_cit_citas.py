@@ -23,8 +23,8 @@ def copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new):
                     SELECT
                         cit_citas.id as id_original,
                         cit_clientes.email,
-                        cit_tramites_servicios.clave,
-                        oficinas.oficina_clave,
+                        cit_servicios.clave AS cit_servicio_clave,
+                        oficinas.clave AS oficina_clave,
                         cit_citas.inicio,
                         cit_citas.termino,
                         cit_citas.notas,
@@ -32,12 +32,13 @@ def copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new):
                         cit_citas.cancelar_antes,
                         cit_citas.asistencia,
                         cit_citas.codigo_asistencia,
-                        cit_citas.codigo_acceso_id,
-                        cit_citas.codigo_acceso_imagen
+                        cit_citas.estatus,
+                        cit_citas.creado,
+                        cit_citas.modificado
                     FROM
                         cit_citas
                         JOIN cit_clientes ON cit_citas.cit_cliente_id = cit_clientes.id
-                        JOIN cit_tramites_servicios ON cit_citas.cit_servicio_id = cit_tramites_servicios.id
+                        JOIN cit_servicios ON cit_citas.cit_servicio_id = cit_servicios.id
                         JOIN oficinas ON cit_citas.oficina_id = oficinas.id
                     ORDER BY cit_citas.id ASC
                     LIMIT %s OFFSET %s
@@ -51,6 +52,8 @@ def copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new):
         if not rows:
             break
         # Insertar datos en la tabla cit_citas en la base de datos NUEVA
+        if offset > 0:
+            click.echo()
         click.echo(click.style("Copiando registros en cit_citas: ", fg="white"), nl=False)
         insert_query = """
             INSERT INTO cit_citas (id, id_original,
@@ -60,10 +63,10 @@ def copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new):
                 estatus, creado, modificado)
             VALUES (%s, %s,
                 (SELECT id FROM cit_clientes WHERE email = %s),
-                (SELECT id FROM cit_tramites_servicios WHERE clave = %s),
+                (SELECT id FROM cit_servicios WHERE clave = %s),
                 (SELECT id FROM oficinas WHERE clave = %s),
                 %s, %s, %s, %s, %s,
-                %s, %s, %s, %s,
+                %s, %s, NULL, NULL,
                 %s, %s, %s)
         """
         try:
@@ -87,4 +90,4 @@ def copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new):
     # Mensaje final
     click.echo()
     if contador > 0:
-        click.echo(click.style(f"  {contador} oficinas copiados.", fg="green"))
+        click.echo(click.style(f"  {contador} cit_citas copiados.", fg="green"))

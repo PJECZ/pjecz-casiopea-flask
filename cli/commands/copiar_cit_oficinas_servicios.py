@@ -16,8 +16,8 @@ def copiar_cit_oficinas_servicios(conn_old, cursor_old, conn_new, cursor_new):
         cursor_old.execute(
             """
             SELECT
-                cit_servicios.clave,
-                oficinas.clave,
+                cit_servicios.clave AS cit_servicio_clave,
+                oficinas.clave AS oficina_clave,
                 cit_oficinas_servicios.descripcion,
                 cit_oficinas_servicios.estatus,
                 cit_oficinas_servicios.creado,
@@ -39,29 +39,18 @@ def copiar_cit_oficinas_servicios(conn_old, cursor_old, conn_new, cursor_new):
     click.echo(click.style("Copiando registros en cit_oficinas_servicios: ", fg="white"), nl=False)
     insert_query = """
         INSERT INTO cit_oficinas_servicios (id,
-            cit_servicio_id, oficina_id,
+            cit_servicio_id,
+            oficina_id,
             descripcion,
             estatus, creado, modificado, es_activo)
         VALUES (%s,
-            %s, %s,
+            (SELECT id FROM cit_servicios WHERE clave = %s),
+            (SELECT id FROM oficinas WHERE clave = %s),
             %s,
             %s, %s, %s, true)
     """
     try:
         for row in rows:
-            # Consultar el cit_servicio_id en la nueva base de datos
-            cursor_new.execute("SELECT id FROM cit_servicios WHERE clave = %s", (row[0],))
-            cit_servicio = cursor_new.fetchone()
-            if not cit_servicio:
-                raise Exception(f"No se encontró el cit_servicio con clave '{row[0]}' en la BD NUEVA.")
-            # Consultar el oficina_id en la nueva base de datos
-            cursor_new.execute("SELECT id FROM oficinas WHERE clave = %s", (row[1],))
-            oficina = cursor_new.fetchone()
-            if not oficina:
-                raise Exception(f"No se encontró la oficina con clave '{row[1]}' en la BD NUEVA.")
-            # TODO: Omitir si ya existe el registro con la oficina_id y cit_servicio_id
-            # Cambiar en row los valores de oficina_id y cit_servicio_id
-            row = (cit_servicio[0], oficina[0], *row[2:])
             # Insertar
             new_id = str(uuid.uuid4())
             cursor_new.execute(insert_query, (new_id, *row))
