@@ -37,12 +37,14 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
     contador = 0
     click.echo(click.style("Copiando registros en oficinas: ", fg="white"), nl=False)
     insert_query = """
-        INSERT INTO oficinas (id, domicilio_id, clave, descripcion, descripcion_corta,
-            es_jurisdiccional, puede_agendar_citas,
+        INSERT INTO oficinas (id,
+            domicilio_id,
+            clave, descripcion, descripcion_corta, es_jurisdiccional, puede_agendar_citas,
             apertura, cierre, limite_personas, puede_enviar_qr, es_activo,
             estatus, creado, modificado)
-        VALUES (%s, (SELECT id FROM domicilios WHERE clave = %s), %s, %s, %s,
-            %s, %s,
+        VALUES (%s,
+            (SELECT id FROM domicilios WHERE clave = %s),
+            %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s,
             %s, %s, %s)
     """
