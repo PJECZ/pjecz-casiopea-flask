@@ -53,6 +53,9 @@ class PagPago(database.Model, UniversalMixin):
     total: Mapped[Numeric] = mapped_column(Numeric(precision=8, scale=2, decimal_return_scale=2))
     ya_se_envio_comprobante: Mapped[bool] = mapped_column(default=False)
 
+    # Para controlar la migracion desde pjecz_citas_v2 se incluye el id_original
+    id_original: Mapped[Optional[int]] = mapped_column(index=True)
+
     def __repr__(self):
         """Representación"""
         return f"<PagPago {self.id}>"

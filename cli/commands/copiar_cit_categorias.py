@@ -1,6 +1,9 @@
 """
 Copiar tabla cit_categorias de la base de datos ANTERIOR a la NUEVA
 
+AVISO: Solo se copian los registros que NO EXISTEN en la base de datos NUEVA
+Lo que significa que NO SE ACTUALIZAN los que hayan sido modificados en la base de datos ANTERIOR
+
 - copiar_cit_categorias: Copiar tabla cit_categorias de la base de datos ANTERIOR a la NUEVA
 """
 
