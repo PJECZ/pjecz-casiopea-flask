@@ -14,6 +14,7 @@ import click
 
 def copiar_cit_oficinas_servicios(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla cit_oficinas_servicios de la base de datos ANTERIOR a la NUEVA"""
+    click.echo(click.style("Copiando tabla cit_oficinas_servicios: ", fg="white"), nl=False)
     # Leer registros en la base de datos ANTERIOR
     try:
         cursor_old.execute(
@@ -37,10 +38,9 @@ def copiar_cit_oficinas_servicios(conn_old, cursor_old, conn_new, cursor_new):
         raise Exception(f"Error al leer registros de la BD ANTERIOR: {error}")
     # Continuar solo si se leyeron registros
     if not rows:
-        raise Exception("No hay registros en la tabla cit_oficinas_servicios de la base de datos ANTERIOR.")
+        raise Exception("No hay registros en la base de datos ANTERIOR.")
     # Insertar registros en la base de datos NUEVA
     contador = 0
-    click.echo(click.style("Copiando registros en cit_oficinas_servicios: ", fg="white"), nl=False)
     insert_query = """
         INSERT INTO cit_oficinas_servicios (id,
             cit_servicio_id,

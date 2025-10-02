@@ -14,6 +14,7 @@ import click
 
 def copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla pag_pagos de la base de datos ANTERIOR a la NUEVA"""
+    click.echo(click.style("Copiando tabla pag_pagos: ", fg="white"), nl=False)
     # Inicializar limit y offset para paginar la consulta de la base de datos ANTERIOR
     limit = 1000
     offset = 0
@@ -60,9 +61,6 @@ def copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new):
         if not rows:
             break
         # Insertar registros en la base de datos NUEVA
-        if offset > 0:
-            click.echo()
-        click.echo(click.style("Copiando registros en pag_pagos: ", fg="white"), nl=False)
         insert_query = """
             INSERT INTO pag_pagos (id, id_original,
                 autoridad_id,

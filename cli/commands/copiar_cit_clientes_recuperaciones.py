@@ -14,6 +14,7 @@ import click
 
 def copiar_cit_clientes_recuperaciones(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla cit_clientes_recuperaciones de la base de datos ANTERIOR a la NUEVA"""
+    click.echo(click.style("Copiando tabla cit_clientes_recuperaciones: ", fg="white"), nl=False)
     # Inicializar limit y offset para paginar la consulta de la base de datos ANTERIOR
     limit = 1000
     offset = 0
@@ -48,9 +49,6 @@ def copiar_cit_clientes_recuperaciones(conn_old, cursor_old, conn_new, cursor_ne
         if not rows:
             break
         # Insertar registros en la base de datos NUEVA
-        if offset > 0:
-            click.echo()
-        click.echo(click.style("Copiando registros en cit_citas: ", fg="white"), nl=False)
         insert_query = """
             INSERT INTO cit_clientes_recuperaciones (id, id_original,
                 cit_cliente_id,

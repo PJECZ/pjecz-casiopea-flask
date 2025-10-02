@@ -14,6 +14,7 @@ import click
 
 def copiar_cit_categorias(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla cit_categorias de la base de datos ANTERIOR a la NUEVA"""
+    click.echo(click.style("Copiando tabla autoridades: ", fg="white"), nl=False)
     # Leer registros de la tabla cit_categorias en la base de datos ANTERIOR
     try:
         cursor_old.execute(
@@ -32,10 +33,9 @@ def copiar_cit_categorias(conn_old, cursor_old, conn_new, cursor_new):
         raise Exception(f"Error al leer registros de la BD ANTERIOR: {error}")
     # Continuar solo si se leyeron registros
     if not rows:
-        raise Exception("No hay registros en la tabla cit_categorias de la base de datos ANTERIOR.")
+        raise Exception("No hay registros en la base de datos ANTERIOR.")
     # Insertar datos en la tabla cit_categorias en la base de datos NUEVA
     contador = 0
-    click.echo(click.style("Copiando registros en cit_categorias: ", fg="white"), nl=False)
     insert_query = """
         INSERT INTO cit_categorias (id,
             clave, nombre,

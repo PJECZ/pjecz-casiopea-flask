@@ -14,6 +14,7 @@ import click
 
 def copiar_domicilios(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla domicilios de la base de datos ANTERIOR a la NUEVA"""
+    click.echo(click.style("Copiando tabla domicilios: ", fg="white"), nl=False)
     # Leer registros en la base de datos ANTERIOR
     try:
         cursor_old.execute(
@@ -32,10 +33,9 @@ def copiar_domicilios(conn_old, cursor_old, conn_new, cursor_new):
         raise Exception(f"Error al leer registros de la BD ANTERIOR: {error}")
     # Continuar solo si se leyeron registros
     if not rows:
-        raise Exception("No hay registros en la tabla domicilios de la base de datos ANTERIOR.")
+        raise Exception("No hay registros en la base de datos ANTERIOR.")
     # Insertar registros en la base de datos NUEVA
     contador = 0
-    click.echo(click.style("Copiando registros en domicilios: ", fg="white"), nl=False)
     insert_query = """
         INSERT INTO domicilios (id,
             clave, edificio, estado, municipio, calle, num_ext, num_int, colonia, cp, completo,
