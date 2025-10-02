@@ -14,22 +14,23 @@ import click
 
 def copiar_cit_oficinas_servicios(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla cit_oficinas_servicios de la base de datos ANTERIOR a la NUEVA"""
-    # Leer registros de la tabla cit_oficinas_servicios en la base de datos ANTERIOR
+    # Leer registros en la base de datos ANTERIOR
     try:
         cursor_old.execute(
             """
-            SELECT
-                cit_servicios.clave AS cit_servicio_clave,
-                oficinas.clave AS oficina_clave,
-                cit_oficinas_servicios.descripcion,
-                cit_oficinas_servicios.estatus,
-                cit_oficinas_servicios.creado,
-                cit_oficinas_servicios.modificado
-            FROM cit_oficinas_servicios
-                JOIN cit_servicios ON cit_oficinas_servicios.cit_servicio_id = cit_servicios.id
-                JOIN oficinas ON cit_oficinas_servicios.oficina_id = oficinas.id
-            ORDER BY cit_oficinas_servicios.id ASC
-        """
+                SELECT
+                    cit_servicios.clave AS cit_servicio_clave,
+                    oficinas.clave AS oficina_clave,
+                    cit_oficinas_servicios.descripcion,
+                    cit_oficinas_servicios.estatus,
+                    cit_oficinas_servicios.creado,
+                    cit_oficinas_servicios.modificado
+                FROM
+                    cit_oficinas_servicios
+                    JOIN cit_servicios ON cit_oficinas_servicios.cit_servicio_id = cit_servicios.id
+                    JOIN oficinas ON cit_oficinas_servicios.oficina_id = oficinas.id
+                ORDER BY cit_oficinas_servicios.id ASC
+            """,
         )
         rows = cursor_old.fetchall()
     except Exception as error:
@@ -37,7 +38,7 @@ def copiar_cit_oficinas_servicios(conn_old, cursor_old, conn_new, cursor_new):
     # Continuar solo si se leyeron registros
     if not rows:
         raise Exception("No hay registros en la tabla cit_oficinas_servicios de la base de datos ANTERIOR.")
-    # Insertar datos en la tabla oficinas en la base de datos NUEVA
+    # Insertar registros en la base de datos NUEVA
     contador = 0
     click.echo(click.style("Copiando registros en cit_oficinas_servicios: ", fg="white"), nl=False)
     insert_query = """

@@ -19,7 +19,7 @@ def copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new):
     offset = 0
     contador = 0
     while True:
-        # Leer registros de la tabla cit_citas en la base de datos ANTERIOR
+        # Leer registros en la base de datos ANTERIOR
         try:
             cursor_old.execute(
                 """
@@ -54,7 +54,7 @@ def copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new):
         # Si no hay más registros, salir del ciclo
         if not rows:
             break
-        # Insertar datos en la tabla cit_citas en la base de datos NUEVA
+        # Insertar registros en la base de datos NUEVA
         if offset > 0:
             click.echo()
         click.echo(click.style("Copiando registros en cit_citas: ", fg="white"), nl=False)

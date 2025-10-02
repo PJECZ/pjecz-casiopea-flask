@@ -14,20 +14,21 @@ import click
 
 def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla oficinas de la base de datos ANTERIOR a la NUEVA"""
-    # Leer registros de la tabla oficinas en la base de datos ANTERIOR
+    # Leer registros en la base de datos ANTERIOR
     try:
         cursor_old.execute(
             """
-            SELECT
-                domicilios.clave AS domicilio_clave,
-                oficinas.clave, oficinas.descripcion, oficinas.descripcion_corta,
-                oficinas.es_jurisdiccional, oficinas.puede_agendar_citas,
-                oficinas.apertura, oficinas.cierre, oficinas.limite_personas, oficinas.puede_enviar_qr,
-                oficinas.estatus, oficinas.creado, oficinas.modificado
-            FROM oficinas
-                JOIN domicilios ON oficinas.domicilio_id = domicilios.id
-            ORDER BY oficinas.clave ASC
-        """
+                SELECT
+                    domicilios.clave AS domicilio_clave,
+                    oficinas.clave, oficinas.descripcion, oficinas.descripcion_corta,
+                    oficinas.es_jurisdiccional, oficinas.puede_agendar_citas,
+                    oficinas.apertura, oficinas.cierre, oficinas.limite_personas, oficinas.puede_enviar_qr,
+                    oficinas.estatus, oficinas.creado, oficinas.modificado
+                FROM
+                    oficinas
+                    JOIN domicilios ON oficinas.domicilio_id = domicilios.id
+                ORDER BY oficinas.clave ASC
+            """,
         )
         rows = cursor_old.fetchall()
     except Exception as error:
@@ -35,7 +36,7 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
     # Continuar solo si se leyeron registros
     if not rows:
         raise Exception("No hay registros en la tabla oficinas de la base de datos ANTERIOR.")
-    # Insertar datos en la tabla oficinas en la base de datos NUEVA
+    # Insertar registros en la base de datos NUEVA
     contador = 0
     click.echo(click.style("Copiando registros en oficinas: ", fg="white"), nl=False)
     insert_query = """

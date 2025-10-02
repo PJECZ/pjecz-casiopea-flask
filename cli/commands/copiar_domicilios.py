@@ -14,18 +14,18 @@ import click
 
 def copiar_domicilios(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla domicilios de la base de datos ANTERIOR a la NUEVA"""
-    # Leer registros de la tabla domicilios en la base de datos ANTERIOR
+    # Leer registros en la base de datos ANTERIOR
     try:
         cursor_old.execute(
             """
-            SELECT
-                clave, edificio, estado, municipio, calle, num_ext, num_int, colonia, cp, completo,
-                estatus, creado, modificado
-            FROM
-                domicilios
-            ORDER BY
-                clave ASC
-        """
+                SELECT
+                    clave, edificio, estado, municipio, calle, num_ext, num_int, colonia, cp, completo,
+                    estatus, creado, modificado
+                FROM
+                    domicilios
+                ORDER BY
+                    clave ASC
+            """,
         )
         rows = cursor_old.fetchall()
     except Exception as error:
@@ -33,7 +33,7 @@ def copiar_domicilios(conn_old, cursor_old, conn_new, cursor_new):
     # Continuar solo si se leyeron registros
     if not rows:
         raise Exception("No hay registros en la tabla domicilios de la base de datos ANTERIOR.")
-    # Insertar datos en la tabla domicilios en la base de datos NUEVA
+    # Insertar registros en la base de datos NUEVA
     contador = 0
     click.echo(click.style("Copiando registros en domicilios: ", fg="white"), nl=False)
     insert_query = """

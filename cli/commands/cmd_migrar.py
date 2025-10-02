@@ -82,13 +82,13 @@ def copiar():
         copiar_cit_servicios(conn_old, cursor_old, conn_new, cursor_new)
         copiar_cit_oficinas_servicios(conn_old, cursor_old, conn_new, cursor_new)
         copiar_cit_clientes(conn_old, cursor_old, conn_new, cursor_new)
-        copiar_cit_clientes_recuperaciones(conn_old, cursor_old, conn_new, cursor_new)
-        copiar_cit_clientes_registros(conn_old, cursor_old, conn_new, cursor_new)
-        copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new)
+        # copiar_cit_clientes_recuperaciones(conn_old, cursor_old, conn_new, cursor_new)
+        # copiar_cit_clientes_registros(conn_old, cursor_old, conn_new, cursor_new)
+        # copiar_cit_citas(conn_old, cursor_old, conn_new, cursor_new)
         copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new)
         copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new)
     except Exception as error:
-        click.echo(click.style(f"Error durante la copia: {error}", fg="red"))
+        click.echo(click.style(error, fg="red"))
         sys.exit(1)
     # Cerrar las conexiones (si no se cerraron ya en las funciones)
     try:

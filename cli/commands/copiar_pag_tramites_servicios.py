@@ -14,7 +14,7 @@ import click
 
 def copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla pag_tramites_servicios de la base de datos ANTERIOR a la NUEVA"""
-    # Leer registros de la tabla pag_tramites_servicios en la base de datos ANTERIOR
+    # Leer registros en la base de datos ANTERIOR
     try:
         cursor_old.execute("SELECT clave, descripcion, costo, url, estatus, creado, modificado FROM pag_tramites_servicios")
         rows = cursor_old.fetchall()
@@ -23,7 +23,7 @@ def copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new):
     # Continuar solo si se leyeron registros
     if not rows:
         raise Exception("No hay registros en la tabla pag_tramites_servicios de la base de datos ANTERIOR.")
-    # Insertar datos en la tabla pag_tramites_servicios en la base de datos NUEVA
+    # Insertar registros en la base de datos NUEVA
     contador = 0
     click.echo(click.style("Copiando registros en pag_tramites_servicios: ", fg="white"), nl=False)
     insert_query = """

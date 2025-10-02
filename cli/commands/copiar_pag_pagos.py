@@ -14,13 +14,12 @@ import click
 
 def copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new):
     """Copiar tabla pag_pagos de la base de datos ANTERIOR a la NUEVA"""
-    click.echo(click.style(f"  Falta programar copiar pag_pagos.", fg="yellow"))
     # Inicializar limit y offset para paginar la consulta de la base de datos ANTERIOR
     limit = 1000
     offset = 0
     contador = 0
     while True:
-        # Leer registros de la tabla pag_pagos en la base de datos ANTERIOR
+        # Leer registros en la base de datos ANTERIOR
         try:
             cursor_old.execute(
                 """
@@ -29,7 +28,7 @@ def copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new):
                         autoridades.clave AS autoridad_clave,
                         distritos.clave AS distrito_clave,
                         cit_clientes.email,
-                        pag_tramite_servicio.clave AS pag_tramite_servicio_clave,
+                        pag_tramites_servicios.clave AS pag_tramite_servicio_clave,
                         pag_pagos.caducidad,
                         pag_pagos.cantidad,
                         pag_pagos.descripcion,
@@ -43,7 +42,8 @@ def copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new):
                         pag_pagos.estatus,
                         pag_pagos.creado,
                         pag_pagos.modificado
-                    FROM pag_pagos,
+                    FROM
+                        pag_pagos
                         JOIN autoridades ON pag_pagos.autoridad_id = autoridades.id
                         JOIN distritos ON pag_pagos.distrito_id = distritos.id
                         JOIN cit_clientes ON pag_pagos.cit_cliente_id = cit_clientes.id
@@ -59,7 +59,7 @@ def copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new):
         # Si no hay más registros, salir del ciclo
         if not rows:
             break
-        # Insertar datos en la tabla pag_pagos en la base de datos NUEVA
+        # Insertar registros en la base de datos NUEVA
         if offset > 0:
             click.echo()
         click.echo(click.style("Copiando registros en pag_pagos: ", fg="white"), nl=False)
@@ -102,4 +102,4 @@ def copiar_pag_pagos(conn_old, cursor_old, conn_new, cursor_new):
     # Mensaje final
     click.echo()
     if contador > 0:
-        click.echo(click.style(f"  {contador} cit_citas copiados.", fg="green"))
+        click.echo(click.style(f"  {contador} pag_pagos copiados.", fg="green"))
