@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 import google.auth.transport.requests
 import google.oauth2.id_token
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from pytz import timezone
 
@@ -17,15 +17,15 @@ from ...lib.cryptography_api_key import generate_api_key
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
 from ...lib.pwgen import generar_contrasena
 from ...lib.safe_next_url import safe_next_url
-from ...lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string
+from ...lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, TOKEN_REGEXP, safe_email, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..distritos.models import Distrito
 from ..entradas_salidas.models import EntradaSalida
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
-from ..usuarios.decorators import anonymous_required, permission_required
-from ..usuarios.forms import AccesoForm, UsuarioForm
-from ..usuarios.models import Usuario
+from .decorators import anonymous_required, permission_required
+from .forms import AccesoForm, UsuarioForm
+from .models import Usuario
 
 HTTP_REQUEST = google.auth.transport.requests.Request()
 
@@ -196,6 +196,9 @@ def request_api_key_json(usuario_id):
     """Solicitar API Key"""
 
     # Consultar usuario
+    usuario_id = safe_uuid(usuario_id)
+    if usuario_id == "":
+        abort(400)
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus != "A":
         return {
@@ -289,6 +292,9 @@ def list_inactive():
 @permission_required(MODULO, Permiso.VER)
 def detail(usuario_id):
     """Detalle de un Usuario"""
+    usuario_id = safe_uuid(usuario_id)
+    if usuario_id == "":
+        abort(400)
     usuario = Usuario.query.get_or_404(usuario_id)
     return render_template("usuarios/detail.jinja2", usuario=usuario)
 
@@ -300,6 +306,9 @@ def view_api_key(usuario_id):
     """Ver API Key"""
 
     # Consultar usuario
+    usuario_id = safe_uuid(usuario_id)
+    if usuario_id == "":
+        abort(400)
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus != "A":
         flash("El usuario no está activo.", "warning")
@@ -376,6 +385,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(usuario_id):
     """Editar Usuario"""
+    usuario_id = safe_uuid(usuario_id)
+    if usuario_id == "":
+        abort(400)
     usuario = Usuario.query.get_or_404(usuario_id)
     form = UsuarioForm()
     if form.validate_on_submit():
@@ -420,6 +432,9 @@ def edit(usuario_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(usuario_id):
     """Eliminar Usuario"""
+    usuario_id = safe_uuid(usuario_id)
+    if usuario_id == "":
+        abort(400)
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus == "A":
         # Dar de baja al usuario
@@ -444,6 +459,9 @@ def delete(usuario_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(usuario_id):
     """Recuperar Usuario"""
+    usuario_id = safe_uuid(usuario_id)
+    if usuario_id == "":
+        abort(400)
     usuario = Usuario.query.get_or_404(usuario_id)
     if usuario.estatus == "B":
         # Recuperar al usuario

@@ -4,17 +4,17 @@ Cit Categorías, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from .forms import CitCategoriaForm
-from .models import CitCategoria
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from .forms import CitCategoriaForm
+from .models import CitCategoria
 
 MODULO = "CIT CATEGORIAS"
 
@@ -90,6 +90,9 @@ def list_inactive():
 @cit_categorias.route("/cit_categorias/<cit_categoria_id>")
 def detail(cit_categoria_id):
     """Detalle de una Cit Categoría"""
+    cit_categoria_id = safe_uuid(cit_categoria_id)
+    if cit_categoria_id == "":
+        abort(400)
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
     return render_template("cit_categorias/detail.jinja2", cit_categoria=cit_categoria)
 
@@ -135,6 +138,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_categoria_id):
     """Editar Cit Categoría"""
+    cit_categoria_id = safe_uuid(cit_categoria_id)
+    if cit_categoria_id == "":
+        abort(400)
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
     form = CitCategoriaForm()
     if form.validate_on_submit():
@@ -180,6 +186,9 @@ def edit(cit_categoria_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cit_categoria_id):
     """Eliminar Cit Categoría"""
+    cit_categoria_id = safe_uuid(cit_categoria_id)
+    if cit_categoria_id == "":
+        abort(400)
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
     if cit_categoria.estatus == "A":
         cit_categoria.delete()
@@ -198,6 +207,9 @@ def delete(cit_categoria_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cit_categoria_id):
     """Recuperar Cit Categoría"""
+    cit_categoria_id = safe_uuid(cit_categoria_id)
+    if cit_categoria_id == "":
+        abort(400)
     cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
     if cit_categoria.estatus == "B":
         cit_categoria.recover()

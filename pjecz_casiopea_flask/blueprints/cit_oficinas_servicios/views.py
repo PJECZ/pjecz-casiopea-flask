@@ -4,22 +4,19 @@ Cit Oficinas-Servicios, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..cit_oficinas_servicios.forms import (
-    CitOficinaServicioWithCitServicioForm,
-    CitOficinaServicioWithOficinaForm,
-)
-from ..cit_oficinas_servicios.models import CitOficinaServicio
 from ..cit_servicios.models import CitServicio
 from ..modulos.models import Modulo
 from ..oficinas.models import Oficina
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from .forms import CitOficinaServicioWithCitServicioForm, CitOficinaServicioWithOficinaForm
+from .models import CitOficinaServicio
 
 MODULO = "CIT OFICINAS SERVICIOS"
 
@@ -138,6 +135,9 @@ def list_inactive():
 @cit_oficinas_servicios.route("/cit_oficinas_servicios/<cit_oficina_servicio_id>")
 def detail(cit_oficina_servicio_id):
     """Detalle de un Cit Oficina-Servicio"""
+    cit_oficina_servicio_id = safe_uuid(cit_oficina_servicio_id)
+    if cit_oficina_servicio_id == "":
+        abort(400)
     cit_oficina_servicio = CitOficinaServicio.query.get_or_404(cit_oficina_servicio_id)
     return render_template("cit_oficinas_servicios/detail.jinja2", cit_oficina_servicio=cit_oficina_servicio)
 
@@ -146,6 +146,9 @@ def detail(cit_oficina_servicio_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_cit_servicio(cit_servicio_id):
     """Nuevo Cit Oficina-Servicio con CitServicio"""
+    cit_servicio_id = safe_uuid(cit_servicio_id)
+    if cit_servicio_id == "":
+        abort(400)
     cit_servicio = CitServicio.query.get_or_404(cit_servicio_id)
     form = CitOficinaServicioWithCitServicioForm()
     if form.validate_on_submit():
@@ -198,6 +201,9 @@ def new_with_cit_servicio(cit_servicio_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_oficina(oficina_id):
     """Nuevo Cit Oficina-Servicio con Oficina"""
+    oficina_id = safe_uuid(oficina_id)
+    if oficina_id == "":
+        abort(400)
     oficina = Oficina.query.get_or_404(oficina_id)
     form = CitOficinaServicioWithOficinaForm()
     if form.validate_on_submit():
@@ -250,6 +256,9 @@ def new_with_oficina(oficina_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cit_oficina_servicio_id):
     """Eliminar Cit Oficina-Servicio"""
+    cit_oficina_servicio_id = safe_uuid(cit_oficina_servicio_id)
+    if cit_oficina_servicio_id == "":
+        abort(400)
     cit_oficina_servicio = CitOficinaServicio.query.get_or_404(cit_oficina_servicio_id)
     if cit_oficina_servicio.estatus == "A":
         cit_oficina_servicio.delete()
@@ -268,6 +277,9 @@ def delete(cit_oficina_servicio_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cit_oficina_servicio_id):
     """Recuperar Cit Oficina-Servicio"""
+    cit_oficina_servicio_id = safe_uuid(cit_oficina_servicio_id)
+    if cit_oficina_servicio_id == "":
+        abort(400)
     cit_oficina_servicio = CitOficinaServicio.query.get_or_404(cit_oficina_servicio_id)
     if cit_oficina_servicio.estatus == "B":
         cit_oficina_servicio.recover()

@@ -4,19 +4,19 @@ Usuarios-Roles, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_email, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..roles.models import Rol
 from ..usuarios.decorators import permission_required
 from ..usuarios.models import Usuario
-from ..usuarios_roles.forms import UsuarioRolNewWithRolForm, UsuarioRolNewWithUsuarioForm
-from ..usuarios_roles.models import UsuarioRol
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_email, safe_message, safe_string
+from .forms import UsuarioRolNewWithRolForm, UsuarioRolNewWithUsuarioForm
+from .models import UsuarioRol
 
 MODULO = "USUARIOS ROLES"
 
@@ -115,6 +115,9 @@ def list_active():
 @usuarios_roles.route("/usuarios_roles/<usuario_rol_id>")
 def detail(usuario_rol_id):
     """Detalle de un Usuario-Rol"""
+    usuario_rol_id = safe_uuid(usuario_rol_id)
+    if usuario_rol_id == "":
+        abort(400)
     usuario_rol = UsuarioRol.query.get_or_404(usuario_rol_id)
     return render_template("usuarios_roles/detail.jinja2", usuario_rol=usuario_rol)
 
@@ -123,6 +126,9 @@ def detail(usuario_rol_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_rol(rol_id):
     """Nuevo Usuario-Rol con el rol como parametro"""
+    rol_id = safe_uuid(rol_id)
+    if rol_id == "":
+        abort(400)
     rol = Rol.query.get_or_404(rol_id)
     form = UsuarioRolNewWithRolForm()
     if form.validate_on_submit():
@@ -165,6 +171,9 @@ def new_with_rol(rol_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new_with_usuario(usuario_id):
     """Nuevo Usuario-Rol con el usuario como parametro"""
+    usuario_id = safe_uuid(usuario_id)
+    if usuario_id == "":
+        abort(400)
     usuario = Usuario.query.get_or_404(usuario_id)
     form = UsuarioRolNewWithUsuarioForm()
     if form.validate_on_submit():
@@ -209,6 +218,9 @@ def new_with_usuario(usuario_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(usuario_rol_id):
     """Eliminar Usuario-Rol"""
+    usuario_rol_id = safe_uuid(usuario_rol_id)
+    if usuario_rol_id == "":
+        abort(400)
     usuario_rol = UsuarioRol.query.get_or_404(usuario_rol_id)
     if usuario_rol.estatus == "A":
         usuario_rol.delete()
@@ -227,6 +239,9 @@ def delete(usuario_rol_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(usuario_rol_id):
     """Recuperar Usuario-Rol"""
+    usuario_rol_id = safe_uuid(usuario_rol_id)
+    if usuario_rol_id == "":
+        abort(400)
     usuario_rol = UsuarioRol.query.get_or_404(usuario_rol_id)
     if usuario_rol.estatus == "B":
         usuario_rol.recover()
@@ -247,6 +262,9 @@ def toggle_estatus_json(usuario_rol_id):
     """Cambiar el estatus de un usuario-rol por solicitud de botón en datatable"""
 
     # Consultar usuario-rol
+    usuario_rol_id = safe_uuid(usuario_rol_id)
+    if usuario_rol_id == "":
+        abort(400)
     usuario_rol = UsuarioRol.query.get_or_404(usuario_rol_id)
     if usuario_rol is None:
         return {"success": False, "message": "No encontrado"}

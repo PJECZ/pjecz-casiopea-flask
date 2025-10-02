@@ -2,8 +2,8 @@
 Distritos
 """
 
-from typing import List
 import uuid
+from typing import List
 
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
@@ -33,6 +33,7 @@ class Distrito(database.Model, UniversalMixin):
 
     # Hijos
     autoridades: Mapped[List["Autoridad"]] = relationship("Autoridad", back_populates="distrito")
+    pag_pagos: Mapped[List["PagPago"]] = relationship("PagPago", back_populates="distrito")
 
     def __repr__(self):
         """Representación"""

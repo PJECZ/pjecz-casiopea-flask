@@ -4,17 +4,17 @@ Cit Servicios, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..cit_servicios.forms import CitServicioForm
-from ..cit_servicios.models import CitServicio
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from .forms import CitServicioForm
+from .models import CitServicio
 
 DIAS_SEMANA = {
     0: "DOMINGO",
@@ -119,6 +119,9 @@ def list_inactive():
 def detail(cit_servicio_id):
     """Detalle de un Cit Servicio"""
     # Consultar
+    cit_servicio_id = safe_uuid(cit_servicio_id)
+    if cit_servicio_id == "":
+        abort(400)
     cit_servicio = CitServicio.query.get_or_404(cit_servicio_id)
     # Convertir los dias habilitados a textos, por ejemplo "23" a "MARTES, MIERCOLES"
     dias_habilitados = ""
@@ -210,6 +213,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_servicio_id):
     """Editar Cit Servicio"""
+    cit_servicio_id = safe_uuid(cit_servicio_id)
+    if cit_servicio_id == "":
+        abort(400)
     cit_servicio = CitServicio.query.get_or_404(cit_servicio_id)
     form = CitServicioForm()
     if form.validate_on_submit():
@@ -285,6 +291,9 @@ def edit(cit_servicio_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(cit_servicio_id):
     """Eliminar Cit Servicio"""
+    cit_servicio_id = safe_uuid(cit_servicio_id)
+    if cit_servicio_id == "":
+        abort(400)
     cit_servicio = CitServicio.query.get_or_404(cit_servicio_id)
     if cit_servicio.estatus == "A":
         cit_servicio.delete()
@@ -303,6 +312,9 @@ def delete(cit_servicio_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(cit_servicio_id):
     """Recuperar Cit Servicio"""
+    cit_servicio_id = safe_uuid(cit_servicio_id)
+    if cit_servicio_id == "":
+        abort(400)
     cit_servicio = CitServicio.query.get_or_404(cit_servicio_id)
     if cit_servicio.estatus == "B":
         cit_servicio.recover()

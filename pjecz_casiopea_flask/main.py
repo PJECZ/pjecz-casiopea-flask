@@ -23,6 +23,8 @@ from .blueprints.entradas_salidas.views import entradas_salidas
 from .blueprints.materias.views import materias
 from .blueprints.modulos.views import modulos
 from .blueprints.oficinas.views import oficinas
+from .blueprints.pag_pagos.views import pag_pagos
+from .blueprints.pag_tramites_servicios.views import pag_tramites_servicios
 from .blueprints.permisos.views import permisos
 from .blueprints.roles.views import roles
 from .blueprints.sistemas.views import sistemas
@@ -65,6 +67,8 @@ app.register_blueprint(entradas_salidas)
 app.register_blueprint(materias)
 app.register_blueprint(modulos)
 app.register_blueprint(oficinas)
+app.register_blueprint(pag_pagos)
+app.register_blueprint(pag_tramites_servicios)
 app.register_blueprint(permisos)
 app.register_blueprint(roles)
 app.register_blueprint(sistemas)

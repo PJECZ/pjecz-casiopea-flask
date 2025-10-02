@@ -7,15 +7,15 @@ import json
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..cit_horas_bloqueadas.forms import CitHoraBloqueadaAdminForm, CitHoraBloqueadaForm
-from ..cit_horas_bloqueadas.models import CitHoraBloqueada
 from ..modulos.models import Modulo
 from ..oficinas.models import Oficina
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from .forms import CitHoraBloqueadaAdminForm, CitHoraBloqueadaForm
+from .models import CitHoraBloqueada
 
 MODULO = "CIT HORAS BLOQUEADAS"
 
@@ -159,6 +159,9 @@ def list_inactive():
 @cit_horas_bloqueadas.route("/cit_horas_bloqueadas/<cit_hora_bloqueada_id>")
 def detail(cit_hora_bloqueada_id):
     """Detalle de un Cit Hora Bloqueada"""
+    cit_hora_bloqueada_id = safe_uuid(cit_hora_bloqueada_id)
+    if cit_hora_bloqueada_id == "":
+        abort(400)
     cit_hora_bloqueada = CitHoraBloqueada.query.get_or_404(cit_hora_bloqueada_id)
     return render_template("cit_horas_bloqueadas/detail.jinja2", cit_hora_bloqueada=cit_hora_bloqueada)
 
@@ -234,6 +237,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_hora_bloqueada_id):
     """Editar Hora Bloqueada"""
+    cit_hora_bloqueada_id = safe_uuid(cit_hora_bloqueada_id)
+    if cit_hora_bloqueada_id == "":
+        abort(400)
     cit_hora_bloqueada = CitHoraBloqueada.query.get_or_404(cit_hora_bloqueada_id)
     # Si es administrador, puede elegir la oficina
     if current_user.can_admin(MODULO):
@@ -303,6 +309,9 @@ def edit(cit_hora_bloqueada_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(cit_hora_bloqueada_id):
     """Eliminar Hora Bloqueada"""
+    cit_hora_bloqueada_id = safe_uuid(cit_hora_bloqueada_id)
+    if cit_hora_bloqueada_id == "":
+        abort(400)
     cit_hora_bloqueada = CitHoraBloqueada.query.get_or_404(cit_hora_bloqueada_id)
     # Si no es administrador o no es su oficina, no puede eliminar
     if not current_user.can_admin(MODULO) or cit_hora_bloqueada.oficina != current_user.oficina:
@@ -327,6 +336,9 @@ def delete(cit_hora_bloqueada_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(cit_hora_bloqueada_id):
     """Recuperar Hora Bloqueada"""
+    cit_hora_bloqueada_id = safe_uuid(cit_hora_bloqueada_id)
+    if cit_hora_bloqueada_id == "":
+        abort(400)
     cit_hora_bloqueada = CitHoraBloqueada.query.get_or_404(cit_hora_bloqueada_id)
     # Si no es administrador o no es su oficina, no puede recuperar
     if not current_user.can_admin(MODULO) or cit_hora_bloqueada.oficina != current_user.oficina:

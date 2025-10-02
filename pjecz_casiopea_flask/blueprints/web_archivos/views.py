@@ -4,11 +4,11 @@ Web Archivos, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_url
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_url, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
@@ -100,6 +100,9 @@ def list_inactive():
 @web_archivos.route("/web_archivos/<web_archivo_id>")
 def detail(web_archivo_id):
     """Detalle de un Web Archivo"""
+    web_archivo_id = safe_uuid(web_archivo_id)
+    if web_archivo_id == "":
+        abort(400)
     web_archivo = WebArchivo.query.get_or_404(web_archivo_id)
     return render_template("web_archivos/detail.jinja2", web_archivo=web_archivo)
 
@@ -108,6 +111,9 @@ def detail(web_archivo_id):
 @permission_required(MODULO, Permiso.CREAR)
 def new(web_pagina_id):
     """Nuevo Web Archivo"""
+    web_pagina_id = safe_uuid(web_pagina_id)
+    if web_pagina_id == "":
+        abort(400)
     web_pagina = WebPagina.query.get_or_404(web_pagina_id)
     form = WebArchivoNewForm()
     if form.validate_on_submit():
@@ -145,6 +151,9 @@ def new(web_pagina_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(web_archivo_id):
     """Editar Web Archivo"""
+    web_archivo_id = safe_uuid(web_archivo_id)
+    if web_archivo_id == "":
+        abort(400)
     web_archivo = WebArchivo.query.get_or_404(web_archivo_id)
     form = WebArchivoEditForm()
     if form.validate_on_submit():
@@ -187,6 +196,9 @@ def edit(web_archivo_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(web_archivo_id):
     """Eliminar Web Archivo"""
+    web_archivo_id = safe_uuid(web_archivo_id)
+    if web_archivo_id == "":
+        abort(400)
     web_archivo = WebArchivo.query.get_or_404(web_archivo_id)
     if web_archivo.estatus == "A":
         web_archivo.delete()
@@ -205,6 +217,9 @@ def delete(web_archivo_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(web_archivo_id):
     """Recuperar Web Archivo"""
+    web_archivo_id = safe_uuid(web_archivo_id)
+    if web_archivo_id == "":
+        abort(400)
     web_archivo = WebArchivo.query.get_or_404(web_archivo_id)
     if web_archivo.estatus == "B":
         web_archivo.recover()

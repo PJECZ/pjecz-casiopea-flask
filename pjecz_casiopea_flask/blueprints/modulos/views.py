@@ -4,16 +4,16 @@ Modulos, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..modulos.forms import ModuloForm
-from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_message, safe_string
+from .forms import ModuloForm
+from .models import Modulo
 
 MODULO = "MODULOS"
 
@@ -89,6 +89,9 @@ def list_inactive():
 @modulos.route("/modulos/<modulo_id>")
 def detail(modulo_id):
     """Detalle de un Modulo"""
+    modulo_id = safe_uuid(modulo_id)
+    if modulo_id == "":
+        abort(400)
     modulo = Modulo.query.get_or_404(modulo_id)
     return render_template("modulos/detail.jinja2", modulo=modulo)
 
@@ -129,6 +132,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(modulo_id):
     """Editar Modulo"""
+    modulo_id = safe_uuid(modulo_id)
+    if modulo_id == "":
+        abort(400)
     modulo = Modulo.query.get_or_404(modulo_id)
     form = ModuloForm()
     if form.validate_on_submit():
@@ -169,6 +175,9 @@ def edit(modulo_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(modulo_id):
     """Eliminar Modulo"""
+    modulo_id = safe_uuid(modulo_id)
+    if modulo_id == "":
+        abort(400)
     este_modulo = Modulo.query.get_or_404(modulo_id)
     if este_modulo.estatus == "A":
         # Dar de baja el modulo
@@ -192,6 +201,9 @@ def delete(modulo_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(modulo_id):
     """Recuperar Modulo"""
+    modulo_id = safe_uuid(modulo_id)
+    if modulo_id == "":
+        abort(400)
     este_modulo = Modulo.query.get_or_404(modulo_id)
     if este_modulo.estatus == "B":
         # Dar de alta el modulo

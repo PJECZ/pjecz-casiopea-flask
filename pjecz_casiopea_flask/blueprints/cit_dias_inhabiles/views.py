@@ -4,17 +4,17 @@ Cit Dias Inhábiles, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..cit_dias_inhabiles.forms import CitDiaInhabilForm
-from ..cit_dias_inhabiles.models import CitDiaInhabil
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_message, safe_string
+from .forms import CitDiaInhabilForm
+from .models import CitDiaInhabil
 
 MODULO = "CIT DIAS INHABILES"
 
@@ -89,6 +89,9 @@ def list_inactive():
 @cit_dias_inhabiles.route("/cit_dias_inhabiles/<cit_dia_inhabil_id>")
 def detail(cit_dia_inhabil_id):
     """Detalle de un Cit Dia Inhábil"""
+    cit_dia_inhabil_id = safe_uuid(cit_dia_inhabil_id)
+    if cit_dia_inhabil_id == "":
+        abort(400)
     cit_dia_inhabil = CitDiaInhabil.query.get_or_404(cit_dia_inhabil_id)
     return render_template("cit_dias_inhabiles/detail.jinja2", cit_dia_inhabil=cit_dia_inhabil)
 
@@ -126,6 +129,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(cit_dia_inhabil_id):
     """Editar Dia Inhábil"""
+    cit_dia_inhabil_id = safe_uuid(cit_dia_inhabil_id)
+    if cit_dia_inhabil_id == "":
+        abort(400)
     cit_dia_inhabil = CitDiaInhabil.query.get_or_404(cit_dia_inhabil_id)
     form = CitDiaInhabilForm()
     if form.validate_on_submit():
@@ -157,6 +163,9 @@ def edit(cit_dia_inhabil_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def delete(cit_dia_inhabil_id):
     """Eliminar Dia Inhábil"""
+    cit_dia_inhabil_id = safe_uuid(cit_dia_inhabil_id)
+    if cit_dia_inhabil_id == "":
+        abort(400)
     cit_dia_inhabil = CitDiaInhabil.query.get_or_404(cit_dia_inhabil_id)
     if cit_dia_inhabil.estatus == "A":
         cit_dia_inhabil.delete()
@@ -175,6 +184,9 @@ def delete(cit_dia_inhabil_id):
 @permission_required(MODULO, Permiso.MODIFICAR)
 def recover(cit_dia_inhabil_id):
     """Recuperar Dia Inhábil"""
+    cit_dia_inhabil_id = safe_uuid(cit_dia_inhabil_id)
+    if cit_dia_inhabil_id == "":
+        abort(400)
     cit_dia_inhabil = CitDiaInhabil.query.get_or_404(cit_dia_inhabil_id)
     if cit_dia_inhabil.estatus == "B":
         cit_dia_inhabil.recover()

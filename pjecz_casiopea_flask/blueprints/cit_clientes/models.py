@@ -2,9 +2,9 @@
 Cit Clientes, modelos
 """
 
+import uuid
 from datetime import date
 from typing import List
-import uuid
 
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
@@ -49,6 +49,7 @@ class CitCliente(database.Model, UniversalMixin):
     cit_clientes_recuperaciones: Mapped[List["CitClienteRecuperacion"]] = relationship(
         "CitClienteRecuperacion", back_populates="cit_cliente"
     )
+    pag_pagos: Mapped[List["PagPago"]] = relationship("PagPago", back_populates="cit_cliente")
 
     @property
     def nombre(self):

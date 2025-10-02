@@ -4,17 +4,17 @@ Domicilios, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_clave, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..domicilios.forms import DomicilioForm
-from ..domicilios.models import Domicilio
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_string
+from .forms import DomicilioForm
+from .models import Domicilio
 
 MODULO = "DOMICILIOS"
 
@@ -104,6 +104,9 @@ def list_inactive():
 @domicilios.route("/domicilios/<domicilio_id>")
 def detail(domicilio_id):
     """Detalle de un Domicilio"""
+    domicilio_id = safe_uuid(domicilio_id)
+    if domicilio_id == "":
+        abort(400)
     domicilio = Domicilio.query.get_or_404(domicilio_id)
     return render_template("domicilios/detail.jinja2", domicilio=domicilio)
 
@@ -163,6 +166,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(domicilio_id):
     """Editar Domicilio"""
+    domicilio_id = safe_uuid(domicilio_id)
+    if domicilio_id == "":
+        abort(400)
     domicilio = Domicilio.query.get_or_404(domicilio_id)
     form = DomicilioForm()
     if form.validate_on_submit():
@@ -221,6 +227,9 @@ def edit(domicilio_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(domicilio_id):
     """Eliminar Domicilio"""
+    domicilio_id = safe_uuid(domicilio_id)
+    if domicilio_id == "":
+        abort(400)
     domicilio = Domicilio.query.get_or_404(domicilio_id)
     if domicilio.estatus == "A":
         domicilio.delete()
@@ -239,6 +248,9 @@ def delete(domicilio_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(domicilio_id):
     """Recuperar Domicilio"""
+    domicilio_id = safe_uuid(domicilio_id)
+    if domicilio_id == "":
+        abort(400)
     domicilio = Domicilio.query.get_or_404(domicilio_id)
     if domicilio.estatus == "B":
         domicilio.recover()

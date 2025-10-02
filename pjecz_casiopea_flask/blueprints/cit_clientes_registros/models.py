@@ -4,6 +4,7 @@ Cit Clientes Registros, modelos
 
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
@@ -33,6 +34,9 @@ class CitClienteRegistro(database.Model, UniversalMixin):
     cadena_validar: Mapped[str] = mapped_column(String(256))
     mensajes_cantidad: Mapped[int] = mapped_column(default=0)
     ya_registrado: Mapped[bool] = mapped_column(default=False)
+
+    # Para controlar la migracion desde pjecz_citas_v2 se incluye el id_original
+    id_original: Mapped[Optional[int]] = mapped_column(index=True)
 
     @property
     def nombre(self):

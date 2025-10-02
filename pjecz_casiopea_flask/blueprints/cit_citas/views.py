@@ -4,19 +4,19 @@ Cit Citas, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_email, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..cit_citas.models import CitCita
 from ..cit_clientes.models import CitCliente
 from ..cit_servicios.models import CitServicio
 from ..modulos.models import Modulo
 from ..oficinas.models import Oficina
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_email, safe_message, safe_string
+from .models import CitCita
 
 MODULO = "CIT CITAS"
 
@@ -141,26 +141,8 @@ def list_inactive():
 @cit_citas.route("/cit_citas/<cit_cita_id>")
 def detail(cit_cita_id):
     """Detalle de un Cit Cita"""
+    cit_cita_id = safe_uuid(cit_cita_id)
+    if cit_cita_id == "":
+        abort(400)
     cit_cita = CitCita.query.get_or_404(cit_cita_id)
     return render_template("cit_citas/detail.jinja2", cit_cita=cit_cita)
-
-
-@cit_citas.route("/cit_citas/pendiente/<cit_cita_id>")
-@permission_required(MODULO, Permiso.MODIFICAR)
-def set_pending(cit_cita_id):
-    """Marcar la cita como pendiente"""
-
-
-@cit_citas.route("/cit_citas/asistencia/<cit_cita_id>")
-def set_assistance(cit_cita_id):
-    """Marcar la cita como asistencia"""
-
-
-@cit_citas.route("/cit_citas/falta/<cit_cita_id>")
-def set_no_assistance(cit_cita_id):
-    """Marcar la cita como falta"""
-
-
-@cit_citas.route("/cit_citas/cancelar/<cit_cita_id>")
-def set_cancelled(cit_cita_id):
-    """Marcar la cita como cancelada"""

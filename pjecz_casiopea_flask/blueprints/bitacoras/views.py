@@ -7,11 +7,11 @@ import json
 from flask import Blueprint, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from ..bitacoras.models import Bitacora
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from ..usuarios.models import Usuario
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from .models import Bitacora
 
 MODULO = "BITACORAS"
 

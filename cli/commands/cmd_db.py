@@ -1,7 +1,10 @@
 """
 CLI Base de Datos
 
-- cambiar_contrasena: Cambiar contraseña de un cliente
+- inicializar: Crear las tablas en la base de datos
+- alimentar: Alimentar las tablas con datos iniciales
+- reiniciar: Ejecuta inicializar y alimentar
+- respaldar: Crear un respaldo de la base de datos
 """
 
 import os
@@ -62,11 +65,11 @@ def alimentar():
     alimentar_permisos()
     alimentar_usuarios()
     alimentar_usuarios_roles()
-    alimentar_domicilios()
-    alimentar_oficinas()
-    alimentar_cit_categorias()
-    alimentar_cit_servicios()
-    alimentar_cit_oficinas_servicios()
+    # alimentar_domicilios()
+    # alimentar_oficinas()
+    # alimentar_cit_categorias()
+    # alimentar_cit_servicios()
+    # alimentar_cit_oficinas_servicios()
     alimentar_cit_dias_inhabiles()
     click.echo("Termina alimentar.")
 

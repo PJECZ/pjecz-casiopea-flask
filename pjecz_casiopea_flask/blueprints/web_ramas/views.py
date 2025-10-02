@@ -4,11 +4,11 @@ Web Ramas, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_clave, safe_message, safe_path, safe_string
+from ...lib.safe_string import safe_clave, safe_message, safe_path, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
@@ -98,6 +98,9 @@ def list_inactive():
 @web_ramas.route("/web_ramas/<web_rama_id>")
 def detail(web_rama_id):
     """Detalle de un Web Rama"""
+    web_rama_id = safe_uuid(web_rama_id)
+    if web_rama_id == "":
+        abort(400)
     web_rama = WebRama.query.get_or_404(web_rama_id)
     return render_template("web_ramas/detail.jinja2", web_rama=web_rama)
 

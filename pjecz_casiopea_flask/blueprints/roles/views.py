@@ -4,17 +4,17 @@ Roles, vistas
 
 import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from ...lib.datatables import get_datatable_parameters, output_datatable_json
+from ...lib.safe_string import safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
-from ..roles.forms import RolForm
-from ..roles.models import Rol
 from ..usuarios.decorators import permission_required
-from ...lib.datatables import get_datatable_parameters, output_datatable_json
-from ...lib.safe_string import safe_message, safe_string
+from .forms import RolForm
+from .models import Rol
 
 MODULO = "ROLES"
 
@@ -88,6 +88,9 @@ def list_inactive():
 @roles.route("/roles/<rol_id>")
 def detail(rol_id):
     """Detalle de un Rol"""
+    rol_id = safe_uuid(rol_id)
+    if rol_id == "":
+        abort(400)
     rol = Rol.query.get_or_404(rol_id)
     return render_template("roles/detail.jinja2", rol=rol)
 
@@ -122,6 +125,9 @@ def new():
 @permission_required(MODULO, Permiso.MODIFICAR)
 def edit(rol_id):
     """Editar Rol"""
+    rol_id = safe_uuid(rol_id)
+    if rol_id == "":
+        abort(400)
     rol = Rol.query.get_or_404(rol_id)
     form = RolForm()
     if form.validate_on_submit():
@@ -154,6 +160,9 @@ def edit(rol_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(rol_id):
     """Eliminar Rol"""
+    rol_id = safe_uuid(rol_id)
+    if rol_id == "":
+        abort(400)
     rol = Rol.query.get_or_404(rol_id)
     if rol.estatus == "A":
         # Dar de baja el rol
@@ -180,6 +189,9 @@ def delete(rol_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(rol_id):
     """Recuperar Rol"""
+    rol_id = safe_uuid(rol_id)
+    if rol_id == "":
+        abort(400)
     rol = Rol.query.get_or_404(rol_id)
     if rol.estatus == "B":
         # Dar de alta el rol
