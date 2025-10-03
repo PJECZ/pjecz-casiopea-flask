@@ -85,7 +85,15 @@ def datatable_json():
                 "desde": "-" if resultado.desde is None else resultado.desde.strftime("%H:%M"),
                 "hasta": "-" if resultado.hasta is None else resultado.hasta.strftime("%H:%M"),
                 "dias_habilitados": resultado.dias_habilitados,
-                "es_activo": resultado.es_activo,
+                "toggle_es_activo": {
+                    "id": resultado.id,
+                    "es_activo": resultado.es_activo,
+                    "url": (
+                        url_for("cit_servicios.toggle_es_activo_json", cit_servicio_id=resultado.id)
+                        if current_user.can_edit(MODULO)
+                        else ""
+                    ),
+                },
             }
         )
     # Entregar JSON
@@ -327,3 +335,29 @@ def recover(cit_servicio_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("cit_servicios.detail", cit_servicio_id=cit_servicio.id))
+
+
+@cit_servicios.route("/cit_servicios/toggle_es_activo_json/<cit_servicio_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def toggle_es_activo_json(cit_servicio_id):
+    """Cambiar es_activo a su opuesto al dar clic a su boton en datatable"""
+
+    # Consultar
+    cit_servicio_id = safe_uuid(cit_servicio_id)
+    if cit_servicio_id == "":
+        return {"success": False, "message": "No es un UUID válido"}
+    cit_servicio = CitServicio.query.get_or_404(cit_servicio_id)
+    if cit_servicio is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_activo a su opuesto y guardar
+    cit_servicio.es_activo = not cit_servicio.es_activo
+    cit_servicio.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if cit_servicio.es_activo == "A" else "Inactivo",
+        "es_activo": cit_servicio.es_activo,
+        "id": cit_servicio.id,
+    }

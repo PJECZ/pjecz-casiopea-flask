@@ -77,7 +77,15 @@ def datatable_json():
                 "es_jurisdiccional": resultado.es_jurisdiccional,
                 "puede_agendar_citas": resultado.puede_agendar_citas,
                 "puede_enviar_qr": resultado.puede_enviar_qr,
-                "es_activo": resultado.es_activo,
+                "toggle_es_activo": {
+                    "id": resultado.id,
+                    "es_activo": resultado.es_activo,
+                    "url": (
+                        url_for("oficinas.toggle_es_activo_json", oficina_id=resultado.id)
+                        if current_user.can_edit(MODULO)
+                        else ""
+                    ),
+                },
             }
         )
     # Entregar JSON
@@ -269,3 +277,29 @@ def query_oficinas_json():
     for oficina in consulta.order_by(Oficina.clave).limit(20).all():
         resultados.append({"id": oficina.id, "text": f"{oficina.clave} - {oficina.descripcion_corta}"})
     return {"results": resultados, "pagination": {"more": False}}
+
+
+@oficinas.route("/oficinas/toggle_es_activo_json/<oficina_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def toggle_es_activo_json(oficina_id):
+    """Cambiar es_activo a su opuesto al dar clic a su boton en datatable"""
+
+    # Consultar
+    oficina_id = safe_uuid(oficina_id)
+    if oficina_id == "":
+        return {"success": False, "message": "No es un UUID válido"}
+    oficina = Oficina.query.get_or_404(oficina_id)
+    if oficina is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_activo a su opuesto y guardar
+    oficina.es_activo = not oficina.es_activo
+    oficina.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if oficina.es_activo == "A" else "Inactivo",
+        "es_activo": oficina.es_activo,
+        "id": oficina.id,
+    }

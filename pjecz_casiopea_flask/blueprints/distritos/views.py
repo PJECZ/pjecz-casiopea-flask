@@ -68,7 +68,15 @@ def datatable_json():
                 "es_distrito_judicial": resultado.es_distrito_judicial,
                 "es_distrito": resultado.es_distrito,
                 "es_jurisdiccional": resultado.es_jurisdiccional,
-                "es_activo": resultado.es_activo,
+                "toggle_es_activo": {
+                    "id": resultado.id,
+                    "es_activo": resultado.es_activo,
+                    "url": (
+                        url_for("distritos.toggle_es_activo_json", distrito_id=resultado.id)
+                        if current_user.can_edit(MODULO)
+                        else ""
+                    ),
+                },
             }
         )
     # Entregar JSON
@@ -261,3 +269,29 @@ def query_distritos_json():
         )
     # Entregar JSON
     return json.dumps(data)
+
+
+@distritos.route("/distritos/toggle_es_activo_json/<distrito_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def toggle_es_activo_json(distrito_id):
+    """Cambiar es_activo a su opuesto al dar clic a su boton en datatable"""
+
+    # Consultar
+    distrito_id = safe_uuid(distrito_id)
+    if distrito_id == "":
+        return {"success": False, "message": "No es un UUID válido"}
+    distrito = Distrito.query.get_or_404(distrito_id)
+    if distrito is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_activo a su opuesto y guardar
+    distrito.es_activo = not distrito.es_activo
+    distrito.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if distrito.es_activo == "A" else "Inactivo",
+        "es_activo": distrito.es_activo,
+        "id": distrito.id,
+    }
