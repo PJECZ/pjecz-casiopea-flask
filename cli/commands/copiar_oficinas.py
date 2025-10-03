@@ -20,6 +20,7 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
         cursor_old.execute(
             """
                 SELECT
+                    distritos.clave AS distrito_clave,
                     domicilios.clave AS domicilio_clave,
                     oficinas.clave, oficinas.descripcion, oficinas.descripcion_corta,
                     oficinas.es_jurisdiccional, oficinas.puede_agendar_citas,
@@ -27,6 +28,7 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
                     oficinas.estatus, oficinas.creado, oficinas.modificado
                 FROM
                     oficinas
+                    JOIN distritos ON oficinas.distrito_id = distritos.id
                     JOIN domicilios ON oficinas.domicilio_id = domicilios.id
                 ORDER BY oficinas.clave ASC
             """,
@@ -41,12 +43,14 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
     contador = 0
     insert_query = """
         INSERT INTO oficinas (id,
+            distrito_id,
             domicilio_id,
             clave, descripcion, descripcion_corta,
             es_jurisdiccional, puede_agendar_citas,
             apertura, cierre, limite_personas, puede_enviar_qr,
             estatus, creado, modificado, es_activo)
         VALUES (%s,
+            (SELECT id FROM distritos WHERE clave = %s),
             (SELECT id FROM domicilios WHERE clave = %s),
             %s, %s, %s,
             %s, %s,
@@ -55,8 +59,9 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
     """
     try:
         for row in rows:
+            clave = row[2]  # La clave de la oficina es la tercer columna
             # Consultar si el registro ya existe
-            cursor_new.execute("SELECT id FROM oficinas WHERE clave = %s", (row[0],))
+            cursor_new.execute("SELECT id FROM oficinas WHERE clave = %s", (clave,))
             if cursor_new.fetchone():
                 click.echo(click.style("-", fg="blue"), nl=False)
                 continue  # Ya existe, se omite
@@ -66,7 +71,7 @@ def copiar_oficinas(conn_old, cursor_old, conn_new, cursor_new):
             contador += 1
             click.echo(click.style("+", fg="green"), nl=False)
     except Exception as error:
-        raise Exception(f"Error al insertar registros en la BD NUEVA: {error}")
+        raise Exception(f"Error al insertar {clave}: {error}")
     # Confirmar los cambios
     conn_new.commit()
     # Mensaje final

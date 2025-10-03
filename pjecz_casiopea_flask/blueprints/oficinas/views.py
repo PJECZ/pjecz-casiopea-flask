@@ -41,6 +41,8 @@ def datatable_json():
         consulta = consulta.filter(Oficina.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(Oficina.estatus == "A")
+    if "distrito_id" in request.form:
+        consulta = consulta.filter(Oficina.distrito_id == request.form["distrito_id"])
     if "domicilio_id" in request.form:
         consulta = consulta.filter(Oficina.domicilio_id == request.form["domicilio_id"])
     if "clave" in request.form:
@@ -67,6 +69,7 @@ def datatable_json():
                     "url": url_for("oficinas.detail", oficina_id=resultado.id),
                 },
                 "descripcion_corta": resultado.descripcion_corta,
+                "distrito_clave": resultado.distrito.clave,
                 "domicilio_edificio": resultado.domicilio.edificio,
                 "apertura": resultado.apertura.strftime("%H:%M"),
                 "cierre": resultado.cierre.strftime("%H:%M"),

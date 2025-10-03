@@ -50,11 +50,11 @@
                 <tr>
                     <th>Clave</th>
                     <th>Descripción corta</th>
-                    <th><span title="Es Jurisdiccional">Es J.</span></th>
                     <th>Apertura</th>
                     <th>Cierre</th>
                     <th><span title="Límite de personas">L.P.</span></th>
                     <th>Edificio</th>
+                    <th>Distrito</th>
                     <th>Activo</th>
                 </tr>
             </thead>
@@ -74,11 +74,11 @@
         configDTOficinas['columns'] = [
             { data: "detalle" },
             { data: "descripcion_corta" },
-            { data: "es_jurisdiccional" },
             { data: "apertura" },
             { data: "cierre" },
             { data: "limite_personas" },
             { data: "domicilio_edificio" },
+            { data: "distrito_clave" },
             { data: "es_activo" },
         ];
         configDTOficinas['columnDefs'] = [
@@ -94,16 +94,6 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return (data.length > 32 ? data.substring(0, 32) + '…' : data);
-                }
-            },
-            {
-                targets: 2, // es_jurisdiccional
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data) {
-                        return 'SI';
-                    }
-                    return '';
                 }
             },
             {
