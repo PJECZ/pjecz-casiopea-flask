@@ -65,9 +65,10 @@ def datatable_json():
                 },
                 "nombre": resultado.nombre,
                 "nombre_corto": resultado.nombre_corto,
-                "es_activo": resultado.es_activo,
+                "es_distrito_judicial": resultado.es_distrito_judicial,
                 "es_distrito": resultado.es_distrito,
                 "es_jurisdiccional": resultado.es_jurisdiccional,
+                "es_activo": resultado.es_activo,
             }
         )
     # Entregar JSON

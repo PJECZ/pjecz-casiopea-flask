@@ -22,6 +22,11 @@
     {% call detail.card(estatus=oficina.estatus) %}
         <div class="row">
             <div class="col-md-6">
+                {% if current_user.can_view('DISTRITOS') %}
+                    {{ detail.label_value('Distrito', oficina.distrito.nombre_corto, url_for('distritos.detail', distrito_id=oficina.distrito_id)) }}
+                {% else %}
+                    {{ detail.label_value('Distrito', oficina.distrito.nombre_corto) }}
+                {% endif %}
                 {% if current_user.can_view('DOMICILIOS') %}
                     {{ detail.label_value('Edificio', oficina.domicilio.edificio, url_for('domicilios.detail', domicilio_id=oficina.domicilio_id)) }}
                 {% else %}

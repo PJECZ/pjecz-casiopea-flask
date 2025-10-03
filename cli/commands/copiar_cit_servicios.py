@@ -58,8 +58,9 @@ def copiar_cit_servicios(conn_old, cursor_old, conn_new, cursor_new):
     """
     try:
         for row in rows:
+            cit_servicio_clave = row[1]  # La clave del servicio es la segunda columna
             # Consultar si el registro ya existe
-            cursor_new.execute("SELECT id FROM cit_servicios WHERE clave = %s", (row[1],))
+            cursor_new.execute("SELECT id FROM cit_servicios WHERE clave = %s", (cit_servicio_clave,))
             if cursor_new.fetchone():
                 click.echo(click.style("-", fg="blue"), nl=False)
                 continue  # Ya existe, se omite
@@ -69,7 +70,7 @@ def copiar_cit_servicios(conn_old, cursor_old, conn_new, cursor_new):
             contador += 1
             click.echo(click.style("+", fg="green"), nl=False)
     except Exception as error:
-        raise Exception(f"Error al insertar registros en la BD NUEVA: {error}")
+        raise Exception(f"Error al insertar {cit_servicio_clave}: {error}")
     # Confirmar los cambios
     conn_new.commit()
     # Mensaje final

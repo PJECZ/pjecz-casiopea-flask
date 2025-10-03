@@ -32,8 +32,9 @@ def copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new):
     """
     try:
         for row in rows:
+            clave = row[0]  # La clave es la primer columna
             # Consultar si el registro ya existe
-            cursor_new.execute("SELECT id FROM pag_tramites_servicios WHERE clave = %s", (row[0],))
+            cursor_new.execute("SELECT id FROM pag_tramites_servicios WHERE clave = %s", (clave,))
             if cursor_new.fetchone():
                 click.echo(click.style("-", fg="blue"), nl=False)
                 continue  # Ya existe, se omite
@@ -43,7 +44,7 @@ def copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new):
             contador += 1
             click.echo(click.style("+", fg="green"), nl=False)
     except Exception as error:
-        raise Exception(f"Error al insertar registros en la BD NUEVA: {error}")
+        raise Exception(f"Error al insertar {clave}: {error}")
     # Confirmar los cambios
     conn_new.commit()
     # Mensaje final

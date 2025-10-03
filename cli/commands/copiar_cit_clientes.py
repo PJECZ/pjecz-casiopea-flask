@@ -55,8 +55,9 @@ def copiar_cit_clientes(conn_old, cursor_old, conn_new, cursor_new):
         """
         try:
             for row in rows:
+                email = row[5]  # El email es la sexta columna
                 # Consultar si el registro ya existe
-                cursor_new.execute("SELECT id FROM cit_clientes WHERE email = %s", (row[5],))
+                cursor_new.execute("SELECT id FROM cit_clientes WHERE email = %s", (email,))
                 if cursor_new.fetchone():
                     click.echo(click.style("-", fg="blue"), nl=False)
                     continue  # Ya existe, se omite
@@ -66,7 +67,7 @@ def copiar_cit_clientes(conn_old, cursor_old, conn_new, cursor_new):
                 contador += 1
                 click.echo(click.style("+", fg="green"), nl=False)
         except Exception as error:
-            raise Exception(f"Error al insertar registros en la BD NUEVA: {error}")
+            raise Exception(f"Error al insertar {email}: {error}")
         # Confirmar los cambios
         conn_new.commit()
         # Incrementar offset para la siguiente página
