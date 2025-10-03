@@ -71,7 +71,15 @@ def datatable_json():
                 "num_int": resultado.num_int,
                 "colonia": resultado.colonia,
                 "cp": resultado.cp,
-                "es_activo": resultado.es_activo,
+                "toggle_es_activo": {
+                    "id": resultado.id,
+                    "es_activo": resultado.es_activo,
+                    "url": (
+                        url_for("domicilios.toggle_es_activo_json", domicilio_id=resultado.id)
+                        if current_user.can_edit(MODULO)
+                        else ""
+                    ),
+                },
             }
         )
     # Entregar JSON
@@ -263,3 +271,29 @@ def recover(domicilio_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("domicilios.detail", domicilio_id=domicilio.id))
+
+
+@domicilios.route("/domicilios/toggle_es_activo_json/<domicilio_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def toggle_es_activo_json(domicilio_id):
+    """Cambiar es_activo a su opuesto al dar clic a su boton en datatable"""
+
+    # Consultar
+    domicilio_id = safe_uuid(domicilio_id)
+    if domicilio_id == "":
+        return {"success": False, "message": "No es un UUID válido"}
+    domicilio = Domicilio.query.get_or_404(domicilio_id)
+    if domicilio is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_activo a su opuesto y guardar
+    domicilio.es_activo = not domicilio.es_activo
+    domicilio.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if domicilio.es_activo == "A" else "Inactivo",
+        "es_activo": domicilio.es_activo,
+        "id": domicilio.id,
+    }

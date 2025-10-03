@@ -74,7 +74,15 @@ def datatable_json():
                 "descripcion_corta": resultado.descripcion_corta,
                 "distrito_clave": resultado.distrito.clave,
                 "distrito_nombre_corto": resultado.distrito.nombre_corto,
-                "es_activo": resultado.es_activo,
+                "toggle_es_activo": {
+                    "id": resultado.id,
+                    "es_activo": resultado.es_activo,
+                    "url": (
+                        url_for("autoridades.toggle_es_activo_json", autoridad_id=resultado.id)
+                        if current_user.can_edit(MODULO)
+                        else ""
+                    ),
+                },
             }
         )
     # Entregar JSON
@@ -290,3 +298,29 @@ def select2_json():
     for autoridad in consulta.order_by(Autoridad.clave).limit(10).all():
         resultados.append({"id": autoridad.id, "text": f"{autoridad.clave}: {autoridad.descripcion_corta}"})
     return {"results": resultados, "pagination": {"more": False}}
+
+
+@autoridades.route("/autoridades/toggle_es_activo_json/<autoridad_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def toggle_es_activo_json(autoridad_id):
+    """Cambiar es_activo a su opuesto al dar clic a su boton en datatable"""
+
+    # Consultar
+    autoridad_id = safe_uuid(autoridad_id)
+    if autoridad_id == "":
+        return {"success": False, "message": "No es un UUID válido"}
+    autoridad = Autoridad.query.get_or_404(autoridad_id)
+    if autoridad is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_activo a su opuesto y guardar
+    autoridad.es_activo = not autoridad.es_activo
+    autoridad.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if autoridad.es_activo == "A" else "Inactivo",
+        "es_activo": autoridad.es_activo,
+        "id": autoridad.id,
+    }

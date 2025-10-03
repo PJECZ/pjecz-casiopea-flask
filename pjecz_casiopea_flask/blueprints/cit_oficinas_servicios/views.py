@@ -85,24 +85,19 @@ def datatable_json():
                     "id": resultado.id,
                     "url": url_for("cit_oficinas_servicios.detail", cit_oficina_servicio_id=resultado.id),
                 },
-                "oficina": {
-                    "clave": resultado.oficina.clave,
-                    "url": (
-                        url_for("oficinas.detail", oficina_id=resultado.oficina_id) if current_user.can_view("OFICINAS") else ""
-                    ),
-                },
+                "oficina_clave": resultado.oficina.clave,
                 "oficina_descripcion_corta": resultado.oficina.descripcion_corta,
-                "oficina_es_jurisdiccional": resultado.oficina.es_jurisdiccional,
-                "oficina_puede_agendar_citas": resultado.oficina.puede_agendar_citas,
-                "cit_servicio": {
-                    "clave": resultado.cit_servicio.clave,
+                "cit_servicio": resultado.cit_servicio.clave,
+                "cit_servicio_descripcion": resultado.cit_servicio.descripcion,
+                "toggle_es_activo": {
+                    "id": resultado.id,
+                    "es_activo": resultado.es_activo,
                     "url": (
-                        url_for("cit_servicios.detail", cit_servicio_id=resultado.cit_servicio_id)
-                        if current_user.can_view("CIT SERVICIOS")
+                        url_for("cit_oficinas_servicios.toggle_es_activo_json", cit_oficina_servicio_id=resultado.id)
+                        if current_user.can_edit(MODULO)
                         else ""
                     ),
                 },
-                "cit_servicio_descripcion": resultado.cit_servicio.descripcion,
             }
         )
     # Entregar JSON
@@ -292,3 +287,31 @@ def recover(cit_oficina_servicio_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("cit_oficinas_servicios.detail", cit_oficina_servicio_id=cit_oficina_servicio.id))
+
+
+@cit_oficinas_servicios.route(
+    "/cit_oficinas_servicios/toggle_es_activo_json/<cit_oficina_servicio_id>", methods=["GET", "POST"]
+)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def toggle_es_activo_json(cit_oficina_servicio_id):
+    """Cambiar es_activo a su opuesto al dar clic a su boton en datatable"""
+
+    # Consultar
+    cit_oficina_servicio_id = safe_uuid(cit_oficina_servicio_id)
+    if cit_oficina_servicio_id == "":
+        return {"success": False, "message": "No es un UUID válido"}
+    cit_oficina_servicio = CitOficinaServicio.query.get_or_404(cit_oficina_servicio_id)
+    if cit_oficina_servicio is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_activo a su opuesto y guardar
+    cit_oficina_servicio.es_activo = not cit_oficina_servicio.es_activo
+    cit_oficina_servicio.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if cit_oficina_servicio.es_activo == "A" else "Inactivo",
+        "es_activo": cit_oficina_servicio.es_activo,
+        "id": cit_oficina_servicio.id,
+    }

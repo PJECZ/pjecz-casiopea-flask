@@ -57,7 +57,15 @@ def datatable_json():
                     "url": url_for("cit_categorias.detail", cit_categoria_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "es_activo": resultado.es_activo,
+                "toggle_es_activo": {
+                    "id": resultado.id,
+                    "es_activo": resultado.es_activo,
+                    "url": (
+                        url_for("cit_categorias.toggle_es_activo_json", cit_categoria_id=resultado.id)
+                        if current_user.can_edit(MODULO)
+                        else ""
+                    ),
+                },
             }
         )
     # Entregar JSON
@@ -222,3 +230,29 @@ def recover(cit_categoria_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("cit_categorias.detail", cit_categoria_id=cit_categoria.id))
+
+
+@cit_categorias.route("/cit_categorias/toggle_es_activo_json/<cit_categoria_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def toggle_es_activo_json(cit_categoria_id):
+    """Cambiar es_activo a su opuesto al dar clic a su boton en datatable"""
+
+    # Consultar
+    cit_categoria_id = safe_uuid(cit_categoria_id)
+    if cit_categoria_id == "":
+        return {"success": False, "message": "No es un UUID válido"}
+    cit_categoria = CitCategoria.query.get_or_404(cit_categoria_id)
+    if cit_categoria is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_activo a su opuesto y guardar
+    cit_categoria.es_activo = not cit_categoria.es_activo
+    cit_categoria.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if cit_categoria.es_activo == "A" else "Inactivo",
+        "es_activo": cit_categoria.es_activo,
+        "id": cit_categoria.id,
+    }
