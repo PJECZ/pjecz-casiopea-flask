@@ -34,7 +34,7 @@
             </div>
         </div>
     {% endcall %}
-    {% if current_user.can_view('AUTORIDADES') and distrito.estatus == 'A' %}
+    {% if current_user.can_view('AUTORIDADES') %}
         {% call detail.card('Autoridades') %}
             <!-- Filtros Autoridades -->
             <div class="row">
@@ -65,6 +65,7 @@
                     <tr>
                         <th>Clave</th>
                         <th>Descripción corta</th>
+                        <th>Activo</th>
                     </tr>
                 </thead>
             </table>
@@ -101,7 +102,11 @@
                     <tr>
                         <th>Clave</th>
                         <th>Descripción corta</th>
-                        <th><span title="Es Jurisdiccional">Es J.</span></th>
+                        <th>Apertura</th>
+                        <th>Cierre</th>
+                        <th><span title="Límite de personas">L.P.</span></th>
+                        <th>Edificio</th>
+                        <th>Activo</th>
                     </tr>
                 </thead>
             </table>
@@ -114,14 +119,14 @@
         {% if distrito.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + distrito.nombre + '?') }}{% endif %}
         {% if distrito.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + distrito.nombre + '?') }}{% endif %}
     {% endif %}
-    <!-- Constructor de DataTables -->
+    <!-- DataTables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
         const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
     </script>
     <!-- Autoridades del Distrito -->
-    {% if current_user.can_view('AUTORIDADES') and distrito.estatus == 'A' %}
+    {% if current_user.can_view('AUTORIDADES') %}
         <script>
             // DataTable Autoridades
             let configDTAutoridades = constructorDataTable.config();
@@ -129,7 +134,8 @@
             configDTAutoridades['ajax']['data'] = { 'estatus': "A", 'distrito_id': "{{ distrito.id }}" };
             configDTAutoridades['columns'] = [
                 { data: "detalle" },
-                { data: "descripcion_corta" }
+                { data: "descripcion_corta" },
+                { data: "toggle_es_activo" }
             ];
             configDTAutoridades['columnDefs'] = [
                 {
@@ -138,8 +144,38 @@
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
+                },
+                {
+                    targets: 2, // toggle_es_activo
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url === '') {
+                            if (data.es_activo === true) {
+                                return '<span class="badge bg-primary">Activo</span>';
+                            } else {
+                                return '<span class="badge bg-secondary">Inactivo</span>';
+                            }
+                        }
+                        let myId = 'autoridades_es_activo_' + data.id;
+                        let myRow = 'autoridades_row_' + data.id;
+                        let myOnClick = "toggleEsActivo('#" + myId + "', '" + data.url + "', '#" + myRow + "')";
+                        if (data.es_activo === true) {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                        } else {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                        }
+                    }
                 }
             ];
+            // Cambiar las filas según toggle_es_activo
+            configDTAutoridades['createdRow'] = function(row, data, dataIndex) {
+                if (data.hasOwnProperty('toggle_es_activo')) {
+                    // Cambiar el color de la fila si es_activo es false
+                    if (!data.toggle_es_activo.es_activo) $(row).addClass('table-secondary');
+                    // Asignar un id a la fila
+                    $(row).attr('id', 'autoridades_row_' + data.toggle_es_activo.id);
+                }
+            };
             // Filtros Autoridades
             const filtrosAutoridades = new FiltrosDataTable('#autoridades_datatable', configDTAutoridades);
             filtrosAutoridades.agregarInput('filtroAutoridadClave', 'clave');
@@ -157,7 +193,11 @@
             configDTOficinas['columns'] = [
                 { data: "detalle" },
                 { data: "descripcion_corta" },
-                { data: "es_jurisdiccional" }
+                { data: "apertura" },
+                { data: "cierre" },
+                { data: "limite_personas" },
+                { data: "domicilio_edificio" },
+                { data: "toggle_es_activo" }
             ];
             configDTOficinas['columnDefs'] = [
                 {
@@ -171,20 +211,40 @@
                     targets: 1, // descripcion_corta
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 48 ? data.substring(0, 48) + '…' : data);
+                        return (data.length > 32 ? data.substring(0, 32) + '…' : data);
                     }
                 },
                 {
-                    targets: 2, // es_jurisdiccional
+                    targets: 6, // toggle_es_activo
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data) {
-                            return 'SI';
+                        if (data.url === '') {
+                            if (data.es_activo === true) {
+                                return '<span class="badge bg-primary">Activo</span>';
+                            } else {
+                                return '<span class="badge bg-secondary">Inactivo</span>';
+                            }
                         }
-                        return '';
+                        let myId = 'oficinas_es_activo_' + data.id;
+                        let myRow = 'oficinas_row_' + data.id;
+                        let myOnClick = "toggleEsActivo('#" + myId + "', '" + data.url + "', '#" + myRow + "')";
+                        if (data.es_activo === true) {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                        } else {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                        }
                     }
                 }
             ];
+            // Cambiar las filas según toggle_es_activo
+            configDTOficinas['createdRow'] = function(row, data, dataIndex) {
+                if (data.hasOwnProperty('toggle_es_activo')) {
+                    // Cambiar el color de la fila si es_activo es false
+                    if (!data.toggle_es_activo.es_activo) $(row).addClass('table-secondary');
+                    // Asignar un id a la fila
+                    $(row).attr('id', 'oficinas_row_' + data.toggle_es_activo.id);
+                }
+            };
             // Filtros Oficinas
             const filtrosOficinas = new FiltrosDataTable('#oficinas_datatable', configDTOficinas);
             filtrosOficinas.agregarInput('filtroClave', 'clave');
@@ -192,4 +252,17 @@
             filtrosOficinas.precargar();
         </script>
     {% endif %}
+    <!-- Datatables botones toggle_es_activo -->
+    <script src="/static/js/datatables-toggles.js"></script>
+    <script>
+        // Preparar headers para POST
+        const myHeaders = new Headers();
+        myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
+        const myInit = {
+            method: "POST",
+            headers: myHeaders,
+            mode: "cors",
+            cache: "default",
+        };
+    </script>
 {% endblock %}

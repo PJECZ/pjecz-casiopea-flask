@@ -63,6 +63,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Datatables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
@@ -103,9 +104,15 @@
                 targets: 7, // toggle_es_activo
                 data: null,
                 render: function(data, type, row, meta) {
-                    if (data.url === '') return data.estatus;
-                    let myId = 'usuario_rol_estatus_' + data.id;
-                    let myRow = 'usuario_rol_row_' + data.id;
+                    if (data.url === '') {
+                        if (data.es_activo === true) {
+                            return '<span class="badge bg-primary">Activo</span>';
+                        } else {
+                            return '<span class="badge bg-secondary">Inactivo</span>';
+                        }
+                    }
+                    let myId = 'cit_servicios_es_activo_' + data.id;
+                    let myRow = 'cit_servicios_row_' + data.id;
                     let myOnClick = "toggleEsActivo('#" + myId + "', '" + data.url + "', '#" + myRow + "')";
                     if (data.es_activo === true) {
                         return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
@@ -115,44 +122,32 @@
                 }
             }
         ];
+        // Cambiar las filas según toggle_es_activo
+        configDTCitServicios['createdRow'] = function(row, data, dataIndex) {
+            if (data.hasOwnProperty('toggle_es_activo')) {
+                // Cambiar el color de la fila si es_activo es false
+                if (!data.toggle_es_activo.es_activo) $(row).addClass('table-secondary');
+                // Asignar un id a la fila
+                $(row).attr('id', 'cit_servicios_row_' + data.toggle_es_activo.id);
+            }
+        };
         // Filtros CitServicios
         const filtrosCitServicios = new FiltrosDataTable('#cit_servicios_datatable', configDTCitServicios);
         filtrosCitServicios.agregarInput('filtroClave', 'clave');
         filtrosCitServicios.agregarInput('filtroDescripcion', 'descripcion');
         filtrosCitServicios.precargar();
+    </script>
+    <!-- Datatables botones toggle_es_activo -->
+    <script src="/static/js/datatables-toggles.js"></script>
+    <script>
         // Preparar headers para POST
         const myHeaders = new Headers();
         myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
         const myInit = {
-            method: 'POST',
+            method: "POST",
             headers: myHeaders,
-            mode: 'cors',
-            cache: 'default'
+            mode: "cors",
+            cache: "default",
         };
-        // Boton toggle_es_activo
-        function toggleEsActivo(id, url, row) {
-            $(id).prop("disabled", true); // Deshabilitar boton para evitar multiples clicks
-            fetch(url, myInit)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        if (data.es_activo === true) {
-                            $(id).removeClass('btn-light');
-                            $(id).addClass('btn-outline-primary'); // Color azul
-                            $(id).html('<span class="iconify" data-icon="mdi:toggle-switch"></span>'); // Icono toggle-switch
-                            $(row).removeClass('table-secondary');
-                        } else {
-                            $(id).removeClass('btn-outline-primary');
-                            $(id).addClass('btn-light'); // Color gris
-                            $(id).html('<span class="iconify" data-icon="mdi:toggle-switch-off"></span>'); // Icono toggle-switch-off
-                            $(row).addClass('table-secondary');
-                        }
-                    }
-                    $(id).prop("disabled", false); // Habilitar boton
-                })
-                .catch(error => {
-                    console.log(error);
-                });
-        }
     </script>
 {% endblock %}
