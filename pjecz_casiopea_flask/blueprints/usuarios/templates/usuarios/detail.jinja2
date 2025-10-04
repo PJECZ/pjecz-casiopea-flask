@@ -48,7 +48,7 @@
             </div>
         </div>
     {% endcall %}
-    {% if current_user.can_view('USUARIOS ROLES') and usuario.estatus == 'A' %}
+    {% if current_user.can_view('USUARIOS ROLES') %}
         {% call detail.card('Roles') %}
             <!-- DataTable UsuariosRoles -->
             <table id="usuarios_roles_datatable" class="table display nowrap" style="width:100%">
@@ -78,7 +78,7 @@
     <script>
         const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
     </script>
-    {% if current_user.can_view('USUARIOS ROLES') and usuario.estatus == 'A' %}
+    {% if current_user.can_view('USUARIOS ROLES') %}
         <script>
             // DataTable UsuariosRoles
             let configDTUsuariosRoles = constructorDataTable.config();

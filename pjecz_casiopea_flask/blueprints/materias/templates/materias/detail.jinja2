@@ -44,13 +44,7 @@
                                 <label for="filtroAutoridadDescripcion">Descripción</label>
                             </div>
                         </div>
-                        <div class="col-3">
-                            <div class="form-floating">
-                                <input id="filtroAutoridadDistritoNombre" type="text" class="form-control" aria-label="Distrito" style="text-transform: uppercase;">
-                                <label for="filtroAutoridadDistritoNombre">Distrito</label>
-                            </div>
-                        </div>
-                        <div class="col-3 text-end">
+                        <div class="col-6 text-end">
                             <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosAutoridades.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                             <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosAutoridades.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                         </div>
@@ -63,9 +57,7 @@
                     <tr>
                         <th>Clave</th>
                         <th>Descripción corta</th>
-                        <th>Distrito</th>
-                        <th>Municipio</th>
-                        <th>Extinto</th>
+                        <th>Activo</th>
                     </tr>
                 </thead>
             </table>
@@ -80,6 +72,7 @@
     {% endif %}
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
+    <script src="/static/js/datatables-toggles.js"></script>
     {% if current_user.can_view('AUTORIDADES') %}
         <script>
             // DataTable autoridades
@@ -90,9 +83,7 @@
             configDTAutoridades['columns'] = [
                 { data: "detalle" },
                 { data: "descripcion_corta" },
-                { data: "distrito_clave" },
-                { data: "municipio_nombre" },
-                { data: "es_extinto" }
+                { data: "toggle_es_activo" }
             ];
             configDTAutoridades['columnDefs'] = [
                 {
@@ -101,13 +92,27 @@
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
+                },
+                {
+                    targets: 2, // toggle_es_activo
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url === '') return data.estatus;
+                        let myId = 'usuario_rol_estatus_' + data.id;
+                        let myRow = 'usuario_rol_row_' + data.id;
+                        let myOnClick = "toggleEsActivo('#" + myId + "', '" + data.url + "', '#" + myRow + "')";
+                        if (data.es_activo === true) {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                        } else {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                        }
+                    }
                 }
             ];
             // Filtros autoridades
             const filtrosAutoridades = new FiltrosDataTable('#autoridades_datatable', configDTAutoridades);
             filtrosAutoridades.agregarInput('filtroAutoridadClave', 'clave');
             filtrosAutoridades.agregarInput('filtroAutoridadDescripcion', 'descripcion');
-            filtrosAutoridades.agregarInput('filtroAutoridadDistritoNombre', 'distrito_nombre');
             filtrosAutoridades.precargar();
         </script>
     {% endif %}

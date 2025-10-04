@@ -26,7 +26,7 @@
             {{ detail.label_value_boolean('Activo', cit_categoria.es_activo) }}
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('CIT SERVICIOS') and cit_categoria.estatus == 'A' %}
+    {% if current_user.can_view('CIT SERVICIOS') %}
         {% call detail.card('Servicios') %}
             <!-- Filtros CitServicios -->
             <div class="row">
@@ -58,10 +58,10 @@
                         <th>Clave</th>
                         <th>Descripción</th>
                         <th>Duración</th>
-                        <th>L. de D.</th>
                         <th>Desde</th>
                         <th>Hasta</th>
-                        <th>Dias Habilitados</th>
+                        <th>Dias Hab.</th>
+                        <th>Activo</th>
                     </tr>
                 </thead>
             </table>
@@ -81,36 +81,80 @@
     <!-- DataTables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
-    {% if current_user.can_view('CIT SERVICIOS') and cit_categoria.estatus == 'A' %}
+    {% if current_user.can_view('CIT SERVICIOS') %}
         <script>
             // DataTable CitServicios
             const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
-            let configDataTable = constructorDataTable.config();
-            configDataTable['ajax']['url'] = '/cit_servicios/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'cit_categoria_id': "{{ cit_categoria.id }}" };
-            configDataTable['columns'] = [
+            let configDTCitServicios = constructorDataTable.config();
+            configDTCitServicios['ajax']['url'] = '/cit_servicios/datatable_json';
+            configDTCitServicios['ajax']['data'] = { 'estatus': "A", 'cit_categoria_id': "{{ cit_categoria.id }}" };
+            configDTCitServicios['columns'] = [
                 { data: 'detalle' },
                 { data: 'descripcion' },
                 { data: 'duracion' },
-                { data: 'documentos_limite' },
                 { data: 'desde' },
                 { data: 'hasta' },
-                { data: 'dias_habilitados' }
+                { data: 'dias_habilitados' },
+                { data: 'cit_categoria' },
+                { data: 'toggle_es_activo' }
             ];
-            configDataTable['columnDefs'] = [
+            configDTCitServicios['columnDefs'] = [
                 {
                     targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.clave + '</a>';
                     }
+                },
+                {
+                    targets: 6, // toggle_es_activo
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url === '') {
+                            if (data.es_activo === true) {
+                                return '<span class="badge bg-primary">Activo</span>';
+                            } else {
+                                return '<span class="badge bg-secondary">Inactivo</span>';
+                            }
+                        }
+                        let myId = 'cit_servicios_es_activo_' + data.id;
+                        let myRow = 'cit_servicios_row_' + data.id;
+                        let myOnClick = "toggleEsActivo('#" + myId + "', '" + data.url + "', '#" + myRow + "')";
+                        if (data.es_activo === true) {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                        } else {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                        }
+                    }
                 }
             ];
+            // Cambiar las filas según toggle_es_activo
+            configDTCitServicios['createdRow'] = function(row, data, dataIndex) {
+                if (data.hasOwnProperty('toggle_es_activo')) {
+                    // Cambiar el color de la fila si es_activo es false
+                    if (!data.toggle_es_activo.es_activo) $(row).addClass('table-secondary');
+                    // Asignar un id a la fila
+                    $(row).attr('id', 'cit_servicios_row_' + data.toggle_es_activo.id);
+                }
+            };
             // Filtros CitServicios
-            const filtrosCitServicios = new FiltrosDataTable('#cit_servicios_datatable', configDataTable);
+            const filtrosCitServicios = new FiltrosDataTable('#cit_servicios_datatable', configDTCitServicios);
             filtrosCitServicios.agregarInput('filtroClave', 'clave');
             filtrosCitServicios.agregarInput('filtroDescripcion', 'descripcion');
             filtrosCitServicios.precargar();
         </script>
     {% endif %}
+    <!-- Datatables botones toggle_es_activo -->
+    <script src="/static/js/datatables-toggles.js"></script>
+    <script>
+        // Preparar headers para POST
+        const myHeaders = new Headers();
+        myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
+        const myInit = {
+            method: "POST",
+            headers: myHeaders,
+            mode: "cors",
+            cache: "default",
+        };
+    </script>
 {% endblock %}

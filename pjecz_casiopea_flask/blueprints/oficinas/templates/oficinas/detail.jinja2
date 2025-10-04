@@ -46,7 +46,7 @@
             </div>
         </div>
     {% endcall %}
-    {% if current_user.can_view('CIT CITAS') and oficina.estatus == 'A' %}
+    {% if current_user.can_view('CIT CITAS') %}
         {% call detail.card('Citas') %}
             <!-- Filtros CitCitas -->
             <div class="row">
@@ -93,7 +93,7 @@
             </table>
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('CIT HORAS BLOQUEADAS') and oficina.estatus == 'A' %}
+    {% if current_user.can_view('CIT HORAS BLOQUEADAS') %}
         {% call detail.card('Horas Bloqueadas') %}
             <!-- Filtros CitHorasBloqueadas -->
             <div class="row">
@@ -128,7 +128,7 @@
             {% endif %}
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('CIT OFICINAS SERVICIOS') and oficina.estatus == 'A' %}
+    {% if current_user.can_view('CIT OFICINAS SERVICIOS') %}
         {% call detail.card('Oficinas-Servicios') %}
             <!-- Filtros CitOficinasServicios -->
             <div class="row">
@@ -160,6 +160,7 @@
                         <th>ID</th>
                         <th>Servicio</th>
                         <th>Descripción</th>
+                        <th>Activo</th>
                     </tr>
                 </thead>
             </table>
@@ -168,7 +169,7 @@
             {% endif %}
         {% endcall %}
     {% endif %}
-    {% if current_user.can_view('USUARIOS OFICINAS') and oficina.estatus == 'A' %}
+    {% if current_user.can_view('USUARIOS OFICINAS') %}
         {% call detail.card('Usuarios-Oficinas') %}
             <!-- DataTable UsuariosOficinas -->
             <table id="usuarios_oficinas_datatable" class="table display nowrap" style="width:100%">
@@ -192,12 +193,13 @@
         {% if oficina.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + oficina.clave + '?') }}{% endif %}
         {% if oficina.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + oficina.clave + '?') }}{% endif %}
     {% endif %}
+    <!-- DataTables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
         const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
     </script>
-    {% if current_user.can_view('CIT CITAS') and oficina.estatus == 'A' %}
+    {% if current_user.can_view('CIT CITAS') %}
         <script>
             // DataTable CitCitas
             let configDTCitCitas = constructorDataTable.config();
@@ -278,7 +280,7 @@
             filtrosCitCitas.precargar();
         </script>
     {% endif %}
-    {% if current_user.can_view('CIT HORAS BLOQUEADAS') and oficina.estatus == 'A' %}
+    {% if current_user.can_view('CIT HORAS BLOQUEADAS') %}
         <script>
             // DataTable CitHorasBloqueadas
             let configDTCitHorasBloqueadas = constructorDataTable.config();
@@ -315,7 +317,7 @@
             filtrosCitHorasBloqueadas.precargar();
         </script>
     {% endif %}
-    {% if current_user.can_view('CIT OFICINAS SERVICIOS') and oficina.estatus == 'A' %}
+    {% if current_user.can_view('CIT OFICINAS SERVICIOS') %}
         <script>
             // DataTable CitOficinasServicios
             let configDTCitOficinasServicios = constructorDataTable.config();
@@ -324,7 +326,8 @@
             configDTCitOficinasServicios['columns'] = [
                 { data: 'detalle' },
                 { data: 'cit_servicio' },
-                { data: 'cit_servicio_descripcion' }
+                { data: 'cit_servicio_descripcion' },
+                { data: "toggle_es_activo" }
             ];
             configDTCitOficinasServicios['columnDefs'] = [
                 {
@@ -335,23 +338,43 @@
                     }
                 },
                 {
-                    targets: 1, // cit_servicio
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url === '') {
-                            return data.clave;
-                        }
-                        return '<a href="' + data.url + '">' + data.clave + '</a>'
-                    }
-                },
-                {
                     targets: 2, // cit_servicio_descripcion
                     data: null,
                     render: function(data, type, row, meta) {
                         return (data.length > 32 ? data.substring(0, 32) + '…' : data);
                     }
+                },
+                {
+                    targets: 3, // toggle_es_activo
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url === '') {
+                            if (data.es_activo === true) {
+                                return '<span class="badge bg-primary">Activo</span>';
+                            } else {
+                                return '<span class="badge bg-secondary">Inactivo</span>';
+                            }
+                        }
+                        let myId = 'cit_oficinas_servicios_es_activo_' + data.id;
+                        let myRow = 'cit_oficinas_servicios_row_' + data.id;
+                        let myOnClick = "toggleEsActivo('#" + myId + "', '" + data.url + "', '#" + myRow + "')";
+                        if (data.es_activo === true) {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                        } else {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                        }
+                    }
                 }
             ];
+            // Cambiar las filas según toggle_es_activo
+            configDTCitOficinasServicios['createdRow'] = function(row, data, dataIndex) {
+                if (data.hasOwnProperty('toggle_es_activo')) {
+                    // Cambiar el color de la fila si es_activo es false
+                    if (!data.toggle_es_activo.es_activo) $(row).addClass('table-secondary');
+                    // Asignar un id a la fila
+                    $(row).attr('id', 'cit_oficinas_servicios_row_' + data.toggle_es_activo.id);
+                }
+            };
             // Filtros CitOficinasServicios
             const filtrosCitOficinasServicios = new FiltrosDataTable('#cit_oficinas_servicios_datatable', configDTCitOficinasServicios);
             filtrosCitOficinasServicios.agregarInput('filtroCitServicioClave', 'cit_servicio_clave');
@@ -359,7 +382,7 @@
             filtrosCitOficinasServicios.precargar();
         </script>
     {% endif %}
-    {% if current_user.can_view('USUARIOS OFICINAS') and oficina.estatus == 'A' %}
+    {% if current_user.can_view('USUARIOS OFICINAS') %}
         <script>
             // DataTable Usuarios-Oficinas
             let configDTUsuariosOficinas = constructorDataTable.config();
@@ -402,4 +425,17 @@
             filtrosUsuariosOficinas.precargar();
         </script>
     {% endif %}
+    <!-- Datatables botones toggle_es_activo -->
+    <script src="/static/js/datatables-toggles.js"></script>
+    <script>
+        // Preparar headers para POST
+        const myHeaders = new Headers();
+        myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
+        const myInit = {
+            method: "POST",
+            headers: myHeaders,
+            mode: "cors",
+            cache: "default",
+        };
+    </script>
 {% endblock %}

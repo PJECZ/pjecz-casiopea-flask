@@ -97,13 +97,13 @@
                         <div class="col-2">
                             <div class="form-floating">
                                 <input id="filtroOficinaClave" type="text" class="form-control" aria-label="Oficina Clave" style="text-transform: uppercase;">
-                                <label for="filtroOficinaClave">Oficina Clave</label>
+                                <label for="filtroOficinaClave">Clave</label>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-floating">
                                 <input id="filtroOficinaDescripcionCorta" type="text" class="form-control" aria-label="Oficina Descripción Corta" style="text-transform: uppercase;">
-                                <label for="filtroOficinaDescripcionCorta">Oficina Descripción</label>
+                                <label for="filtroOficinaDescripcionCorta">Descripción corta</label>
                             </div>
                         </div>
                         <div class="col-6 text-end">
@@ -120,8 +120,7 @@
                         <th>ID</th>
                         <th>Oficina</th>
                         <th>Descripción corta</th>
-                        <th>Es J.</th>
-                        <th>P.A.C.</th>
+                        <th>Activo</th>
                     </tr>
                 </thead>
             </table>
@@ -137,6 +136,7 @@
         {% if cit_servicio.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cit_servicio.clave + '?') }}{% endif %}
         {% if cit_servicio.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cit_servicio.clave + '?') }}{% endif %}
     {% endif %}
+    <!-- Datatables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
@@ -231,10 +231,9 @@
             configDTCitOficinasServicios['ajax']['data'] = { 'estatus': "A", 'cit_servicio_id': "{{ cit_servicio.id }}" };
             configDTCitOficinasServicios['columns'] = [
                 { data: 'detalle' },
-                { data: 'oficina' },
+                { data: 'oficina_clave' },
                 { data: 'oficina_descripcion_corta' },
-                { data: 'oficina_es_jurisdiccional' },
-                { data: 'oficina_puede_agendar_citas' }
+                { data: "toggle_es_activo" }
             ];
             configDTCitOficinasServicios['columnDefs'] = [
                 {
@@ -245,16 +244,6 @@
                     }
                 },
                 {
-                    targets: 1, // oficina
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url === '') {
-                            return data.clave;
-                        }
-                        return '<a href="' + data.url + '">' + data.clave + '</a>'
-                    }
-                },
-                {
                     targets: 2, // oficina_descripcion_corta
                     data: null,
                     render: function(data, type, row, meta) {
@@ -262,16 +251,36 @@
                     }
                 },
                 {
-                    targets: [3, 4], // oficina_es_jurisdiccional, oficina_puede_agendar_citas
+                    targets: 3, // toggle_es_activo
                     data: null,
                     render: function(data, type, row, meta) {
-                        if (data) {
-                            return 'SI';
+                        if (data.url === '') {
+                            if (data.es_activo === true) {
+                                return '<span class="badge bg-primary">Activo</span>';
+                            } else {
+                                return '<span class="badge bg-secondary">Inactivo</span>';
+                            }
                         }
-                        return '';
+                        let myId = 'cit_oficinas_servicios_es_activo_' + data.id;
+                        let myRow = 'cit_oficinas_servicios_row_' + data.id;
+                        let myOnClick = "toggleEsActivo('#" + myId + "', '" + data.url + "', '#" + myRow + "')";
+                        if (data.es_activo === true) {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                        } else {
+                            return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                        }
                     }
                 }
             ];
+            // Cambiar las filas según toggle_es_activo
+            configDTCitOficinasServicios['createdRow'] = function(row, data, dataIndex) {
+                if (data.hasOwnProperty('toggle_es_activo')) {
+                    // Cambiar el color de la fila si es_activo es false
+                    if (!data.toggle_es_activo.es_activo) $(row).addClass('table-secondary');
+                    // Asignar un id a la fila
+                    $(row).attr('id', 'cit_oficinas_servicios_row_' + data.toggle_es_activo.id);
+                }
+            };
             // Filtros CitOficinasServicios
             const filtrosCitOficinasServicios = new FiltrosDataTable('#cit_oficinas_servicios_datatable', configDTCitOficinasServicios);
             filtrosCitOficinasServicios.agregarInput('filtroOficinaClave', 'oficina_clave');
@@ -279,4 +288,17 @@
             filtrosCitOficinasServicios.precargar();
         </script>
     {% endif %}
+    <!-- Datatables botones toggle_es_activo -->
+    <script src="/static/js/datatables-toggles.js"></script>
+    <script>
+        // Preparar headers para POST
+        const myHeaders = new Headers();
+        myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
+        const myInit = {
+            method: "POST",
+            headers: myHeaders,
+            mode: "cors",
+            cache: "default",
+        };
+    </script>
 {% endblock %}
