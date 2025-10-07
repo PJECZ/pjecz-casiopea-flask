@@ -43,6 +43,8 @@ def datatable_json():
         consulta = consulta.filter(Autoridad.estatus == "A")
     if "distrito_id" in request.form:
         consulta = consulta.filter(Autoridad.distrito_id == request.form["distrito_id"])
+    if "materia_id" in request.form:
+        consulta = consulta.filter(Autoridad.materia_id == request.form["materia_id"])
     if "clave" in request.form:
         try:
             clave = safe_clave(request.form["clave"])
@@ -54,11 +56,6 @@ def datatable_json():
         descripcion = safe_string(request.form["descripcion"], save_enie=True)
         if descripcion != "":
             consulta = consulta.filter(Autoridad.descripcion.contains(descripcion))
-    # Luego filtrar por columnas de otras tablas
-    if "distrito_nombre" in request.form:
-        distrito_nombre = safe_string(request.form["distrito_nombre"], save_enie=True)
-        if distrito_nombre != "":
-            consulta = consulta.join(Distrito).filter(Distrito.nombre.contains(distrito_nombre))
     # Ordenar y paginar
     registros = consulta.order_by(Autoridad.clave).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -71,9 +68,9 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("autoridades.detail", autoridad_id=resultado.id),
                 },
+                "descripcion": resultado.descripcion,
                 "descripcion_corta": resultado.descripcion_corta,
                 "distrito_clave": resultado.distrito.clave,
-                "distrito_nombre_corto": resultado.distrito.nombre_corto,
                 "toggle_es_activo": {
                     "id": resultado.id,
                     "es_activo": resultado.es_activo,

@@ -38,13 +38,31 @@
             <table id="cit_citas_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Creado</th>
                         <th>Fecha</th>
                         <th>Inicio</th>
-                        <th>Termino</th>
+                        <th>Término</th>
                         <th>Oficina</th>
                         <th>Servicio</th>
                         <th>Estado</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
+    {% if current_user.can_view('PAG PAGOS') %}
+        {% call detail.card('Pagos') %}
+            <!-- DataTable PagPagos -->
+            <table id="pag_pagos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Creado</th>
+                        <th>T/S</th>
+                        <th>Distrito</th>
+                        <th>Autoridad</th>
+                        <th>Estado</th>
+                        <th>Folio</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
             </table>
@@ -57,6 +75,7 @@
         {% if cit_cliente.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cit_cliente.email + '?') }}{% endif %}
         {% if cit_cliente.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cit_cliente.email + '?') }}{% endif %}
     {% endif %}
+    <!-- DataTables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
@@ -82,7 +101,7 @@
                     targets: 0, // detalle
                     data: null,
                     render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id.substring(0, 8) + '</a>';
+                        return '<a href="' + data.url + '">' + data.creado + '</a>';
                     }
                 },
                 {
@@ -99,20 +118,21 @@
                         if (data.url !== '') {
                             return '<span title="' + data.descripcion + '">' + '<a href="' + data.url + '">' + data.clave + '</a></span>';
                         }
-                        return '<span title="' + data.descripcion + '">' + data.clave + '</span>'
+                        return '<span title="' + data.descripcion + '">' + data.clave + '</span>';
                     }
                 },
                 {
                     targets: 6, // Estado
                     data: null,
                     render: function(data, type, row, meta) {
+                        let bg_class = "bg-primary";
                         switch (data)    {
-                            case "ASISTIO":     return '<span class="badge rounded-pill bg-success px-3 ms-3">Asistió</span>'; break;
-                            case "PENDIENTE":   return '<span class="badge rounded-pill bg-warning px-3 ms-3 text-dark">Pendiente</span>'; break;
-                            case "CANCELO":     return '<span class="badge rounded-pill bg-danger px-3 ms-4">Cancelo</span>'; break;
-                            case "INASISTENCIA":return '<span class="badge rounded-pill bg-secondary px-3 ms-4">NO Asistió</span>'; break;
+                            case "ASISTIO":      bg_class = "bg-success";           break;
+                            case "PENDIENTE":    bg_class = "bg-warning text-dark"; break;
+                            case "CANCELO":      bg_class = "bg-secondary";         break;
+                            case "INASISTENCIA": bg_class = "bg-danger";            break;
                         }
-                        return data;
+                        return '<span class="badge rounded-pill ' + bg_class + ' px-3">' + data + '</span>';
                     }
                 }
             ];
@@ -125,9 +145,80 @@
                     case "INASISTENCIA": $(row).addClass('table-secondary'); break;
                 }
             };
-            // Filtros CitCitas
+            // NO HAY Filtros CitCitas
             const filtrosCitCitas = new FiltrosDataTable('#cit_citas_datatable', configDTCitCitas);
             filtrosCitCitas.precargar();
+        </script>
+    {% endif %}
+    {% if current_user.can_view('PAG PAGOS') %}
+        <script>
+            // DataTable PagPagos
+            let configDTPagPagos = constructorDataTable.config();
+            configDTPagPagos['ajax']['url'] = '/pag_pagos/datatable_json';
+            configDTPagPagos['ajax']['data'] = { 'estatus': "A", 'cit_cliente_id': "{{ cit_cliente.id }}" };
+            configDTPagPagos['columns'] = [
+                { data: 'detalle' },
+                { data: 'pag_tramite_servicio' },
+                { data: 'distrito_clave' },
+                { data: 'autoridad_clave' },
+                { data: 'estado' },
+                { data: 'folio' },
+                { data: 'total', className: 'text-end' }
+            ];
+            configDTPagPagos['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.creado + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // pag_tramite_servicio
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url !== '') {
+                            return '<span title="' + data.descripcion + '">' + '<a href="' + data.url + '">' + data.clave + '</a></span>';
+                        }
+                        return '<span title="' + data.descripcion + '">' + data.clave + '</span>';
+                    }
+                },
+                {
+                    targets: 4, // Estado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        let bg_class = "bg-info";
+                        switch (data)    {
+                            case "SOLICITADO": bg_class = "bg-warning text-dark"; break;
+                            case "PAGADO":     bg_class = "bg-success";           break;
+                            case "ENTREGADO":  bg_class = "bg-primary";           break;
+                            case "CANCELADO":  bg_class = "bg-secondary";         break;
+                            case "FALLIDO":    bg_class = "bg-danger";            break;
+                        }
+                        return '<span class="badge rounded-pill ' + bg_class + ' px-3">' + data + '</span>';
+                    }
+                },
+                {
+                    targets: 6, // total
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '$ ' + data;
+                    }
+                }
+            ];
+            // Cambiar el color de la fila según el estado
+            configDTPagPagos['createdRow'] = function( row, data, dataIndex, cells){
+                switch (data.estado)    {
+                    case "SOLICITADO": $(row).addClass("table-warning");   break;
+                    case "PAGADO":     $(row).addClass("table-success");   break;
+                    case "ENTREGADO":  $(row).addClass("table-primary");   break;
+                    case "CANCELADO":  $(row).addClass("table-secondary"); break;
+                    case "FALLIDO":    $(row).addClass("table-danger");    break;
+                }
+            };
+            // NO HAY Filtros PagPagos
+            const filtrosPagPagos = new FiltrosDataTable('#pag_pagos_datatable', configDTPagPagos);
+            filtrosPagPagos.precargar();
         </script>
     {% endif %}
 {% endblock %}

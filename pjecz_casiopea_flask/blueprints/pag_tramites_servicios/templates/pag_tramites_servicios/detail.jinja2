@@ -24,12 +24,148 @@
         {{ detail.label_value('Descripción', pag_tramite_servicio.descripcion) }}
         {{ detail.label_value_currency('Costo', pag_tramite_servicio.costo) }}
         {{ detail.label_value('URL', pag_tramite_servicio.url, pag_tramite_servicio.url) }}
+        {{ detail.label_value_boolean('Activo', pag_tramite_servicio.es_activo) }}
     {% endcall %}
+    {% if current_user.can_view('PAG PAGOS') %}
+        {% call detail.card('Pagos') %}
+            <!-- Filtros PagPagos -->
+            <div class="row">
+                <div class="col">
+                    <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosPagPagos.buscar(); return false;">
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <input id="filtroEmail" type="text" class="form-control" aria-label="e-mail" style="text-transform: lowercase;">
+                                <label for="filtroEmail">e-mail</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <input id="filtroEstado" type="text" class="form-control" aria-label="Descripción" style="text-transform: uppercase;">
+                                <label for="filtroEstado">Estado</label>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="form-floating">
+                                <input id="filtroFolio" type="text" class="form-control" aria-label="Folio" style="text-transform: uppercase;">
+                                <label for="filtroFolio">Folio</label>
+                            </div>
+                        </div>
+                        <div class="col-2 text-end">
+                            <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosPagPagos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                            <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosPagPagos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- DataTable PagPagos -->
+            <table id="pag_pagos_datatable" class="table display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Creado</th>
+                        <th>Cliente</th>
+                        <th>e-mail</th>
+                        <th>Distrito</th>
+                        <th>Autoridad</th>
+                        <th>Estado</th>
+                        <th>Folio</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+            </table>
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block custom_javascript %}
     {% if current_user.can_admin('PAG TRAMITES SERVICIOS') %}
         {% if pag_tramite_servicio.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + pag_tramite_servicio.clave + '?') }}{% endif %}
         {% if pag_tramite_servicio.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + pag_tramite_servicio.clave + '?') }}{% endif %}
+    {% endif %}
+    <!-- DataTables -->
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
+    <!-- PagPagos del PagTramiteServicio -->
+    {% if current_user.can_view('PAG PAGOS') %}
+        <script>
+            // DataTable PagPagos
+            const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+            let configDTPagPagos = constructorDataTable.config();
+            configDTPagPagos['ajax']['url'] = '/pag_pagos/datatable_json';
+            configDTPagPagos['ajax']['data'] = { 'estatus': "A", 'pag_tramite_servicio_id': "{{ pag_tramite_servicio.id }}" };
+            configDTPagPagos['columns'] = [
+                { data: 'detalle' },
+                { data: 'cit_cliente' },
+                { data: 'cit_cliente_nombre' },
+                { data: 'distrito_clave' },
+                { data: 'autoridad_clave' },
+                { data: 'estado' },
+                { data: 'folio' },
+                { data: 'total', className: 'text-end' }
+            ];
+            configDTPagPagos['columnDefs'] = [
+                {
+                    targets: 0, // detalle
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<a href="' + data.url + '">' + data.creado + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // cit_cliente
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url !== '') {
+                            return '<a href="' + data.url + '">' + data.email + '</a>';
+                        }
+                        return data.nombre
+                    }
+                },
+                {
+                    targets: 2, // cit_cliente_nombre
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.length > 32 ? data.substring(0, 32) + '…' : data;
+                    }
+                },
+                {
+                    targets: 5, // Estado
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        let bg_class = "bg-info";
+                        switch (data)    {
+                            case "SOLICITADO": bg_class = "bg-warning text-dark"; break;
+                            case "PAGADO":     bg_class = "bg-success";           break;
+                            case "ENTREGADO":  bg_class = "bg-primary";           break;
+                            case "CANCELADO":  bg_class = "bg-secondary";         break;
+                            case "FALLIDO":    bg_class = "bg-danger";            break;
+                        }
+                        return '<span class="badge rounded-pill ' + bg_class + ' px-3">' + data + '</span>';
+                    }
+                },
+                {
+                    targets: 7, // total
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '$ ' + data;
+                    }
+                }
+            ];
+            // Cambiar el color de la fila según el estado
+            configDTPagPagos['createdRow'] = function( row, data, dataIndex, cells){
+                switch (data.estado)    {
+                    case "SOLICITADO": $(row).addClass("table-warning");   break;
+                    case "PAGADO":     $(row).addClass("table-success");   break;
+                    case "ENTREGADO":  $(row).addClass("table-primary");   break;
+                    case "CANCELADO":  $(row).addClass("table-secondary"); break;
+                    case "FALLIDO":    $(row).addClass("table-danger");    break;
+                }
+            };
+            // Filtros PagPagos
+            const filtrosPagPagos = new FiltrosDataTable('#pag_pagos_datatable', configDTPagPagos);
+            filtrosPagPagos.agregarInput('filtroEmail', 'email');
+            filtrosPagPagos.agregarInput('filtroEstado', 'estado');
+            filtrosPagPagos.agregarInput('filtroFolio', 'folio');
+            filtrosPagPagos.precargar();
+        </script>
     {% endif %}
 {% endblock %}

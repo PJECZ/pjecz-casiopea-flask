@@ -6,8 +6,11 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
-        {% if current_user.can_view('MATERIAS TIPOS JUICIOS') %}
-            {{ topbar.button('Tipos de Juicios', url_for('materias_tipos_juicios.list_active'), 'mdi:label') }}
+        {% if current_user.can_view('AUTORIDADES') %}
+            {{ topbar.button('Autoridades', url_for('autoridades.list_active'), 'mdi:scale-balance') }}
+        {% endif %}
+        {% if current_user.can_view('DISTRITOS') %}
+            {{ topbar.button('Distritos', url_for('distritos.list_active'), 'mdi:map-marker') }}
         {% endif %}
         {% if current_user.can_admin('MATERIAS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('materias.list_inactive')) }}{% endif %}
@@ -21,14 +24,35 @@
 
 {% block content %}
     {% call list.card() %}
+        <!-- Filtros Materias -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosMaterias.buscar(); return false;">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroMateriaClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
+                            <label for="filtroMateriaClave">Clave</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroMateriaNombre" type="text" class="form-control" aria-label="Nombre" style="text-transform: uppercase;">
+                            <label for="filtroMateriaNombre">Nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosMaterias.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosMaterias.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <!-- DataTable Materias -->
         <table id="materias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Clave</th>
-                    <th>Materia</th>
-                    <th>En sentencias</th>
-                    <th>En exhortos electrónicos</th>
+                    <th>Nombre</th>
                 </tr>
             </thead>
         </table>
@@ -36,41 +60,32 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Datatables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
         // DataTable Materias
         const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
-        let configDataTable = constructorDataTable.config();
-        configDataTable['ajax']['url'] = '/materias/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
-        configDataTable['columns'] = [
+        let configDTMaterias = constructorDataTable.config();
+        configDTMaterias['ajax']['url'] = '/materias/datatable_json';
+        configDTMaterias['ajax']['data'] = {{ filtros }};
+        configDTMaterias['columns'] = [
             { data: 'detalle' },
             { data: 'nombre' },
-            { data: 'en_sentencias' },
-            { data: 'en_exh_exhortos' }
         ];
-        configDataTable['columnDefs'] = [
+        configDTMaterias['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.clave + '</a>';
                 }
-            },
-            {
-                targets: [2, 3], // en_sentencias, en_exh_exhortos
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data) {
-                        return '<span class="iconify" data-icon="mdi:checkbox-marked" style="font-size: 1.4em"></span>';
-                    }
-                    return '';
-                }
-            },
+            }
         ];
         // Filtros Materias
-        const filtrosMaterias = new FiltrosDataTable('#materias_datatable', configDataTable);
+        const filtrosMaterias = new FiltrosDataTable('#materias_datatable', configDTMaterias);
+        filtrosMaterias.agregarInput('filtroMateriaClave', 'clave');
+        filtrosMaterias.agregarInput('filtroMateriaNombre', 'nombre');
         filtrosMaterias.precargar();
     </script>
 {% endblock %}

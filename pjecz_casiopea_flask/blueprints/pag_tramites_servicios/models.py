@@ -26,6 +26,7 @@ class PagTramiteServicio(database.Model, UniversalMixin):
     descripcion: Mapped[str] = mapped_column(String(256))
     costo: Mapped[Numeric] = mapped_column(Numeric(precision=8, scale=2, decimal_return_scale=2))
     url: Mapped[str] = mapped_column(String(256))
+    es_activo: Mapped[bool] = mapped_column(default=True)
 
     # Hijos
     pag_pagos: Mapped["PagPago"] = relationship("PagPago", back_populates="pag_tramite_servicio")

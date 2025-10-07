@@ -51,6 +51,10 @@ def datatable_json():
         apellido_primero = safe_string(request.form["apellido_primero"], save_enie=True)
         if apellido_primero != "":
             consulta = consulta.filter(CitClienteRegistro.apellido_primero.contains(apellido_primero))
+    if "apellido_segundo" in request.form:
+        apellido_segundo = safe_string(request.form["apellido_segundo"], save_enie=True)
+        if apellido_segundo != "":
+            consulta = consulta.filter(CitClienteRegistro.apellido_segundo.contains(apellido_segundo))
     # Ordenar y paginar
     registros = consulta.order_by(CitClienteRegistro.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -60,9 +64,10 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "email": resultado.email,
+                    "creado": resultado.creado.strftime("%Y-%m-%d %H:%M"),
                     "url": url_for("cit_clientes_registros.detail", cit_cliente_registro_id=resultado.id),
                 },
+                "email": resultado.email,
                 "nombre": resultado.nombre,
                 "expiracion": resultado.expiracion.strftime("%Y-%m-%dT%H:%M:%S"),
                 "ya_registrado": resultado.ya_registrado,

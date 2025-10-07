@@ -8,13 +8,6 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Cita ' + cit_cita.id | string) %}
         {{ topbar.button_previous('Citas', url_for('cit_citas.list_active')) }}
-        {# if current_user.can_edit('CIT CITAS') %}
-            {{ topbar.button_edit('Editar', url_for('cit_citas.edit', cit_cita_id=cit_cita.id)) }}
-        {% endif #}
-        {# if current_user.can_admin('CIT CITAS') %}
-            {% if cit_cita.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cit_citas.delete', cit_cita_id=cit_cita.id)) }}{% endif %}
-            {% if cit_cita.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cit_citas.recover', cit_cita_id=cit_cita.id)) }}{% endif %}
-        {% endif #}
     {% endcall %}
 {% endblock %}
 
@@ -78,8 +71,4 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {# if current_user.can_admin('CIT CITAS') %}
-        {% if cit_cita.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + cit_cita.id + '?') }}{% endif %}
-        {% if cit_cita.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + cit_cita.id + '?') }}{% endif %}
-    {% endif #}
 {% endblock %}

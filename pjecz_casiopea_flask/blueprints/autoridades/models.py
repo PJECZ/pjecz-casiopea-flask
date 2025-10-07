@@ -32,8 +32,8 @@ class Autoridad(database.Model, UniversalMixin):
     clave: Mapped[str] = mapped_column(String(16), unique=True)
     descripcion: Mapped[str] = mapped_column(String(256))
     descripcion_corta: Mapped[str] = mapped_column(String(64))
-    es_activo: Mapped[bool] = mapped_column(default=True)
     es_jurisdiccional: Mapped[bool] = mapped_column(default=False)
+    es_activo: Mapped[bool] = mapped_column(default=True)
 
     # Hijos
     pag_pagos: Mapped[List["PagPago"]] = relationship("PagPago", back_populates="autoridad")

@@ -9,6 +9,9 @@
         {% if current_user.can_view('AUTORIDADES') %}
             {{ topbar.button('Autoridades', url_for('autoridades.list_active'), 'mdi:scale-balance') }}
         {% endif %}
+        {% if current_user.can_view('MATERIAS') %}
+            {{ topbar.button('Materias', url_for('materias.list_active'), 'mdi:label') }}
+        {% endif %}
         {% if current_user.can_admin('DISTRITOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('distritos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('distritos.list_active')) }}{% endif %}
@@ -80,6 +83,13 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            },
+            {
+                targets: 1, // nombre
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.length > 48 ? data.substring(0, 48) + '…' : data;
                 }
             },
             {

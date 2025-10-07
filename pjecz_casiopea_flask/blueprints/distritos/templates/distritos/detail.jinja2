@@ -64,6 +64,7 @@
                 <thead>
                     <tr>
                         <th>Clave</th>
+                        <th>Descripción</th>
                         <th>Descripción corta</th>
                         <th>Activo</th>
                     </tr>
@@ -134,6 +135,7 @@
             configDTAutoridades['ajax']['data'] = { 'estatus': "A", 'distrito_id': "{{ distrito.id }}" };
             configDTAutoridades['columns'] = [
                 { data: "detalle" },
+                { data: "descripcion" },
                 { data: "descripcion_corta" },
                 { data: "toggle_es_activo" }
             ];
@@ -146,7 +148,14 @@
                     }
                 },
                 {
-                    targets: 2, // toggle_es_activo
+                    targets: 1, // descripcion
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return data.length > 48 ? data.substring(0, 48) + '…' : data;
+                    }
+                },
+                {
+                    targets: 3, // toggle_es_activo
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.url === '') {
