@@ -28,6 +28,7 @@
         {% else %}
             {{ detail.label_value('Servicio', cit_oficina_servicio.cit_servicio.clave + ' - ' + cit_oficina_servicio.cit_servicio.descripcion) }}
         {% endif %}
+        {{ detail.label_value_boolean('Activo', cit_oficina_servicio.es_activo) }}
     {% endcall %}
 {% endblock %}
 

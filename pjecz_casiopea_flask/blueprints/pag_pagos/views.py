@@ -10,6 +10,7 @@ from flask_login import current_user, login_required
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
 from ...lib.safe_string import safe_email, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
+from ..cit_clientes.models import CitCliente
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
@@ -39,16 +40,46 @@ def datatable_json():
         consulta = consulta.filter(PagPago.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(PagPago.estatus == "A")
-    if "email" in request.form:
-        email = safe_email(request.form["email"], search_fragment=True)
-        if email != "":
-            consulta = consulta.filter(PagPago.email.contains(email))
+    if "autoridad_id" in request.form:
+        consulta = consulta.filter(PagPago.autoridad_id == request.form["autoridad_id"])
+    if "cit_cliente_id" in request.form:
+        consulta = consulta.filter(PagPago.cit_cliente_id == request.form["cit_cliente_id"])
+    if "distrito_id" in request.form:
+        consulta = consulta.filter(PagPago.distrito_id == request.form["distrito_id"])
+    if "pag_tramite_servicio_id" in request.form:
+        consulta = consulta.filter(PagPago.pag_tramite_servicio_id == request.form["pag_tramite_servicio_id"])
     if "estado" in request.form:
-        consulta = consulta.filter(PagPago.estado == request.form["estado"])
-    if "folio" in request.form:
-        folio = safe_string(request.form["folio"])
-        if folio != "":
-            consulta = consulta.filter(PagPago.folio.contains(folio))
+        estado = safe_string(request.form["estado"])
+        if estado != "":
+            consulta = consulta.filter(PagPago.estado == estado)
+    # Luego filtrar por columnas de otras tablas
+    cit_cliente_email = ""
+    if "cit_cliente_email" in request.form:
+        cit_cliente_email = safe_email(request.form["cit_cliente_email"], search_fragment=True)
+    cit_cliente_nombres = ""
+    if "cit_cliente_nombres" in request.form:
+        cit_cliente_nombres = safe_string(request.form["cit_cliente_nombres"], save_enie=True)
+    cit_cliente_apellido_primero = ""
+    if "cit_cliente_apellido_primero" in request.form:
+        cit_cliente_apellido_primero = safe_string(request.form["cit_cliente_apellido_primero"], save_enie=True)
+    cit_cliente_apellido_segundo = ""
+    if "cit_cliente_apellido_segundo" in request.form:
+        cit_cliente_apellido_segundo = safe_string(request.form["cit_cliente_apellido_segundo"], save_enie=True)
+    if (
+        cit_cliente_email != ""
+        or cit_cliente_nombres != ""
+        or cit_cliente_apellido_primero != ""
+        or cit_cliente_apellido_segundo != ""
+    ):
+        consulta = consulta.join(CitCliente)
+        if cit_cliente_email != "":
+            consulta = consulta.filter(CitCliente.email.contains(cit_cliente_email))
+        if cit_cliente_nombres != "":
+            consulta = consulta.filter(CitCliente.nombres.contains(cit_cliente_nombres))
+        if cit_cliente_apellido_primero != "":
+            consulta = consulta.filter(CitCliente.apellido_primero.contains(cit_cliente_apellido_primero))
+        if cit_cliente_apellido_segundo != "":
+            consulta = consulta.filter(CitCliente.apellido_segundo.contains(cit_cliente_apellido_segundo))
     # Ordenar y paginar
     registros = consulta.order_by(PagPago.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -62,15 +93,26 @@ def datatable_json():
                     "url": url_for("pag_pagos.detail", pag_pago_id=resultado.id),
                 },
                 "cit_cliente": {
-                    "nombre": f"{resultado.cit_cliente.nombre}",
+                    "email": resultado.cit_cliente.email,
                     "url": (
                         url_for("cit_clientes.detail", cit_cliente_id=resultado.cit_cliente_id)
                         if current_user.can_view("CIT CLIENTES")
                         else ""
                     ),
                 },
-                "email": resultado.cit_cliente.email,
-                "pag_tramite_servicio_clave": resultado.pag_tramite_servicio.clave,
+                "cit_cliente_nombre": resultado.cit_cliente.nombre,
+                "pag_tramite_servicio": {
+                    "clave": resultado.pag_tramite_servicio.clave,
+                    "descripcion": resultado.pag_tramite_servicio.descripcion,
+                    "url": (
+                        url_for(
+                            "pag_tramites_servicios.detail",
+                            pag_tramite_servicio_id=resultado.pag_tramite_servicio.id,
+                        )
+                        if current_user.can_view("PAG TRAMITES SERVICIOS")
+                        else ""
+                    ),
+                },
                 "distrito_clave": resultado.distrito.clave,
                 "autoridad_clave": resultado.autoridad.clave,
                 "estado": resultado.estado,
@@ -105,7 +147,7 @@ def list_inactive():
     )
 
 
-@pag_pagos.route("/pag_pagos/<int:pag_pago_id>")
+@pag_pagos.route("/pag_pagos/<pag_pago_id>")
 def detail(pag_pago_id):
     """Detalle de un pago"""
     pag_pago_id = safe_uuid(pag_pago_id)
@@ -118,7 +160,7 @@ def detail(pag_pago_id):
     )
 
 
-@pag_pagos.route("/pag_pagos/eliminar/<int:pag_pago_id>")
+@pag_pagos.route("/pag_pagos/eliminar/<pag_pago_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def delete(pag_pago_id):
     """Eliminar pago"""
@@ -139,7 +181,7 @@ def delete(pag_pago_id):
     return redirect(url_for("pag_pagos.detail", pag_pago_id=pag_pago.id))
 
 
-@pag_pagos.route("/pag_pagos/recuperar/<int:pag_pago_id>")
+@pag_pagos.route("/pag_pagos/recuperar/<pag_pago_id>")
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def recover(pag_pago_id):
     """Recuperar Pago"""

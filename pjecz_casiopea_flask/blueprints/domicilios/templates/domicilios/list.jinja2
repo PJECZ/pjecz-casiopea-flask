@@ -141,6 +141,7 @@
         };
         // Filtros Domicilios
         const filtrosDomicilios = new FiltrosDataTable('#domicilios_datatable', configDTDomicilios);
+        filtrosDomicilios.agregarInput('filtroClave', 'clave');
         filtrosDomicilios.agregarInput('filtroEdificio', 'edificio');
         filtrosDomicilios.precargar();
     </script>

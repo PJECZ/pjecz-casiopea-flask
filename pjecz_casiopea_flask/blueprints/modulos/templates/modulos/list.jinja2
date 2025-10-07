@@ -60,15 +60,15 @@
     <script>
         // DataTable modulos
         const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
-        let configDataTable = constructorDataTable.config();
-        configDataTable['ajax']['url'] = '/modulos/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
-        configDataTable['columns'] = [
+        let configDTModulos = constructorDataTable.config();
+        configDTModulos['ajax']['url'] = '/modulos/datatable_json';
+        configDTModulos['ajax']['data'] = {{ filtros }};
+        configDTModulos['columns'] = [
             { data: 'detalle' },
             { data: 'icono' },
             { data: 'en_navegacion' }
         ];
-        configDataTable['columnDefs'] = [
+        configDTModulos['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
@@ -95,7 +95,7 @@
             }
         ];
         // Filtros modulos
-        const filtrosModulos = new FiltrosDataTable('#modulos_datatable', configDataTable);
+        const filtrosModulos = new FiltrosDataTable('#modulos_datatable', configDTModulos);
         filtrosModulos.agregarInput('filtroModuloNombre', 'nombre');
         filtrosModulos.precargar();
     </script>

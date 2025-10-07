@@ -40,6 +40,17 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "clave" in request.form:
+        try:
+            clave = safe_clave(request.form["clave"])
+            if clave != "":
+                consulta = consulta.filter(Materia.clave.contains(clave))
+        except ValueError:
+            pass
+    if "nombre" in request.form:
+        nombre = safe_string(request.form["nombre"], save_enie=True)
+        if nombre != "":
+            consulta = consulta.filter(Materia.nombre.contains(nombre))
     # Ordenar y paginar
     registros = consulta.order_by(Materia.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -53,8 +64,6 @@ def datatable_json():
                     "url": url_for("materias.detail", materia_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "en_sentencias": resultado.en_sentencias,
-                "en_exh_exhortos": resultado.en_exh_exhortos,
             }
         )
     # Entregar JSON

@@ -25,19 +25,19 @@
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosPagTramitesServicios.buscar(); return false;">
-                    <div class="col-4">
+                    <div class="col-2">
                         <div class="form-floating">
                             <input id="filtroClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
                             <label for="filtroClave">Clave</label>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         <div class="form-floating">
                             <input id="filtroDescripcion" type="text" class="form-control" aria-label="Descripción" style="text-transform: uppercase;">
                             <label for="filtroDescripcion">Descripción</label>
                         </div>
                     </div>
-                    <div class="col-2 text-end">
+                    <div class="col-6 text-end">
                         <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosPagTramitesServicios.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                         <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosPagTramitesServicios.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
@@ -51,7 +51,7 @@
                     <th>Clave</th>
                     <th>Descripción</th>
                     <th>Costo</th>
-                    <th>URL</th>
+                    <th>Activo</th>
                 </tr>
             </thead>
         </table>
@@ -59,33 +59,84 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Datatables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
         // DataTable PagTramitesServicios
         const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
-        let configDataTable = constructorDataTable.config();
-        configDataTable['ajax']['url'] = '/pag_tramites_servicios/datatable_json';
-        configDataTable['ajax']['data'] = {{ filtros }};
-        configDataTable['columns'] = [
+        let configDTPagTramitesServicios = constructorDataTable.config();
+        configDTPagTramitesServicios['ajax']['url'] = '/pag_tramites_servicios/datatable_json';
+        configDTPagTramitesServicios['ajax']['data'] = {{ filtros }};
+        configDTPagTramitesServicios['columns'] = [
             { data: 'detalle' },
             { data: 'descripcion' },
-            { data: 'costo' },
-            { data: 'url' }
+            { data: 'costo', className: 'text-end' },
+            { data: "toggle_es_activo" }
         ];
-        configDataTable['columnDefs'] = [
+        configDTPagTramitesServicios['columnDefs'] = [
             {
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.clave + '</a>';
                 }
+            },
+            {
+                targets: 2, // costo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '$ ' + data;
+                }
+            },
+            {
+                targets: 3, // toggle_es_activo
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url === '') {
+                        if (data.es_activo === true) {
+                            return '<span class="badge bg-primary">Activo</span>';
+                        } else {
+                            return '<span class="badge bg-secondary">Inactivo</span>';
+                        }
+                    }
+                    let myId = 'pag_tramites_servicios_es_activo_' + data.id;
+                    let myRow = 'pag_tramites_servicios_row_' + data.id;
+                    let myOnClick = "toggleEsActivo('#" + myId + "', '" + data.url + "', '#" + myRow + "')";
+                    if (data.es_activo === true) {
+                        return '<button id="' + myId + '" type="button" class="btn btn-sm btn-outline-primary" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch"></span></button>';
+                    } else {
+                        return '<button id="' + myId + '" type="button" class="btn btn-sm btn-light" onclick="' + myOnClick + '"><span class="iconify" data-icon="mdi:toggle-switch-off"></span></button>';
+                    }
+                }
             }
         ];
+        // Cambiar las filas según toggle_es_activo
+        configDTPagTramitesServicios['createdRow'] = function(row, data, dataIndex) {
+            if (data.hasOwnProperty('toggle_es_activo')) {
+                // Cambiar el color de la fila si es_activo es false
+                if (!data.toggle_es_activo.es_activo) $(row).addClass('table-secondary');
+                // Asignar un id a la fila
+                $(row).attr('id', 'pag_tramites_servicios_row_' + data.toggle_es_activo.id);
+            }
+        };
         // Filtros PagTramitesServicios
-        const filtrosPagTramitesServicios = new FiltrosDataTable('#pag_tramites_servicios_datatable', configDataTable);
+        const filtrosPagTramitesServicios = new FiltrosDataTable('#pag_tramites_servicios_datatable', configDTPagTramitesServicios);
         filtrosPagTramitesServicios.agregarInput('filtroClave', 'clave');
         filtrosPagTramitesServicios.agregarInput('filtroDescripcion', 'descripcion');
         filtrosPagTramitesServicios.precargar();
+    </script>
+    <!-- Datatables botones toggle_es_activo -->
+    <script src="/static/js/datatables-toggles.js"></script>
+    <script>
+        // Preparar headers para POST
+        const myHeaders = new Headers();
+        myHeaders.append("X-CSRF-TOKEN", "{{ csrf_token() }}");
+        const myInit = {
+            method: "POST",
+            headers: myHeaders,
+            mode: "cors",
+            cache: "default",
+        };
     </script>
 {% endblock %}

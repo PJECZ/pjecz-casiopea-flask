@@ -34,25 +34,25 @@
                             <label for="filtroEmail">Correo Electrónico</label>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="form-floating">
                             <input id="filtroNombres" type="text" class="form-control" aria-label="Nombres" style="text-transform: uppercase;">
                             <label for="filtroNombres">Nombres</label>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroPrimerApellido" type="text" class="form-control" aria-label="Primer Apellido" style="text-transform: uppercase;">
-                            <label for="filtroPrimerApellido">Primer Apellido</label>
+                            <input id="filtroApellidoPrimero" type="text" class="form-control" aria-label="Primer Apellido" style="text-transform: uppercase;">
+                            <label for="filtroApellidoPrimero">Primer Apellido</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroCurp" type="text" class="form-control" aria-label="CURP" style="text-transform: uppercase;">
-                            <label for="filtroCurp">CURP</label>
+                            <input id="filtroApellidoSegundo" type="text" class="form-control" aria-label="Segundo Apellido" style="text-transform: uppercase;">
+                            <label for="filtroApellidoSegundo">Segundo Apellido</label>
                         </div>
                     </div>
-                    <div class="col-2 text-end">
+                    <div class="col-4 text-end">
                         <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosCitClientes.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                         <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosCitClientes.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
@@ -63,9 +63,9 @@
         <table id="cit_clientes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Correo Electrónico</th>
-                    <th>Nombre Completo</th>
-                    <th>CURP</th>
+                    <th>Creado</th>
+                    <th>Correo electrónico</th>
+                    <th>Nombre completo</th>
                 </tr>
             </thead>
         </table>
@@ -82,23 +82,23 @@
         configDTCitClientes['ajax']['url'] = '/cit_clientes/datatable_json';
         configDTCitClientes['ajax']['data'] = {{ filtros }};
         configDTCitClientes['columns'] = [
+            { data: "creado" },
             { data: "detalle" },
-            { data: "nombre" },
-            { data: "curp" }
+            { data: "nombre" }
         ];
         configDTCitClientes['columnDefs'] = [
             {
-                targets: 0, // detalle (email)
+                targets: 1, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.email + '</a>';
                 }
             },
             {
-                targets: 2, // telefono
+                targets: 2, // nombre
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<span class="font-monospace">' + data + '</span>';
+                    return data.length > 32 ? data.substring(0, 32) + '…' : data;
                 }
             }
         ];
@@ -106,8 +106,8 @@
         const filtrosCitClientes = new FiltrosDataTable('#cit_clientes_datatable', configDTCitClientes);
         filtrosCitClientes.agregarInput('filtroEmail', 'email');
         filtrosCitClientes.agregarInput('filtroNombres', 'nombres');
-        filtrosCitClientes.agregarInput('filtroPrimerApellido', 'apellido_primero');
-        filtrosCitClientes.agregarInput('filtroCurp', 'curp');
+        filtrosCitClientes.agregarInput('filtroApellidoPrimero', 'apellido_primero');
+        filtrosCitClientes.agregarInput('filtroApellidoSegundo', 'apellido_segundo');
         filtrosCitClientes.precargar();
     </script>
 {% endblock %}

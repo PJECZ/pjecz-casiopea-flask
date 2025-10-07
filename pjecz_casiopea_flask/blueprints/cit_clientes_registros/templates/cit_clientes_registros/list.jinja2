@@ -25,25 +25,31 @@
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosCitClientesRegistros.buscar(); return false;">
-                    <div class="col-4">
+                   <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroEMail" type="text" class="form-control" aria-label="Correo Electrónico">
-                            <label for="filtroEMail">Correo Electrónico</label>
+                            <input id="filtroEmail" type="text" class="form-control" aria-label="Correo Electrónico">
+                            <label for="filtroEmail">Correo Electrónico</label>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="form-floating">
                             <input id="filtroNombres" type="text" class="form-control" aria-label="Nombres" style="text-transform: uppercase;">
                             <label for="filtroNombres">Nombres</label>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroApellidoPrimero" type="text" class="form-control" aria-label="Primer apellido" style="text-transform: uppercase;">
-                            <label for="filtroApellidoPrimero">Primer apellido</label>
+                            <input id="filtroPrimerApellido" type="text" class="form-control" aria-label="Primer Apellido" style="text-transform: uppercase;">
+                            <label for="filtroPrimerApellido">Primer Apellido</label>
                         </div>
                     </div>
-                    <div class="col-2 text-end">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroSegundoApellido" type="text" class="form-control" aria-label="Segundo Apellido" style="text-transform: uppercase;">
+                            <label for="filtroSegundoApellido">Segundo Apellido</label>
+                        </div>
+                    </div>
+                     <div class="col-4 text-end">
                         <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosCitClientesRegistros.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                         <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosCitClientesRegistros.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
@@ -54,6 +60,7 @@
         <table id="cit_clientes_registros_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
+                    <th>Creado</th>
                     <th>Correo electrónico</th>
                     <th>Nombre completo</th>
                     <th>Expiración</th>
@@ -75,6 +82,7 @@
         configDTCitClientesRegistros['ajax']['data'] = {{ filtros }};
         configDTCitClientesRegistros['columns'] = [
             { data: 'detalle' },
+            { data: 'email' },
             { data: 'nombre' },
             { data: 'expiracion' },
             { data: 'ya_registrado' }
@@ -84,18 +92,18 @@
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.email + '</a>';
+                    return '<a href="' + data.url + '">' + data.creado + '</a>';
                 }
             },
             {
-                targets: 2, // expiracion
+                targets: 3, // expiracion
                 type: "date",
                 render: function (data, type, row) {
                     return moment.utc(data).local().format('YYYY-MM-DD HH:mm');
                 }
             },
             {
-                targets: 3, // ya_registrado
+                targets: 4, // ya_registrado
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data) {
@@ -115,9 +123,10 @@
         };
         // Filtros Cit Clientes Registros
         const filtrosCitClientesRegistros = new FiltrosDataTable('#cit_clientes_registros_datatable', configDTCitClientesRegistros);
-        filtrosCitClientesRegistros.agregarInput('filtroEMail', 'email');
+        filtrosCitClientesRegistros.agregarInput('filtroEmail', 'email');
         filtrosCitClientesRegistros.agregarInput('filtroNombres', 'nombres');
-        filtrosCitClientesRegistros.agregarInput('filtroApellidoPrimero', 'apellido_paterno');
+        filtrosCitClientesRegistros.agregarInput('filtroPrimerApellido', 'apellido_primero');
+        filtrosCitClientesRegistros.agregarInput('filtroSegundoApellido', 'apellido_segundo');
         filtrosCitClientesRegistros.precargar();
     </script>
 {% endblock %}

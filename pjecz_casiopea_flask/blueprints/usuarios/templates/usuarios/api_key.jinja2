@@ -153,12 +153,28 @@
                 });
         }
         // Copy to clipboard
+        function fallbackCopyTextToClipboard() {
+            myAPIKeyField.focus();
+            myAPIKeyField.select();
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copy to clipboard Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Copy to clipboardFallback: Oops, unable to copy', err);
+            }
+        }
         function copyToClipboard() {
             if (myAPIKeyField.value != '') {
-                myAPIKeyField.select();
-                myAPIKeyField.setSelectionRange(0, 99999);
-                document.execCommand('copy');
-                console.log('Copiado al portapapeles');
+                if (!navigator.clipboard) {
+                    fallbackCopyTextToClipboard();
+                    return;
+                }
+                navigator.clipboard.writeText(myAPIKeyField.value).then(function() {
+                    console.log('Copy to clipboard Async: Copying to clipboard was successful!');
+                }, function(error) {
+                    console.error('Copy to clipboard Async: Could not copy text: ', error);
+                });
             }
         }
         // Clean API Key

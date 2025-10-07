@@ -45,10 +45,6 @@ def datatable_json():
         consulta = consulta.filter(CitCliente.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(CitCliente.estatus == "A")
-    if "curp" in request.form:
-        curp = safe_curp(request.form["curp"], search_fragment=True)
-        if curp != "":
-            consulta = consulta.filter(CitCliente.curp.contains(curp))
     if "email" in request.form:
         email = safe_email(request.form["email"], search_fragment=True)
         if email != "":
@@ -61,20 +57,24 @@ def datatable_json():
         apellido_primero = safe_string(request.form["apellido_primero"], save_enie=True)
         if apellido_primero != "":
             consulta = consulta.filter(CitCliente.apellido_primero.contains(apellido_primero))
+    if "apellido_segundo" in request.form:
+        apellido_segundo = safe_string(request.form["apellido_segundo"], save_enie=True)
+        if apellido_segundo != "":
+            consulta = consulta.filter(CitCliente.apellido_segundo.contains(apellido_segundo))
     # Ordenar y paginar
-    registros = consulta.order_by(CitCliente.email).offset(start).limit(rows_per_page).all()
+    registros = consulta.order_by(CitCliente.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
         data.append(
             {
+                "creado": resultado.creado.strftime("%Y-%m-%d %H:%M"),
                 "detalle": {
                     "email": resultado.email,
                     "url": url_for("cit_clientes.detail", cit_cliente_id=resultado.id),
                 },
                 "nombre": resultado.nombre,
-                "curp": resultado.curp,
             }
         )
     # Entregar JSON

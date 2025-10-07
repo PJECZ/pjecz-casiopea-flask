@@ -50,6 +50,10 @@ def datatable_json():
         consulta = consulta.filter(CitCita.cit_servicio_id == request.form["cit_servicio_id"])
     if "oficina_id" in request.form:
         consulta = consulta.filter(CitCita.oficina_id == request.form["oficina_id"])
+    if "estado" in request.form:
+        estado = safe_string(request.form["estado"])
+        if estado != "":
+            consulta = consulta.filter(CitCita.estado == estado)
     # Luego filtrar por columnas de otras tablas
     cit_cliente_email = ""
     if "cit_cliente_email" in request.form:
@@ -57,17 +61,27 @@ def datatable_json():
     cit_cliente_nombres = ""
     if "cit_cliente_nombres" in request.form:
         cit_cliente_nombres = safe_string(request.form["cit_cliente_nombres"], save_enie=True)
-    cit_cliente_primer_apellido = ""
-    if "cit_cliente_primer_apellido" in request.form:
-        cit_cliente_primer_apellido = safe_string(request.form["cit_cliente_primer_apellido"], save_enie=True)
-    if cit_cliente_email != "" or cit_cliente_nombres != "" or cit_cliente_primer_apellido != "":
+    cit_cliente_apellido_primero = ""
+    if "cit_cliente_apellido_primero" in request.form:
+        cit_cliente_apellido_primero = safe_string(request.form["cit_cliente_apellido_primero"], save_enie=True)
+    cit_cliente_apellido_segundo = ""
+    if "cit_cliente_apellido_segundo" in request.form:
+        cit_cliente_apellido_segundo = safe_string(request.form["cit_cliente_apellido_segundo"], save_enie=True)
+    if (
+        cit_cliente_email != ""
+        or cit_cliente_nombres != ""
+        or cit_cliente_apellido_primero != ""
+        or cit_cliente_apellido_segundo != ""
+    ):
         consulta = consulta.join(CitCliente)
         if cit_cliente_email != "":
             consulta = consulta.filter(CitCliente.email.contains(cit_cliente_email))
         if cit_cliente_nombres != "":
             consulta = consulta.filter(CitCliente.nombres.contains(cit_cliente_nombres))
-        if cit_cliente_primer_apellido != "":
-            consulta = consulta.filter(CitCliente.primer_apellido.contains(cit_cliente_primer_apellido))
+        if cit_cliente_apellido_primero != "":
+            consulta = consulta.filter(CitCliente.apellido_primero.contains(cit_cliente_apellido_primero))
+        if cit_cliente_apellido_segundo != "":
+            consulta = consulta.filter(CitCliente.apellido_segundo.contains(cit_cliente_apellido_segundo))
     # Ordenar y paginar
     registros = consulta.order_by(CitCita.creado.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
@@ -77,17 +91,18 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "creado": resultado.creado.strftime("%Y-%m-%d %H:%M"),
                     "url": url_for("cit_citas.detail", cit_cita_id=resultado.id),
                 },
                 "cit_cliente": {
-                    "nombre": resultado.cit_cliente.nombre,
+                    "email": resultado.cit_cliente.email,
                     "url": (
                         url_for("cit_clientes.detail", cit_cliente_id=resultado.cit_cliente.id)
                         if current_user.can_view("CIT CLIENTES")
                         else ""
                     ),
                 },
+                "cit_cliente_nombre": resultado.cit_cliente.nombre,
                 "cit_servicio": {
                     "clave": resultado.cit_servicio.clave,
                     "descripcion": resultado.cit_servicio.descripcion,

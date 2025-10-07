@@ -3,14 +3,11 @@
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
-{% block title %}Pago {{ pag_pago.clave }}{% endblock %}
+{% block title %}Pago{% endblock %}
 
 {% block topbar_actions %}
-    {% call topbar.page_buttons('Pago ' + pag_pago.clave) %}
+    {% call topbar.page_buttons('Pago ' + pag_pago.id | string) %}
         {{ topbar.button_previous('Pagos', url_for('pag_pagos.list_active')) }}
-        {% if current_user.can_edit('PAG PAGOS') %}
-            {{ topbar.button_edit('Editar', url_for('pag_pagos.edit', pag_pago_id=pag_pago.id)) }}
-        {% endif %}
         {% if current_user.can_admin('PAG PAGOS') %}
             {% if pag_pago.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('pag_pagos.delete', pag_pago_id=pag_pago.id)) }}{% endif %}
             {% if pag_pago.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('pag_pagos.recover', pag_pago_id=pag_pago.id)) }}{% endif %}
@@ -44,7 +41,7 @@
     {% else %}
         {% set estado_bgcolor = "#212529; color: #FFF;" %}
     {% endif %}
-    {% call detail.card(title='Pago', background_color=estado_bgcolor) %}
+    {% call detail.card(title='Pago') %}
         {% if current_user.can_view('PAG TRAMITES SERVICIOS') %}
             {{ detail.label_value('Trámite y Servicio', pag_pago.pag_tramite_servicio.descripcion, url_for('pag_tramites_servicios.detail', pag_tramite_servicio_id=pag_pago.pag_tramite_servicio_id)) }}
         {% else %}
@@ -95,7 +92,7 @@
 
 {% block custom_javascript %}
     {% if current_user.can_admin('PAG PAGOS') %}
-        {% if pag_pago.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + pag_pago.clave + '?') }}{% endif %}
-        {% if pag_pago.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + pag_pago.clave + '?') }}{% endif %}
+        {% if pag_pago.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar este pago?') }}{% endif %}
+        {% if pag_pago.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar este pago?') }}{% endif %}
     {% endif %}
 {% endblock %}

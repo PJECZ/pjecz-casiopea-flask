@@ -63,6 +63,15 @@ def datatable_json():
                 "descripcion": resultado.descripcion,
                 "costo": resultado.costo,
                 "url": resultado.url,
+                "toggle_es_activo": {
+                    "id": resultado.id,
+                    "es_activo": resultado.es_activo,
+                    "url": (
+                        url_for("pag_tramites_servicios.toggle_es_activo_json", pag_tramite_servicio_id=resultado.id)
+                        if current_user.can_edit(MODULO)
+                        else ""
+                    ),
+                },
             }
         )
     # Entregar JSON
@@ -217,3 +226,31 @@ def recover(pag_tramite_servicio_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("pag_tramites_servicios.detail", pag_tramite_servicio_id=pag_tramite_servicio.id))
+
+
+@pag_tramites_servicios.route(
+    "/pag_tramites_servicios/toggle_es_activo_json/<pag_tramite_servicio_id>", methods=["GET", "POST"]
+)
+@permission_required(MODULO, Permiso.ADMINISTRAR)
+def toggle_es_activo_json(pag_tramite_servicio_id):
+    """Cambiar es_activo a su opuesto al dar clic a su boton en datatable"""
+
+    # Consultar
+    pag_tramite_servicio_id = safe_uuid(pag_tramite_servicio_id)
+    if pag_tramite_servicio_id == "":
+        return {"success": False, "message": "No es un UUID válido"}
+    pag_tramite_servicio = PagTramiteServicio.query.get_or_404(pag_tramite_servicio_id)
+    if pag_tramite_servicio is None:
+        return {"success": False, "message": "No encontrado"}
+
+    # Cambiar es_activo a su opuesto y guardar
+    pag_tramite_servicio.es_activo = not pag_tramite_servicio.es_activo
+    pag_tramite_servicio.save()
+
+    # Entregar JSON
+    return {
+        "success": True,
+        "message": "Activo" if pag_tramite_servicio.es_activo == "A" else "Inactivo",
+        "es_activo": pag_tramite_servicio.es_activo,
+        "id": pag_tramite_servicio.id,
+    }
