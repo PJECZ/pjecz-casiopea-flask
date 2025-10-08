@@ -78,7 +78,7 @@
         configDTCitOficinasServicios['ajax']['data'] = {{ filtros }};
         configDTCitOficinasServicios['columns'] = [
             { data: 'detalle' },
-            { data: 'oficina_clave' },
+            { data: 'oficina' },
             { data: 'oficina_descripcion_corta' },
             { data: 'cit_servicio' },
             { data: 'cit_servicio_descripcion' },
@@ -93,7 +93,34 @@
                 }
             },
             {
-                targets: [2, 4], // oficina_descripcion_corta, cit_servicio_descripcion
+                targets: 1, // oficina
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url !== '') {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                    return data.clave;
+                }
+            },
+            {
+                targets: 2, // oficina_descripcion_corta
+                data: null,
+                render: function(data, type, row, meta) {
+                    return (data.length > 32 ? data.substring(0, 32) + '…' : data);
+                }
+            },
+            {
+                targets: 3, // cit_servicio
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url !== '') {
+                        return '<a href="' + data.url + '">' + data.clave + '</a>';
+                    }
+                    return data.clave;
+                }
+            },
+            {
+                targets: 4, // cit_servicio_descripcion
                 data: null,
                 render: function(data, type, row, meta) {
                     return (data.length > 32 ? data.substring(0, 32) + '…' : data);
