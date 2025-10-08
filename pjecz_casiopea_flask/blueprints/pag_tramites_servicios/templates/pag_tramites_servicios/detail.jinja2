@@ -32,25 +32,31 @@
             <div class="row">
                 <div class="col">
                     <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosPagPagos.buscar(); return false;">
-                        <div class="col-4">
+                        <div class="col-2">
                             <div class="form-floating">
-                                <input id="filtroEmail" type="text" class="form-control" aria-label="e-mail" style="text-transform: lowercase;">
-                                <label for="filtroEmail">e-mail</label>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="form-floating">
-                                <input id="filtroEstado" type="text" class="form-control" aria-label="Descripción" style="text-transform: uppercase;">
-                                <label for="filtroEstado">Estado</label>
+                                <input id="filtroEmail" type="text" class="form-control" aria-label="Correo Electrónico">
+                                <label for="filtroEmail">Correo Electrónico</label>
                             </div>
                         </div>
                         <div class="col-2">
                             <div class="form-floating">
-                                <input id="filtroFolio" type="text" class="form-control" aria-label="Folio" style="text-transform: uppercase;">
-                                <label for="filtroFolio">Folio</label>
+                                <input id="filtroNombres" type="text" class="form-control" aria-label="Nombres" style="text-transform: uppercase;">
+                                <label for="filtroNombres">Nombres</label>
                             </div>
                         </div>
-                        <div class="col-2 text-end">
+                        <div class="col-2">
+                            <div class="form-floating">
+                                <input id="filtroApellidoPrimero" type="text" class="form-control" aria-label="Primer Apellido" style="text-transform: uppercase;">
+                                <label for="filtroApellidoPrimero">Primer Apellido</label>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="form-floating">
+                                <input id="filtroApellidoSegundo" type="text" class="form-control" aria-label="Segundo Apellido" style="text-transform: uppercase;">
+                                <label for="filtroApellidoSegundo">Segundo Apellido</label>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
                             <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosPagPagos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                             <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosPagPagos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                         </div>
@@ -62,8 +68,8 @@
                 <thead>
                     <tr>
                         <th>Creado</th>
-                        <th>Cliente</th>
-                        <th>e-mail</th>
+                        <th>Correo electrónico</th>
+                        <th>Nombre completo</th>
                         <th>Distrito</th>
                         <th>Autoridad</th>
                         <th>Estado</th>
@@ -84,7 +90,6 @@
     <!-- DataTables -->
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
-    <!-- PagPagos del PagTramiteServicio -->
     {% if current_user.can_view('PAG PAGOS') %}
         <script>
             // DataTable PagPagos
@@ -162,9 +167,10 @@
             };
             // Filtros PagPagos
             const filtrosPagPagos = new FiltrosDataTable('#pag_pagos_datatable', configDTPagPagos);
-            filtrosPagPagos.agregarInput('filtroEmail', 'email');
-            filtrosPagPagos.agregarInput('filtroEstado', 'estado');
-            filtrosPagPagos.agregarInput('filtroFolio', 'folio');
+            filtrosPagPagos.agregarInput('filtroEmail', 'cit_cliente_email');
+            filtrosPagPagos.agregarInput('filtroNombres', 'cit_cliente_nombres');
+            filtrosPagPagos.agregarInput('filtroApellidoPrimero', 'cit_cliente_apellido_primero');
+            filtrosPagPagos.agregarInput('filtroApellidoSegundo', 'cit_cliente_apellido_segundo');
             filtrosPagPagos.precargar();
         </script>
     {% endif %}

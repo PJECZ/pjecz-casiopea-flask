@@ -85,9 +85,21 @@ def datatable_json():
                     "id": resultado.id,
                     "url": url_for("cit_oficinas_servicios.detail", cit_oficina_servicio_id=resultado.id),
                 },
-                "oficina_clave": resultado.oficina.clave,
+                "oficina": {
+                    "clave": resultado.oficina.clave,
+                    "url": (
+                        url_for("oficinas.detail", oficina_id=resultado.oficina_id) if current_user.can_view("OFICINAS") else ""
+                    ),
+                },
                 "oficina_descripcion_corta": resultado.oficina.descripcion_corta,
-                "cit_servicio": resultado.cit_servicio.clave,
+                "cit_servicio": {
+                    "clave": resultado.cit_servicio.clave,
+                    "url": (
+                        url_for("cit_servicios.detail", cit_servicio_id=resultado.cit_servicio_id)
+                        if current_user.can_view("CIT SERVICIOS")
+                        else ""
+                    ),
+                },
                 "cit_servicio_descripcion": resultado.cit_servicio.descripcion,
                 "toggle_es_activo": {
                     "id": resultado.id,

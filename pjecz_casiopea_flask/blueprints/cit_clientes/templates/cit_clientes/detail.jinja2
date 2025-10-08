@@ -139,10 +139,10 @@
             // DataTable estilos en las filas segun estado
             configDTCitCitas['createdRow'] = function(row, data, dataIndex) {
                 switch (data.estado) {
-                    case "ASISTIO":      $(row).addClass('table-success'); break;
-                    case "PENDIENTE":    $(row).addClass('table-warning'); break;
-                    case "CANCELO":      $(row).addClass('table-danger'); break;
-                    case "INASISTENCIA": $(row).addClass('table-secondary'); break;
+                    case "ASISTIO":      $(row).addClass('table-success');   break;
+                    case "PENDIENTE":    $(row).addClass('table-warning');   break;
+                    case "CANCELO":      $(row).addClass('table-secondary'); break;
+                    case "INASISTENCIA": $(row).addClass('table-danger');    break;
                 }
             };
             // NO HAY Filtros CitCitas

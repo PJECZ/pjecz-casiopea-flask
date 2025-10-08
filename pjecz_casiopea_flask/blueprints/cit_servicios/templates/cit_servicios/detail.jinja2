@@ -47,25 +47,31 @@
             <div class="row">
                 <div class="col">
                     <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosCitCitas.buscar(); return false;">
-                        <div class="col-3">
+                        <div class="col-2">
                             <div class="form-floating">
-                                <input id="filtroCitClienteEmail" type="text" class="form-control" aria-label="Correo Electrónico">
-                                <label for="filtroCitClienteEmail">Correo Electrónico</label>
+                                <input id="filtroEmail" type="text" class="form-control" aria-label="Correo Electrónico">
+                                <label for="filtroEmail">Correo Electrónico</label>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-2">
                             <div class="form-floating">
-                                <input id="filtroCitClienteNombres" type="text" class="form-control" aria-label="Nombres" style="text-transform: uppercase;">
-                                <label for="filtroCitClienteNombres">Nombres</label>
+                                <input id="filtroNombres" type="text" class="form-control" aria-label="Nombres" style="text-transform: uppercase;">
+                                <label for="filtroNombres">Nombres</label>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-2">
                             <div class="form-floating">
-                                <input id="filtroCitClientePrimerApellido" type="text" class="form-control" aria-label="Primer Apellido" style="text-transform: uppercase;">
-                                <label for="filtroCitClientePrimerApellido">Primer Apellido</label>
+                                <input id="filtroApellidoPrimero" type="text" class="form-control" aria-label="Primer Apellido" style="text-transform: uppercase;">
+                                <label for="filtroApellidoPrimero">Primer Apellido</label>
                             </div>
                         </div>
-                        <div class="col-3 text-end">
+                        <div class="col-2">
+                            <div class="form-floating">
+                                <input id="filtroApellidoSegundo" type="text" class="form-control" aria-label="Segundo Apellido" style="text-transform: uppercase;">
+                                <label for="filtroApellidoSegundo">Segundo Apellido</label>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
                             <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosCitCitas.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                             <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosCitCitas.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                         </div>
@@ -76,11 +82,12 @@
             <table id="cit_citas_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Creado</th>
                         <th>Fecha</th>
                         <th>Inicio</th>
-                        <th>Termino</th>
-                        <th>Cliente</th>
+                        <th>Término</th>
+                        <th>Correo electrónico</th>
+                        <th>Nombre completo</th>
                         <th>Oficina</th>
                         <th>Estado</th>
                     </tr>
@@ -89,7 +96,7 @@
         {% endcall %}
     {% endif %}
     {% if current_user.can_view('CIT OFICINAS SERVICIOS') %}
-        {% call detail.card('Oficinas') %}
+        {% call detail.card('Oficinas-Servicios') %}
             <!-- Filtros CitOficinasServicios -->
             <div class="row">
                 <div class="col">
@@ -154,72 +161,82 @@
                 { data: "inicio" },
                 { data: "termino" },
                 { data: "cit_cliente" },
+                { data: "cit_cliente_nombre" },
                 { data: "oficina" },
                 { data: "estado" }
             ];
             configDTCitCitas['columnDefs'] = [
-                {
-                    targets: 0, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id.substring(0, 8) + '</a>';
-                    }
-                },
-                {
-                    targets: 1, // fecha
-                    type: 'date',
-                    render: function (data, type, row) {
-                        return moment(data).format('YYYY-MM-DD, ddd');
-                    }
-                },
-                {
-                    targets: 4, // cit_cliente
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url !== '') {
-                            return '<a href="' + data.url + '">' + data.nombre + '</a>';
-                        }
-                        return data.nombre
-                    }
-                },
-                {
-                    targets: 5, // oficina
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        if (data.url !== '') {
-                            return '<span title="' + data.descripcion + '">' + '<a href="' + data.url + '">' + data.clave + '</a></span>';
-                        }
-                        return '<span title="' + data.descripcion + '">' + data.clave + '</span>'
-                    }
-                },
-                {
-                    targets: 6, // Estado
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        switch (data)    {
-                            case "ASISTIO":     return '<span class="badge rounded-pill bg-success px-3 ms-3">Asistió</span>'; break;
-                            case "PENDIENTE":   return '<span class="badge rounded-pill bg-warning px-3 ms-3 text-dark">Pendiente</span>'; break;
-                            case "CANCELO":     return '<span class="badge rounded-pill bg-danger px-3 ms-4">Cancelo</span>'; break;
-                            case "INASISTENCIA":return '<span class="badge rounded-pill bg-secondary px-3 ms-4">NO Asistió</span>'; break;
-                        }
-                        return data;
-                    }
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.creado + '</a>';
                 }
+            },
+            {
+                targets: 1, // fecha
+                type: 'date',
+                render: function (data, type, row) {
+                    return moment(data).format('YYYY-MM-DD, ddd');
+                }
+            },
+            {
+                targets: 4, // cit_cliente
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url !== '') {
+                        return '<a href="' + data.url + '">' + data.email + '</a>';
+                    }
+                    return data.email;
+                }
+            },
+            {
+                targets: 5, // cit_cliente_nombre
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.length > 32 ? data.substring(0, 32) + '…' : data;
+                }
+            },
+            {
+                targets: 6, // oficina
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.url !== '') {
+                        return '<span title="' + data.descripcion + '">' + '<a href="' + data.url + '">' + data.clave + '</a></span>';
+                    }
+                    return '<span title="' + data.descripcion + '">' + data.clave + '</span>';
+                }
+            },
+            {
+                targets: 7, // Estado
+                data: null,
+                render: function(data, type, row, meta) {
+                    let bg_class = "bg-primary";
+                    switch (data)    {
+                        case "ASISTIO":      bg_class = "bg-success";           break;
+                        case "PENDIENTE":    bg_class = "bg-warning text-dark"; break;
+                        case "CANCELO":      bg_class = "bg-secondary";         break;
+                        case "INASISTENCIA": bg_class = "bg-danger";            break;
+                    }
+                    return '<span class="badge rounded-pill ' + bg_class + ' px-3">' + data + '</span>';
+                }
+            }
             ];
             // DataTable estilos en las filas segun estado
             configDTCitCitas['createdRow'] = function(row, data, dataIndex) {
                 switch (data.estado) {
-                    case "ASISTIO":      $(row).addClass('table-success'); break;
-                    case "PENDIENTE":    $(row).addClass('table-warning'); break;
-                    case "CANCELO":      $(row).addClass('table-danger'); break;
-                    case "INASISTENCIA": $(row).addClass('table-secondary'); break;
+                    case "ASISTIO":      $(row).addClass('table-success');   break;
+                    case "PENDIENTE":    $(row).addClass('table-warning');   break;
+                    case "CANCELO":      $(row).addClass('table-secondary'); break;
+                    case "INASISTENCIA": $(row).addClass('table-danger');    break;
                 }
             };
             // Filtros CitCitas
             const filtrosCitCitas = new FiltrosDataTable('#cit_citas_datatable', configDTCitCitas);
-            filtrosCitCitas.agregarInput('filtroCitClienteEmail', 'cit_cliente_email');
-            filtrosCitCitas.agregarInput('filtroCitClienteNombres', 'cit_cliente_nombres');
-            filtrosCitCitas.agregarInput('filtroCitClientePrimerApellido', 'cit_cliente_primer_apellido');
+            filtrosCitCitas.agregarInput('filtroEmail', 'cit_cliente_email');
+            filtrosCitCitas.agregarInput('filtroNombres', 'cit_cliente_nombres');
+            filtrosCitCitas.agregarInput('filtroApellidoPrimero', 'cit_cliente_apellido_primero');
+            filtrosCitCitas.agregarInput('filtroApellidoSegundo', 'cit_cliente_apellido_segundo');
             filtrosCitCitas.precargar();
         </script>
     {% endif %}
@@ -231,7 +248,7 @@
             configDTCitOficinasServicios['ajax']['data'] = { 'estatus': "A", 'cit_servicio_id': "{{ cit_servicio.id }}" };
             configDTCitOficinasServicios['columns'] = [
                 { data: 'detalle' },
-                { data: 'oficina_clave' },
+                { data: 'oficina' },
                 { data: 'oficina_descripcion_corta' },
                 { data: "toggle_es_activo" }
             ];
@@ -241,6 +258,16 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<a href="' + data.url + '">' + data.id.substring(0, 8) + '</a>';
+                    }
+                },
+                {
+                    targets: 1, // oficina
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (data.url !== '') {
+                            return '<a href="' + data.url + '">' + data.clave + '</a>';
+                        }
+                        return data.clave;
                     }
                 },
                 {
