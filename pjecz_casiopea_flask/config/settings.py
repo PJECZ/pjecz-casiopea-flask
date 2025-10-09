@@ -10,7 +10,6 @@ from pydantic_settings import BaseSettings
 
 load_dotenv()
 SERVICE_PREFIX = os.getenv("SERVICE_PREFIX", "pjecz_casiopea_flask")
-MEGABYTE = (2**10) ** 2
 
 
 class Settings(BaseSettings):
@@ -28,7 +27,7 @@ class Settings(BaseSettings):
 
     # Incrementar el tamaño de lo que se sube en los formularios
     MAX_CONTENT_LENGTH: int | None = None
-    MAX_FORM_MEMORY_SIZE: int = 50 * MEGABYTE
+    MAX_FORM_MEMORY_SIZE: int = 50 * (2**10) ** 2  # 50 MB
 
     class Config:
         """Load configuration"""
