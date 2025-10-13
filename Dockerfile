@@ -22,9 +22,6 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy application code
 COPY . ./
 
-# Expose the port that the app runs on
-EXPOSE 8080
-
 # Run the web service on container startup
 # Set desired Gunicorn worker count (adjust based on Cloud Run CPU/Memory and expected load)
 # Cloud Run v2 usually provides at least 1 CPU, v1 might share, start with 1 or 2
