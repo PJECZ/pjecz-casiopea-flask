@@ -22,4 +22,4 @@ __pycache__/
 
 poetry.lock
 
-gcloudenvvars.yaml
+gclouddeploy.sh
