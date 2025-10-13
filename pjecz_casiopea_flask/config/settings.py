@@ -16,13 +16,13 @@ class Settings(BaseSettings):
     """Settings"""
 
     # Variables de entorno
-    FERNET_KEY: str = os.getenv("FERNET_KEY")
-    HOST: str = os.getenv("HOST")
-    REDIS_URL: str = os.getenv("REDIS_URL")
-    SALT: str = os.getenv("SALT")
-    SECRET_KEY: str = os.getenv("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI: str = os.getenv("SQLALCHEMY_DATABASE_URI")
-    TASK_QUEUE: str = os.getenv("TASK_QUEUE")
+    FERNET_KEY: str = os.getenv("FERNET_KEY", "")
+    HOST: str = os.getenv("HOST", "")
+    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
+    SALT: str = os.getenv("SALT", "")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "")
+    SQLALCHEMY_DATABASE_URI: str = os.getenv("SQLALCHEMY_DATABASE_URI", "")
+    TASK_QUEUE: str = os.getenv("TASK_QUEUE", "pjecz_casiopea")
     TZ: str = os.getenv("TZ", "America/Mexico_City")
 
     # Incrementar el tamaño de lo que se sube en los formularios

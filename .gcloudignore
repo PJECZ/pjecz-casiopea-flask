@@ -31,3 +31,5 @@ __pycache__/
 /sql
 /tests
 /venv
+
+/gclouddeploy.sh
