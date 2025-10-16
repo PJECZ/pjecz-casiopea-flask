@@ -27,8 +27,8 @@ def copiar_pag_tramites_servicios(conn_old, cursor_old, conn_new, cursor_new):
     # Insertar registros en la base de datos NUEVA
     contador = 0
     insert_query = """
-        INSERT INTO pag_tramites_servicios (id, clave, descripcion, costo, url, estatus, creado, modificado)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO pag_tramites_servicios (id, clave, descripcion, costo, url, estatus, creado, modificado, es_activo)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, true)
     """
     try:
         for row in rows:
