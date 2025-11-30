@@ -1,7 +1,5 @@
-.bashrc
 .directory
 .DS_Store
-.env
 .~lock.*
 
 *.csv
@@ -13,13 +11,19 @@
 *.sql
 *.xls
 *.xlsx
+*.XLS
+*.XLSX
+
+.bashrc
+.env
+poetry.lock
 
 __pycache__/
 *.egg-info/
 
+/.idea/
 /.venv/
+/seed/
 /venv/
-
-poetry.lock
 
 gclouddeploy.sh

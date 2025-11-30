@@ -39,15 +39,14 @@ from .blueprints.web_ramas.views import web_ramas
 from .config.extensions import authentication, csrf, database, login_manager, moment
 from .config.settings import Settings
 
-# Definir app
+# Crear la aplicación
 app = Flask(__name__, instance_relative_config=True)
-
-# Cargar la configuración
+app.add_url_rule("/favicon.ico", endpoint="sistemas.favicon")
 app.config.from_object(Settings())
 
-# Redis
-app.redis = Redis(host=app.config["REDIS_URL"])
-app.task_queue = Queue(app.config["TASK_QUEUE"], connection=app.redis, default_timeout=3000)
+# Inicializar conexión a Redis
+redis_client = Redis(host=app.config["REDIS_HOST"], port=app.config["REDIS_PORT"])
+task_queue = Queue(name=app.config["TASK_QUEUE_NAME"], connection=redis_client)
 
 # Cargar las vistas
 app.register_blueprint(autoridades)
@@ -80,12 +79,11 @@ app.register_blueprint(web_archivos)
 app.register_blueprint(web_paginas)
 app.register_blueprint(web_ramas)
 
-
-# Cargar extensiones
+# Inicializar extensiones
 csrf.init_app(app)
 database.init_app(app)
 login_manager.init_app(app)
 moment.init_app(app)
 
-# Flask Login authentication
+# Cargar el modelo de usuario para la autenticación
 authentication(Usuario)
