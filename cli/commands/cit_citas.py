@@ -122,21 +122,26 @@ def eliminar(horas: int = 24):
         console.print(f"[green]No hay citas para eliminar con más de {horas} horas de antigüedad.[/green]")
         return
 
-    contador = 0
     commit_cada = 500
 
     with Progress(console=console) as progress:
         task = progress.add_task(f"Eliminando {total_citas} citas...", total=total_citas)
 
-        # Bucle entre las citas
-        for cita in query_citas.yield_per(commit_cada):
-            cita.estatus = "B"  # Soft delete
-            database.session.add(cita)
-            contador += 1
-            if contador % commit_cada == 0:
-                database.session.commit()
-            progress.update(task, advance=1)
+        # 1. Obtener solo los IDs para no cargar todos los objetos en memoria.
+        #    Se usa with_entities para seleccionar solo la columna 'id'.
+        #    .all() aquí es seguro porque solo trae una lista de tuplas de IDs.
+        citas_ids = [c[0] for c in query_citas.with_entities(CitCita.id).all()]
 
-        database.session.commit()  # Commit final para los registros restantes
+        # 2. Procesar los IDs en lotes.
+        for i in range(0, total_citas, commit_cada):
+            # Seleccionar el lote actual de IDs
+            lote_ids = citas_ids[i : i + commit_cada]
 
-    console.print(f"[green]Se han eliminado {contador} citas con más de {horas} horas de antigüedad.[/green]")
+            # 3. Ejecutar un UPDATE masivo para el lote actual.
+            #    Esto es mucho más eficiente que cargar y modificar cada objeto.
+            database.session.query(CitCita).filter(CitCita.id.in_(lote_ids)).update({"estatus": "B"}, synchronize_session=False)
+
+            database.session.commit()
+            progress.update(task, advance=len(lote_ids))
+
+    console.print(f"[green]Se han eliminado {total_citas} citas con más de {horas} horas de antigüedad.[/green]")
