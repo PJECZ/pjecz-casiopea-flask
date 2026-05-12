@@ -3,14 +3,15 @@ CLI Commands Cit Citas
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 
 from faker import Faker
 from rich.console import Console
+from rich.progress import Progress
 from sqlalchemy.sql import func
 from typer import Typer
 
-from pjecz_casiopea_flask.blueprints.cit_citas.models import CitCita
+from pjecz_casiopea_flask.blueprints.cit_citas.models import CitCita, database
 from pjecz_casiopea_flask.blueprints.cit_clientes.models import CitCliente
 from pjecz_casiopea_flask.blueprints.cit_oficinas_servicios.models import CitOficinaServicio
 from pjecz_casiopea_flask.blueprints.cit_servicios.models import CitServicio
@@ -113,13 +114,29 @@ def eliminar(horas: int = 24):
     console = Console()
     # Definir el tiempo límite
     tiempo_limite = datetime.now() - timedelta(hours=horas)
-    # Consultar las citas a eliminar
-    citas = CitCita.query.filter(CitCita.inicio < tiempo_limite).filter(CitCita.estatus == "A").all()
-    # Contador
+    # Consultar las citas a eliminar (solo activas)
+    query_citas = CitCita.query.filter(CitCita.inicio < tiempo_limite, CitCita.estatus == "A")
+    total_citas = query_citas.count()
+
+    if total_citas == 0:
+        console.print(f"[green]No hay citas para eliminar con más de {horas} horas de antigüedad.[/green]")
+        return
+
     contador = 0
-    # Bucle entre las citas
-    for cita in citas:
-        cita.delete()
-        contador += 1
-    # Mensaje final
-    console.print(f"[green]Se han eliminado {contador} citas pasadas de más de {horas} horas[/green]")
+    commit_cada = 500
+
+    with Progress(console=console) as progress:
+        task = progress.add_task(f"Eliminando {total_citas} citas...", total=total_citas)
+
+        # Bucle entre las citas
+        for cita in query_citas.yield_per(commit_cada):
+            cita.estatus = "B"  # Soft delete
+            database.session.add(cita)
+            contador += 1
+            if contador % commit_cada == 0:
+                database.session.commit()
+            progress.update(task, advance=1)
+
+        database.session.commit()  # Commit final para los registros restantes
+
+    console.print(f"[green]Se han eliminado {contador} citas con más de {horas} horas de antigüedad.[/green]")
