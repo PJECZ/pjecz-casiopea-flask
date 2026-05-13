@@ -1,60 +1,102 @@
-# pjecz-casiopea-flask
+# 🏛️ [pjecz-casiopea-flask]
 
-Plataforma de administración del sistema de citas
+> Aplicación Web para la administración del sitio de Citas del PJECZ con cara al público.
+> Proyectos relaccionados:
+> - [pjecz-casiopea-api-oauth2](https://github.com/PJECZ/pjecz-casiopea-api-oauth2)
+> - [pjecz-casiopea-api-key](https://github.com/PJECZ/pjecz-casiopea-api-key)
+> - [pjecz-casiopea-reactjs](https://github.com/PJECZ/pjecz-casiopea-reactjs)
 
-## Variables de entorno
+---
 
-Crear un archivo `.env` en la raíz del proyecto con las siguientes variables de entorno:
+## 📋 Tabla de Contenidos
+- [Descripción General](#descripción-general)
+- [Tecnologías Utilizadas](#tecnologías-utilizadas)
+- [Requisitos Previos](#requisitos-previos)
+- [Instalación y Configuración](#instalación-y-configuración)
+- [Estructura de Ramas](#estructura-de-ramas)
+- [Despliegue](#despliegue)
+- [Contacto](#contacto)
 
-```env
-# Flask, para SECRET_KEY use openssl rand -hex 24
-FLASK_APP=pjecz_casiopea_flask.main
-FLASK_DEBUG=1
-SECRET_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+---
 
-# Base de datos
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_NAME=pjecz_casiopea
-DB_USER=adminpjeczcasiopea
-DB_PASS=XXXXXXXXXXXX
-SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://adminpjeczcasiopea:XXXXXXXXXXXX@127.0.0.1:5432/pjecz_casiopea"
+## 📖 Descripción General
+Es parte de un conjunto de proyecto para otorgar la administración web del sistema de Citas con cara al público. En este sistema podemos administrar las ubicaciones, oficinas, horarios y servicios que otorga el PJECZ en sus diferentes unidades. Además se administra el calendario oficial.
 
-# Cryptography
-FERNET_KEY=XXXXXXXXXXXX
-SALT=XXXXXXXXXXXX
+## 🛠️ Tecnologías Utilizadas
+* **Lenguaje:** Python 3.14
+* **Framework:** Flask
+* **Base de Datos:** PostgreSQL
+* **Servidor:** Nginx
+* **Otros:** Redis
 
-# Host
-HOST=http://127.0.0.1:5000
+## ⚙️ Requisitos Previos
+Lista de herramientas necesarias para correr el proyecto localmente:
+- Git
+- Python
+- uv - manejador de paquetes para Python
 
-# Redis
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
-TASK_QUEUE_NAME=pjecz_casiopea
+## 🚀 Instalación y Configuración
 
-# Huso Horario
-TZ=America/Mexico_City
+### 1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/PJECZ/pjecz-casiopea-flask.git
+   cd pjecz-casiopea-flask
+   ```
 
-# Sendgrid
-SENDGRID_API_KEY=
-SENDGRID_FROM_EMAIL=
-SENDGRID_TO_EMAIL=
-
-# URLs de confirmación y de recuperación de cuenta
-NEW_ACCOUNT_CONFIRM_URL=
-RECOVER_ACCOUNT_CONFIRM_URL=
-
-# Definir si es para desarrollo (development) o producción (production)
-ENVIRONMENT=development
-
-# Si es para producción, definir el prefijo de la aplicación comenzando con /
-PREFIX=
+### 2. Configurar variables de entorno:
+Copia el archivo de ejemplo y edita las credenciales necesarias (Base de datos, API Keys):
+```
+cp .env.example .env
 ```
 
-## Instalación
-
-Para desarrollo ejecute:
-
+### 3. Instalar dependencias:
 ```bash
 uv sync
 ```
+
+### 4. Iniciar el servidor de desarrollo:
+```bash
+uv run flask run --host=0.0.0.0 --port=5021
+```
+
+## 🌿 Estructura de Ramas
+
+Este proyecto sigue el flujo de trabajo institucional:
+- `main`: Rama de producción (Solo código estable).
+- `dev`: Rama de integración y pruebas (_Staging_).
+- `feature/*`: Ramas temporales para nuevas funcionalidades.
+
+Ver más sobre como contribuir: [CONTRIBUTING](CONTRIBUTING.md)
+
+## 🚢 Despliegue
+
+Ejecutar comando en servidor de producción después de haber integrado el PR en la rama `dev`:
+
+```bash
+actualizar-proyecto-casiopea
+```
+
+## 📥 Migración
+
+1. Extraer un respaldo de la base de datos del sistema anterior `pjecz_citas_v2`.
+2. Limpiar el sistema de desarrollo `cli db reiniciar`.
+3. Restaurar el respaldo del viejo sistema al sistema de desarrollo en una base de datos espejo y de respaldo llamada igual que la antigua: `pg_restore -d pjecz_citas_v2 --clean --if-exists -v pjecz_citas_v2.tar`
+4. Ejecutar el comando de migración `cli migrar copiar`
+5. Actualizar viejos registros que no utilizaban códigos QR, para que en lugar de ser `null` sean vacíos
+```sql
+UPDATE cit_citas SET codigo_acceso_url = '' WHERE codigo_acceso_url IS NULL;
+```
+6. Eliminar citas pasadas. Ejecutando el comando: `cli cit-citas eliminar`
+7. Restablecer un usuario para su acceso al sistema. Ejecute el comando `cli usuarios nueva-contrasena administrado@email.com`
+
+---
+
+## ✉️ Contacto
+
+- **Departamento:** Dirección de Informática - PJECZ
+- **Responsable:** Dir. Guillermo Valdés, Lucía Aranda y Ricardo Valdés
+- **Email:** [correo@pjecz.gob.mx]
+
+---
+
+© 2026 Poder Judicial del Estado de Coahuila de Zaragoza.
