@@ -7,6 +7,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Añadido
 
+- Mejora del archivo `README.md`, se incluyó instrucciones de migración.
 - Añadido archivo `CHANGELOG.md` para ver el historial de cambios.
 - Barra de progreso para el CLI de eliminar citas pasadas.
 - Dejando todo preparado para migración de historial de citas programas _legacy_.
