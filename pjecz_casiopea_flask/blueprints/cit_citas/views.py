@@ -10,13 +10,12 @@ from flask_login import current_user, login_required
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
 from ...lib.safe_string import safe_email, safe_message, safe_string, safe_uuid
 from ..bitacoras.models import Bitacora
-from ..cit_clientes.models import CitCliente
-from ..cit_servicios.models import CitServicio
 from ..modulos.models import Modulo
-from ..oficinas.models import Oficina
+from ..cit_clientes.models import CitCliente
 from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from .models import CitCita
+from .forms import CitaAsistenciaForm
 
 MODULO = "CIT CITAS"
 
@@ -161,3 +160,43 @@ def detail(cit_cita_id):
         abort(400)
     cit_cita = CitCita.query.get_or_404(cit_cita_id)
     return render_template("cit_citas/detail.jinja2", cit_cita=cit_cita)
+
+
+@cit_citas.route("/cit_citas/asistencia/<cit_cita_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def asistencia(cit_cita_id):
+    """Asistencia de una Cit Cita"""
+    cit_cita_id = safe_uuid(cit_cita_id)
+    if cit_cita_id == "":
+        abort(400)
+    cit_cita = CitCita.query.get_or_404(cit_cita_id)
+    form = CitaAsistenciaForm()
+    if form.validate_on_submit():
+        es_valido = True
+        # Validar código de asistencia
+        codigo_asistencia = safe_string(form.codigo_asistencia.data)
+        if codigo_asistencia == "":
+            es_valido = False
+            flash("El código de asistencia no es válido.", "warning")
+        codigo_asistencia_bd = CitCita.query.filter_by(id=cit_cita_id).first()
+        if codigo_asistencia != codigo_asistencia_bd.codigo_asistencia:
+            es_valido = False
+            flash("El código de asistencia no coincide con el esperado.", "warning")
+        # Ejecutar cambios en la cita si el código de asistencia es el correcto
+        if es_valido:
+            cit_cita.estado = "ASISTIO"
+            cit_cita.save()
+            bitacora = Bitacora(
+                    modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                    usuario=current_user,
+                    descripcion=safe_message(f"Asistencia añadida a la cita {cit_cita.id}"),
+                    url=url_for("cit_citas.detail", cit_cita_id=cit_cita.id),
+            )
+            bitacora.save()
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
+    # Carga de valores de campos
+    form.id.data = cit_cita.id
+    form.cliente_nombre.data = cit_cita.cit_cliente.nombre
+    # Entrega del template
+    return render_template("cit_citas/asistencia.jinja2", form=form, cit_cita=cit_cita)

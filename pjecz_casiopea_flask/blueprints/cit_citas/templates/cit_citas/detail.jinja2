@@ -8,6 +8,9 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Cita ' + cit_cita.id | string) %}
         {{ topbar.button_previous('Citas', url_for('cit_citas.list_active')) }}
+        {% if cit_cita.estado == "PENDIENTE" %}
+            {{ topbar.button_primary('Marcar Asistencia', url_for('cit_citas.asistencia', cit_cita_id=cit_cita.id), icon='mdi mdi-check-circle') }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -48,9 +51,9 @@
     </div>
     {% call detail.card(title='Detalles de esta cita', estatus=cit_cita.estatus) %}
         {{ detail.label_value_big('Notas', cit_cita.notas) }}
-        {{ detail.label_value('Agendada', moment(cit_cita.creado, local=True).format('llll')) }}
-        {{ detail.label_value('Inicia', moment(cit_cita.inicio, local=True).format('llll')) }}
-        {{ detail.label_value('Termina', moment(cit_cita.termino, local=True).format('llll')) }}
+        {{ detail.label_value('Agendada', cit_cita.creado.strftime('%a, %d de %b de %Y, %H:%M')) }}
+        {{ detail.label_value('Inicia', cit_cita.inicio.strftime('%a, %d de %b de %Y, %H:%M')) }}
+        {{ detail.label_value('Termina', cit_cita.termino.strftime('%a, %d de %b de %Y, %H:%M')) }}
         <div class="row">
             <div class="col-md-3 text-end">Estado</div>
             <div class="col-md-9">
@@ -66,7 +69,7 @@
                 <span class="badge rounded-pill bg-{{color}}">{{ cit_cita.estado }}</span>
             </div>
         </div>
-        {{ detail.label_value('Creado', moment(cit_cita.creado, local=False).format('DD MMM YYYY HH:mm')) }}
+        {{ detail.label_value('Creado', cit_cita.creado.strftime('%a, %d de %b de %Y, %H:%M')) }}
     {% endcall %}
     {% call detail.card(title='Código de asistencia', estatus=cit_cita.estatus) %}
         {{ detail.label_value('Código asistencia', cit_cita.codigo_asistencia) }}
