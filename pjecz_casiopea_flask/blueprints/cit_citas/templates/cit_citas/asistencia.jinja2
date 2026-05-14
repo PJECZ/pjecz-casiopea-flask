@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Asistencia a la Cita{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Asistencia a la Cita') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'cit_cita_id': cit_cita.id} %}
+        {% call f.form_tag('cit_citas.asistencia', fid='cit_cita_form', **form_kwargs) %}
+            {% call f.form_group(form.id, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.cliente_nombre, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.codigo_asistencia) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
