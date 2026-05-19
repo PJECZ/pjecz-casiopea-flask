@@ -40,6 +40,18 @@
         {% endif %}
         {{ detail.label_value('Días Hábiles', dias_habilitados ) }}
         {{ detail.label_value_boolean('Activo', cit_servicio.es_activo) }}
+        <div class="row">
+            <div class="col-md-3 text-end">
+                Instrucciones
+            </div>
+            <div class="col-md-9">
+                {% if cit_servicio.instrucciones %}
+                <textarea name="instrucciones" rows="5" cols="50" readonly>{{ cit_servicio.instrucciones }}</textarea>
+                {% else %}
+                -
+                {% endif %}
+            </div>
+        </div>
     {% endcall %}
     {% if current_user.can_view('CIT CITAS') %}
         {% call detail.card('Citas') %}
