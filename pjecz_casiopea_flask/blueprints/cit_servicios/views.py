@@ -200,6 +200,7 @@ def new():
                 hasta=hasta,
                 dias_habilitados=dias_habilitados,
                 es_activo=form.es_activo.data,
+                instrucciones=safe_message(form.instrucciones.data, max_len=1024, default_output_str=None)
             )
             cit_servicio.save()
             bitacora = Bitacora(
@@ -275,6 +276,7 @@ def edit(cit_servicio_id):
             cit_servicio.hasta = hasta
             cit_servicio.dias_habilitados = dias_habilitados
             cit_servicio.es_activo = form.es_activo.data
+            cit_servicio.instrucciones = safe_message(form.instrucciones.data, max_len=1024, default_output_str=None)
             cit_servicio.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -300,6 +302,7 @@ def edit(cit_servicio_id):
     form.hasta.data = cit_servicio.hasta
     form.dias_habilitados.data = dias_habilitados
     form.es_activo.data = cit_servicio.es_activo
+    form.instrucciones.data = cit_servicio.instrucciones if cit_servicio.instrucciones != None else ""
     # Entregar formulario
     return render_template("cit_servicios/edit.jinja2", form=form, cit_servicio=cit_servicio)
 

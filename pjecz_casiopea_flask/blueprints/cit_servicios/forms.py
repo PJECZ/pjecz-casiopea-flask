@@ -5,7 +5,7 @@ Cit Servicios, formularios
 from datetime import time
 
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, IntegerField, SelectField, StringField, SubmitField, TimeField
+from wtforms import BooleanField, IntegerField, SelectField, StringField, SubmitField, TimeField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
 
 from ...lib.safe_string import CLAVE_REGEXP
@@ -24,6 +24,7 @@ class CitServicioForm(FlaskForm):
     hasta = TimeField("Horario de término (horas:minutos)", validators=[Optional()])
     dias_habilitados = StringField("Días habilitados", validators=[Optional()])
     es_activo = BooleanField("Activo", validators=[Optional()], default=True)
+    instrucciones = TextAreaField("Instrucciones", validators=[Optional(), Length(max=1024)])
     guardar = SubmitField("Guardar")
 
     def __init__(self, *args, **kwargs):
