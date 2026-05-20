@@ -10,6 +10,21 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cit_citas.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cit_citas.list_active')) }}{% endif %}
         {% endif %}
+        {% if mostrar_btn_hoy %}
+            {{ topbar.button_primary('Hoy', url_for('cit_citas.list_dia_hoy'), 'mdi mdi-arrow-collapse-down') }}
+        {% else %}
+            <a class="btn btn-sm btn-outline-primary active" disabled><span class="mdi mdi-arrow-collapse-down"></span> Hoy</a>
+        {% endif %}
+        {% if mostrar_btn_manana %}
+            {{ topbar.button_primary('Mañana', url_for('cit_citas.list_dia_manana'), 'mdi mdi-skip-next') }}
+        {% else %}
+            <a class="btn btn-sm btn-outline-primary active" disabled><span class="mdi mdi-skip-next"></span> Mañana</a>
+        {% endif %}
+        {% if mostrar_btn_todas %}
+            {{ topbar.button('Todas', url_for('cit_citas.list_active'), 'mdi mdi-all-inclusive') }}
+        {% else %}
+            <a class="btn btn-sm btn-outline-secondary active" disabled><span class="mdi mdi-all-inclusive"></span> Todas</a>
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -92,7 +107,7 @@
                 targets: 0, // fecha
                 type: 'date',
                 render: function (data, type, row) {
-                    return '<a href="' + data.url + '">' + moment(data).format('YYYY-MM-DD, ddd') + '</a>';;
+                    return '<a href="' + data.url + '">' + data.fecha + '</a>';;
                 }
             },
             {

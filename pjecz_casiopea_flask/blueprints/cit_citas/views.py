@@ -3,6 +3,7 @@ Cit Citas, vistas
 """
 
 import json
+from datetime import date, timedelta
 
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -44,6 +45,10 @@ def datatable_json():
         consulta = consulta.filter(CitCita.estatus == "A")
     if "id" in request.form:
         consulta = consulta.filter(CitCita.id == request.form["id"])
+    if "fecha_dia" in request.form:
+        fecha_dia_ini = request.form["fecha_dia"] + " 00:00:00"
+        fecha_dia_fin = request.form["fecha_dia"] + " 23:59:59"
+        consulta = consulta.filter(CitCita.inicio >= fecha_dia_ini, CitCita.inicio <= fecha_dia_fin)
     if "cit_cliente_id" in request.form:
         consulta = consulta.filter(CitCita.cit_cliente_id == request.form["cit_cliente_id"])
     if "cit_servicio_id" in request.form:
@@ -91,7 +96,7 @@ def datatable_json():
         data.append(
             {
                 "fecha": {
-                    "creado": resultado.inicio.strftime("%Y-%m-%d %H:%M"),
+                    "fecha": resultado.inicio.strftime("%Y-%m-%d"),
                     "url": url_for("cit_citas.detail", cit_cita_id=resultado.id),
                 },
                 "cit_cliente": {
@@ -128,20 +133,22 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
-@cit_citas.route("/cit_citas")
+@cit_citas.route("/cit_citas/todas")
 def list_active():
     """Listado de Cit Citas activas"""
 
     filtro_oficina = {"estatus": "A"}
     if current_user.can_admin(MODULO) is False:
         usuario_oficina = UsuarioOficina.query.filter_by(usuario=current_user).first()
-        filtro_oficina = {"estatus": "A", "oficina_id": str(usuario_oficina.oficina_id)}
+        filtro_oficina["oficina_id"] = str(usuario_oficina.oficina_id)
 
     return render_template(
         "cit_citas/list.jinja2",
         filtros=json.dumps(filtro_oficina),
-        titulo="Citas",
+        titulo="Citas (Todas)",
         estatus="A",
+        mostrar_btn_hoy=True,
+        mostrar_btn_manana=True,
     )
 
 
@@ -154,6 +161,44 @@ def list_inactive():
         filtros=json.dumps({"estatus": "B"}),
         titulo="Citas inactivas",
         estatus="B",
+    )
+
+@cit_citas.route("/cit_citas")
+def list_dia_hoy():
+    """Listado de Cit Citas activas del día de hoy"""
+
+    fecha_hoy = date.today().strftime("%Y-%m-%d")
+    filtros = {"estatus": "A", "fecha_dia": fecha_hoy}
+    if current_user.can_admin(MODULO) is False:
+        usuario_oficina = UsuarioOficina.query.filter_by(usuario=current_user).first()
+        filtros["oficina_id"] = str(usuario_oficina.oficina_id)
+
+    return render_template(
+        "cit_citas/list.jinja2",
+        filtros=json.dumps(filtros),
+        titulo="Citas para Hoy",
+        estatus="A",
+        mostrar_btn_todas=True,
+        mostrar_btn_manana=True,
+    )
+
+@cit_citas.route("/cit_citas/manana")
+def list_dia_manana():
+    """Listado de Cit Citas activas del día de mañana"""
+
+    fecha_manana = (date.today() + timedelta(days=1)).strftime("%Y-%m-%d")
+    filtros = {"estatus": "A", "fecha_dia": fecha_manana}
+    if current_user.can_admin(MODULO) is False:
+        usuario_oficina = UsuarioOficina.query.filter_by(usuario=current_user).first()
+        filtros["oficina_id"] = str(usuario_oficina.oficina_id)
+
+    return render_template(
+        "cit_citas/list.jinja2",
+        filtros=json.dumps(filtros),
+        titulo="Citas para Mañana",
+        estatus="A",
+        mostrar_btn_todas=True,
+        mostrar_btn_hoy=True,
     )
 
 
