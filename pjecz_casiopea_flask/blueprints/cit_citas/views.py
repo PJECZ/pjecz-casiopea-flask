@@ -16,6 +16,7 @@ from ..permisos.models import Permiso
 from ..usuarios.decorators import permission_required
 from .models import CitCita
 from .forms import CitaAsistenciaForm
+from ..usuarios_oficinas.models import UsuarioOficina
 
 MODULO = "CIT CITAS"
 
@@ -89,8 +90,8 @@ def datatable_json():
     for resultado in registros:
         data.append(
             {
-                "detalle": {
-                    "creado": resultado.creado.strftime("%Y-%m-%d %H:%M"),
+                "fecha": {
+                    "creado": resultado.inicio.strftime("%Y-%m-%d %H:%M"),
                     "url": url_for("cit_citas.detail", cit_cita_id=resultado.id),
                 },
                 "cit_cliente": {
@@ -118,8 +119,6 @@ def datatable_json():
                         url_for("oficinas.detail", oficina_id=resultado.oficina.id) if current_user.can_view("OFICINAS") else ""
                     ),
                 },
-                "creado": resultado.creado.strftime("%Y-%m-%dT%H:%M:%S"),
-                "fecha": resultado.inicio.strftime("%Y-%m-%d 00:00:00"),
                 "inicio": resultado.inicio.strftime("%H:%M"),
                 "termino": resultado.termino.strftime("%H:%M"),
                 "estado": resultado.estado,
@@ -132,9 +131,15 @@ def datatable_json():
 @cit_citas.route("/cit_citas")
 def list_active():
     """Listado de Cit Citas activas"""
+
+    filtro_oficina = {"estatus": "A"}
+    if current_user.can_admin(MODULO) is False:
+        usuario_oficina = UsuarioOficina.query.filter_by(usuario=current_user).first()
+        filtro_oficina = {"estatus": "A", "oficina_id": str(usuario_oficina.oficina_id)}
+
     return render_template(
         "cit_citas/list.jinja2",
-        filtros=json.dumps({"estatus": "A"}),
+        filtros=json.dumps(filtro_oficina),
         titulo="Citas",
         estatus="A",
     )

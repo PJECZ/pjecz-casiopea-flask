@@ -3,16 +3,26 @@
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
-## [1.1.4] - 2026-05-15
+## [1.2.0] - 2026-05-20
 
 ### ✨ Mejoras
 
+- Vista de "citas_del_dia". Solo se muestran las citas del día de hoy y que estén en estado pendiente. Para que sea más fácil localizar la cita que llega y anotar su "código de asistencia".
 - Añadida la columna `instrucciones` a la tabla de `cit_servicios`. Para incluir instrucciones de cómo llenar el campo de `notas` cuando se crea una cita nueva.
 - Añadido formulario de "Asistencia" en módulo de citas. Para validar la asistencia de un cliente a su cita.
 - Mejora del archivo `README.md`, se incluyó instrucciones de migración.
 - Añadido archivo `CHANGELOG.md` para ver el historial de cambios. Es este archivo.
 - Barra de progreso para el CLI de eliminar citas pasadas. Para no esperar sin ver cambios en la consola cuando se ejecuta el comando.
 - Dejando todo preparado para migración de historial de citas programas _legacy_.
+
+### 🛠️ Cambios
+
+- Quitar columna de Creado en el listado de citas. Confunde saber cuando fue creada de la fecha en que se agendó la cita.
+- Código de acceso en detalle solo visible para Administradores.
+
+### 🐞 Arreglado
+
+- Listado de citas por Autoridad. Filtrando solo las citas pertenecientes a dicha oficina.
 
 ## [1.1.3] - 2026-05-07
 
