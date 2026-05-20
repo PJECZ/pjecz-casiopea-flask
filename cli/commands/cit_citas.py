@@ -2,20 +2,28 @@
 CLI Commands Cit Citas
 """
 
+import os
 import random
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
+from pathlib import Path
 
+import sendgrid
+import typer
+from dotenv import load_dotenv
 from faker import Faker
 from rich.console import Console
 from rich.progress import Progress
+from sendgrid.helpers.mail import Content, Email, Mail
 from sqlalchemy.sql import func
 from typer import Typer
 
 from pjecz_casiopea_flask.blueprints.cit_citas.models import CitCita, database
 from pjecz_casiopea_flask.blueprints.cit_clientes.models import CitCliente
+from pjecz_casiopea_flask.blueprints.cit_dias_inhabiles.models import CitDiaInhabil
 from pjecz_casiopea_flask.blueprints.cit_oficinas_servicios.models import CitOficinaServicio
 from pjecz_casiopea_flask.blueprints.cit_servicios.models import CitServicio
 from pjecz_casiopea_flask.blueprints.oficinas.models import Oficina
+from pjecz_casiopea_flask.blueprints.usuarios_oficinas.models import UsuarioOficina
 from pjecz_casiopea_flask.main import app
 
 app.app_context().push()
@@ -145,3 +153,144 @@ def eliminar(horas: int = 24):
             progress.update(task, advance=len(lote_ids))
 
     console.print(f"[green]Se han eliminado {total_citas} citas con más de {horas} horas de antigüedad.[/green]")
+
+
+def _get_proximo_dia_habil() -> date:
+    """Obtener el próximo día hábil, saltando fines de semana y días inhábiles"""
+    dias_inhabiles = {
+        d.fecha
+        for d in CitDiaInhabil.query.filter(
+            CitDiaInhabil.estatus == "A",
+            CitDiaInhabil.fecha >= date.today(),
+        ).all()
+    }
+    candidate = date.today() + timedelta(days=1)
+    while True:
+        if candidate.weekday() in (5, 6) or candidate in dias_inhabiles:
+            candidate += timedelta(days=1)
+            continue
+        return candidate
+
+
+@cit_citas.command()
+def enviar_agenda(test: bool = typer.Option(True, "--test/--no-test", help="Prueba: guarda en HTML pero no envía por correo")):
+    """Enviar la agenda del próximo día hábil a los usuarios de cada oficina por SendGrid"""
+    console = Console()
+
+    # Cargar variables de entorno
+    load_dotenv()
+    sendgrid_api_key = os.getenv("SENDGRID_API_KEY", "")
+    sendgrid_from_email = os.getenv("SENDGRID_FROM_EMAIL", "")
+
+    # Validar variables de entorno de SendGrid
+    if not test and not sendgrid_api_key:
+        console.print("[red]Falta SENDGRID_API_KEY[/red]")
+        raise typer.Exit(1)
+    if not test and not sendgrid_from_email:
+        console.print("[red]Falta SENDGRID_FROM_EMAIL[/red]")
+        raise typer.Exit(1)
+
+    # Obtener el próximo día hábil
+    proximo_dia_habil = _get_proximo_dia_habil()
+    console.print(f"Próximo día hábil: [cyan]{proximo_dia_habil}[/cyan]")
+
+    # Límites del día para el filtro de citas
+    inicio_dia = datetime.combine(proximo_dia_habil, time.min)
+    fin_dia = inicio_dia + timedelta(days=1)
+
+    # Consultar las oficinas activas que pueden agendar citas
+    oficinas = Oficina.query.filter(
+        Oficina.estatus == "A",
+        Oficina.puede_agendar_citas,
+    ).all()
+
+    mensajes_finales = []
+
+    for oficina in oficinas:
+        # Consultar las citas de la oficina para el próximo día hábil
+        citas = (
+            CitCita.query.filter(
+                CitCita.estatus == "A",
+                CitCita.oficina_id == oficina.id,
+                CitCita.inicio >= inicio_dia,
+                CitCita.inicio < fin_dia,
+            )
+            .order_by(CitCita.inicio)
+            .all()
+        )
+
+        if not citas:
+            continue
+
+        # Consultar los usuarios activos asignados a la oficina
+        usuarios_oficinas = UsuarioOficina.query.filter(
+            UsuarioOficina.estatus == "A",
+            UsuarioOficina.oficina_id == oficina.id,
+        ).all()
+        usuarios = [uo.usuario for uo in usuarios_oficinas if uo.usuario.estatus == "A"]
+
+        if not usuarios:
+            continue
+
+        usuarios_emails_str = ", ".join(u.email for u in usuarios)
+
+        # Elaborar asunto y encabezado
+        subject = f"Citas de la oficina {oficina.descripcion_corta} para {proximo_dia_habil}"
+        elaboracion_fecha_hora_str = datetime.now().strftime("%d/%B/%Y %I:%M%p")
+
+        # Construir tabla HTML
+        table_html = '<table border="1" style="width:100%; border: 1px solid black; border-collapse: collapse;">'
+        table_html += "<thead><tr>"
+        for col in ["Hora", "Nombre", "Servicio", "Notas"]:
+            table_html += f'<th style="padding: 4px;">{col}</th>'
+        table_html += "</tr></thead><tbody>"
+        for cita in citas:
+            nombre = (
+                f"{cita.cit_cliente.nombres} {cita.cit_cliente.apellido_primero} {cita.cit_cliente.apellido_segundo}".strip()
+            )
+            table_html += "<tr>"
+            table_html += f'<td style="padding: 4px;">{cita.inicio.strftime("%H:%M")}</td>'
+            table_html += f'<td style="padding: 4px;">{nombre}</td>'
+            table_html += f'<td style="padding: 4px;">{cita.cit_servicio.clave}</td>'
+            table_html += f'<td style="padding: 4px;">{cita.notas or ""}</td>'
+            table_html += "</tr>"
+        table_html += "</tbody></table>"
+
+        # Armar contenidos del mensaje
+        contenidos = [
+            "<style> td {border:2px black solid !important} </style>",
+            "<h1>PJECZ Citas V2</h1>",
+            f"<h2>{subject}</h2>",
+            table_html,
+            f"<p>Fecha de elaboración: <b>{elaboracion_fecha_hora_str}.</b></p>",
+            "<p>ESTE MENSAJE ES ELABORADO POR UN PROGRAMA. FAVOR DE NO RESPONDER.</p>",
+        ]
+
+        # Enviar por SendGrid cuando no es prueba
+        if not test:
+            send_grid = sendgrid.SendGridAPIClient(api_key=sendgrid_api_key)
+            mail = Mail(
+                from_email=Email(sendgrid_from_email),
+                to_emails=[u.email for u in usuarios],
+                subject=subject,
+                html_content=Content("text/html", "<br>".join(contenidos)),
+            )
+            send_grid.send(mail)
+            mensajes_finales.append(f"Mensaje enviado a [blue]{usuarios_emails_str}[/blue] con [green]{subject}[/green]")
+
+        # Guardar siempre en archivo HTML (útil para revisión)
+        archivo = f"agenda_a_usuarios-{oficina.clave}.html"
+        ruta = Path(archivo)
+        html_doc = f"<!DOCTYPE html><html><head><title>{subject}</title></head><body>"
+        html_doc += "".join(f"<div>{c}</div>" for c in contenidos)
+        html_doc += "</body></html>"
+        with open(ruta, "w", encoding="utf-8") as puntero:
+            puntero.write(html_doc)
+
+        if test:
+            mensajes_finales.append(
+                f"Se guardó el mensaje en [blue]{archivo}[/blue] con [green]{subject}[/green] porque es una prueba"
+            )
+
+    for mensaje in mensajes_finales:
+        console.print(mensaje)
