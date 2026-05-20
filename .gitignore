@@ -8,13 +8,13 @@
 *.sqlite3
 *.sqlite3-journal
 *.session.sql
-*.sql
 *.xls
 *.xlsx
 *.XLS
 *.XLSX
 
 .bashrc
+.zshrc
 .env
 poetry.lock
 uv.lock
