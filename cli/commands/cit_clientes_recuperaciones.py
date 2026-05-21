@@ -29,8 +29,8 @@ def eliminar():
     bitacora.info("Inicia la tarea para eliminar recuperaciones de contraseña no completadas.")
     console.print("Eliminando recuperaciones de contraseña que NO fueron completadas...")
 
-    # Consultar recuperaciones con estatus 'A' y que no se hayan completado
-    query = CitClienteRecuperacion.query.filter_by(estatus="A", ya_recuperado=False)
+    # Consultar recuperaciones con estatus 'A'
+    query = CitClienteRecuperacion.query.filter_by(estatus="A")
     total_recuperaciones = query.count()
 
     # Si no hay recuperaciones que eliminar, mostrar mensaje y salir
