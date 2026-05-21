@@ -115,7 +115,7 @@ class Email():
     plantilla: PlantillaEmailBase
     to_email: To
 
-    def __init__(self, to_email: str, plantilla: PlantillaEmailBase = None):
+    def __init__(self, to_email: str | list, plantilla: PlantillaEmailBase = None):
         """Inicializa el servicio de email, especifica el destinatario y si quieres una plantilla"""
 
         self._settings = get_settings()

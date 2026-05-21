@@ -148,7 +148,7 @@ def enviar_agenda():
         )
 
         # Envío de email
-        send_email = Email(usuarios_emails_str, plantilla_reporte_citas_proximas)
+        send_email = Email([u.email for u in usuarios], plantilla_reporte_citas_proximas)
         try:
             send_email.enviar_email()
             bitacora.info(f"Correo para la oficina '{oficina.clave}' enviado correctamente a {usuarios_emails_str}.")
