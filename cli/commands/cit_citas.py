@@ -113,6 +113,7 @@ def enviar_agenda():
         citas = (
             CitCita.query.filter(
                 CitCita.estatus == "A",
+                CitCita.estado == "PENDIENTE",
                 CitCita.oficina_id == oficina.id,
                 CitCita.inicio >= inicio_dia,
                 CitCita.inicio < fin_dia,
