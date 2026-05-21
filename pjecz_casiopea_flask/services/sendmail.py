@@ -98,9 +98,10 @@ class PlantillaReporteCitasProximas(PlantillaEmailBase):
         'citas': [],
     }
 
-    def __init__(self, usuario_nombre: str, oficina: str, citas: list):
+    def __init__(self, fecha_reporte: str, usuario_nombre: str, oficina: str, citas: list):
         super().__init__()
 
+        self._variables_contenido['fecha_reporte'] = fecha_reporte
         self._variables_contenido['usuario_nombre'] = usuario_nombre
         self._variables_contenido['oficina'] = oficina
         self._variables_contenido['citas'] = citas
