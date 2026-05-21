@@ -7,7 +7,9 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
-- Envío de reporte de citas programadas para mañana a cada usuario de cada autoridad.
+- Envío de reporte de citas programadas para el siguiente día hábil a cada usuario de cada oficina.
+- Creación de plantilla de reporte para próximas citas agendadas.
+- Integración del servicio de envío de email.
 - Añadido número de versión y fecha de deploy en el menú izquierdo. Para saber exactamente que versión está desplegada.
 
 ### 🐞 Arreglado
