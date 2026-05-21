@@ -3,7 +3,6 @@ Servicio para enviar correos electrónicos
 """
 import os
 from abc import ABC, abstractmethod
-from typing import Any
 from datetime import datetime
 import locale
 import pytz
@@ -113,16 +112,16 @@ class Email():
     _settings: Settings
     _remitente_email: EmailSendGrid
     plantilla: PlantillaEmailBase
-    to_email: To
+    to_email: str | list
 
     def __init__(self, to_email: str | list, plantilla: PlantillaEmailBase = None):
         """Inicializa el servicio de email, especifica el destinatario y si quieres una plantilla"""
 
         self._settings = get_settings()
         self._remitente_email = EmailSendGrid(self._settings.SENDGRID_FROM_EMAIL)
-
+        
         self.plantilla = plantilla
-        self.to_email = To(to_email)
+        self.to_email = To(to_email)    # Puede ser un string o una lista de strings
 
         # Configurar el locale a español
         try:
