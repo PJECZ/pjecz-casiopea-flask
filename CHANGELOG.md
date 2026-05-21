@@ -7,6 +7,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Añadido archivo CLI `cit-clientes-recuperaciones` con el comando `eliminar` para que se ejecute todos los días y limpie las recuperaciones hechas por los clientes de su contraseña y permita hacer otra.
 - Envío de reporte de citas programadas para el siguiente día hábil a cada usuario de cada oficina.
 - Creación de plantilla de reporte para próximas citas agendadas.
 - Integración del servicio de envío de email.
