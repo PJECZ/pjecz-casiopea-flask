@@ -3,6 +3,19 @@
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.3.0] - 2026-05-22
+
+### ✨ Mejoras
+
+- Envío de reporte de citas programadas para mañana a cada usuario de cada autoridad.
+- Añadido número de versión y fecha de deploy en el menú izquierdo. Para saber exactamente que versión está desplegada.
+
+### 🐞 Arreglado
+
+- Botones en listado de citas, para las diferentes vistas del día, se quedaban activados al seleccionar el botón "inactivos".
+
+***
+
 ## [1.2.0] - 2026-05-20
 
 ### ✨ Mejoras
