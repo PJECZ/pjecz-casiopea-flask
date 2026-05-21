@@ -10,7 +10,7 @@ import pytz
 from jinja2 import Environment, FileSystemLoader
 
 import sendgrid
-from sendgrid.helpers.mail import Content, Email as EmailSendGrid, Mail, To
+from sendgrid.helpers.mail import Content, Email as EmailSendGrid, Mail
 from pjecz_casiopea_flask.config.settings import Settings, get_settings
 
 
@@ -121,7 +121,7 @@ class Email():
         self._remitente_email = EmailSendGrid(self._settings.SENDGRID_FROM_EMAIL)
         
         self.plantilla = plantilla
-        self.to_email = To(to_email)    # Puede ser un string o una lista de strings
+        self.to_email = to_email    # Puede ser un string o una lista de strings
 
         # Configurar el locale a español
         try:
