@@ -1,0 +1,119 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_admin('AUT VERIFICACIONES USUARIOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('aut_verificaciones_usuarios.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('aut_verificaciones_usuarios.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <!-- Filtros Aut Verificaciones Usuarios -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosAutVerificacionesUsuarios.buscar(); return false;">
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroNombreCompleto" type="text" class="form-control" aria-label="Nombre completo" style="text-transform: uppercase;">
+                            <label for="filtroNombreCompleto">Nombre completo</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroEmail" type="text" class="form-control" aria-label="Email">
+                            <label for="filtroEmail">Email</label>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosAutVerificacionesUsuarios.buscar(); return false;" id="button-buscar"><span class="mdi mdi-magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosAutVerificacionesUsuarios.limpiar();" id="button-limpiar"><span class="mdi mdi-broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- DataTable Aut Verificaciones Usuarios -->
+        <table id="aut_verificaciones_usuarios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Creado</th>
+                    <th>Usuario</th>
+                    <th>Código</th>
+                    <th>Estatus</th>
+                    <th>Dirección IP / Dispositivo</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script src="{{ url_for('static', filename='js/datatables-constructor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datatables-filtros.js') }}"></script>
+    <script>
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDTAutVerificacionesUsuarios = constructorDataTable.config();
+        configDTAutVerificacionesUsuarios['ajax']['url'] = '{{ url_for("aut_verificaciones_usuarios.datatable_json") }}';
+        configDTAutVerificacionesUsuarios['ajax']['data'] = {{ filtros }};
+        configDTAutVerificacionesUsuarios['columns'] = [
+            { data: 'detalle' },
+            { data: 'usuario' },
+            { data: 'codigo_verificacion' },
+            { data: 'estatus_verificacion' },
+            { data: 'conexion' }
+        ];
+        configDTAutVerificacionesUsuarios['columnDefs'] = [
+            {
+                targets: 0, // creado
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.creado + '</a>';
+                }
+            },
+            {
+                targets: 1, // usuario: nombre y debajo el email
+                data: null,
+                render: function(data, type, row, meta) {
+                    let nombre = $('<div>').text(data.nombre).html();
+                    let email = $('<div>').text(data.email).html();
+                    if (data.url !== '') {
+                        nombre = '<a href="' + data.url + '">' + nombre + '</a>';
+                    }
+                    return nombre + '<br><small class="text-muted">' + email + '</small>';
+                }
+            },
+            {
+                targets: 3, // estatus_verificacion
+                render: function(data, type, row, meta) {
+                    if (data === 'UTILIZADO') {
+                        return '<span class="badge rounded-pill bg-success">Utilizado</span>';
+                    } else if (data === 'MAX_INTENTOS') {
+                        return '<span class="badge rounded-pill bg-danger">Máx Intentos</span>';
+                    } else if (data === 'EN_ESPERA') {
+                        return '<span class="badge rounded-pill bg-primary">En espera</span>';
+                    }
+                    return '<span class="badge rounded-pill bg-secondary">No utilizado</span>';
+                }
+            },
+            {
+                targets: 4, // conexion: dirección IP y debajo el dispositivo
+                data: null,
+                render: function(data, type, row, meta) {
+                    let ip = $('<div>').text(data.direccion_ip).html();
+                    let dispositivo = $('<div>').text(data.dispositivo).html();
+                    return ip + '<br><small class="text-muted">' + dispositivo + '</small>';
+                }
+            }
+        ];
+        const filtrosAutVerificacionesUsuarios = new FiltrosDataTable('#aut_verificaciones_usuarios_datatable', configDTAutVerificacionesUsuarios);
+        filtrosAutVerificacionesUsuarios.agregarInput('filtroNombreCompleto', 'nombre_completo');
+        filtrosAutVerificacionesUsuarios.agregarInput('filtroEmail', 'email');
+        filtrosAutVerificacionesUsuarios.precargar();
+    </script>
+{% endblock %}
