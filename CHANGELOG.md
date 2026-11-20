@@ -3,6 +3,26 @@
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+### [1.10.0] - Sin publicar
+
+### ✨ Mejoras
+
+- Añadir campo `telefono` a la tabla de `usuario`.
+- Declaración de variable de entorno para activar la autentificación de dos pasos.
+
+### ⚙️ Requerimientos
+
+- Actualización de BD, ejecutar _scripts_ con `psql -f [nombre_archivo.sql]`:
+    - `v1.10.0-01-add_tel-a-usuarios.sql` : 
+
+- Nueva variable de entorno:
+    - `TWO_FACTOR_AUTHENTICATION_ENABLED=True` : Activa el modo de autentificación de dos factores al _login_ del sistema.
+
+### ❌ Eliminado
+
+- _Script_ SQL de migración: `v1.8.0-01-anadir-modulo-agendas.sql`.
+
+
 ### [1.9.0] - 2026-10-27
 
 ### ✨ Mejoras
