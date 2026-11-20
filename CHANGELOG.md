@@ -3,11 +3,13 @@
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
-### [1.10.0] - Sin publicar
+>[!info] Basado en plantilla v1.1.0 (2026-10-28)
+
+### [1.10.0] Sin publicar
 
 ### ✨ Mejoras
 
-- Se creo un nuevo _blueprint_ igual al de `aut_verificaciones_usuarios` pero ahora para clientes, llamado: `aut_verificaciones_clientes`.
+- Se creó un nuevo _blueprint_ igual al de `aut_verificaciones_usuarios` pero ahora para clientes, llamado: `aut_verificaciones_clientes`.
 - Añadimos los campos `telefono` y `email` a las tablas de `aut_verificaciones_*` para guardar un histórico de que número de teléfono o dirección de email se uso en ese momento de autentificación y no perderlo por una actualización de datos del propio usuario hacía sus datos personales.
 - Nuevo _blueprint_ `aut_verificaciones_usuarios` para consultar los intentos de autentificación de dos pasos de los usuarios que acceden al área de administración del sistema.
 - Nuevo _blueprint_ `aut_tipos_envios` para administrar los tipos de envíos de la autentificación de dos pasos.
@@ -33,7 +35,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 - _Script_ SQL de migración: `v1.8.0-01-anadir-modulo-agendas.sql`.
 
 
-### [1.9.0] - 2026-10-27
+### [1.9.0] 2026-10-27
 
 ### ✨ Mejoras
 
@@ -42,14 +44,14 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 - Añadido campo de `limite_personas` en la tabla `cit_oficinas_servicios`.
 
 
-### [1.8.0] - 2026-06-17
+### [1.8.0] 2026-06-17
 
 ### ✨ Mejoras
 
 - Nuevo módulo llamado `agenda`. El cual va a mostrar en forma de tabla todas las citas del día, tanto las agendadas como los espacios sin reserva.
 
 
-### [1.7.3] - 2026-06-10
+### [1.7.3] 2026-06-10
 
 ### ✨ Mejoras
 
@@ -57,14 +59,14 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 - Habilitado botón para eliminar y recuperar una cita. `cit_citas`.
 
 
-### [1.7.2] - 2026-06-09
+### [1.7.2] 2026-06-09
 
 ### ✨ Mejoras
 
 - Habilitado botón para recuperar un cliente que no término su registro correctamente. `cit_clientes_registros`.
 
 
-### [1.7.1] - 2026-06-08
+### [1.7.1] 2026-06-08
 
 ### ❌ Eliminado
 
@@ -75,7 +77,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 - CLI de envío de agenda de citas. Programa que envía el reporte de citas para el siguiente día hábil a cada oficina.
 
 
-### [1.7.0] - 2026-06-04
+### [1.7.0] 2026-06-04
 
 ### ✨ Mejoras
 
@@ -94,7 +96,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
   - `v1.5.0-02-add_column_turno-cit_citas.sql`
 
 
-### [1.6.0] - 2026-06-03
+### [1.6.0] 2026-06-03
 
 ### ✨ Mejoras
 
@@ -109,14 +111,14 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
     - `RECOVER_ACCOUNT_CONFIRM_URL`: URL utilizada por la API-OAuth2 para confirmar la recuperación de una contraseña de un cliente.
 
 
-## [1.5.1] - 2026-06-02
+## [1.5.1] 2026-06-02
 
 ### 🐞 Arreglado
 
 - En el detalle de una `categorías` no se mostraba bien su listado de servicios.
 
 
-## [1.5.0] - 2026-05-29
+## [1.5.0] 2026-05-29
 
 ### ✨ Mejoras
 
@@ -150,7 +152,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
     - `test_crear_turno.json`
 
 
-## [1.4.0] - 2026-05-22
+## [1.4.0] 2026-05-22
 
 ### ✨ Mejoras
 
@@ -161,7 +163,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 - En el detalle de `categorías` no se mostraba el detalle en sí de la categoría.
 
 
-## [1.3.0] - 2026-05-21
+## [1.3.0] 2026-05-21
 
 ### ✨ Mejoras
 
@@ -177,7 +179,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 - Botones en listado de citas, para las diferentes vistas del día, se quedaban activados al seleccionar el botón "inactivos".
 
 
-## [1.2.0] - 2026-05-20
+## [1.2.0] 2026-05-20
 
 ### ✨ Mejoras
 
@@ -202,7 +204,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 - Listado de citas por 'Autoridad'. Filtrando solo las citas pertenecientes a dicha oficina.
 
 
-## [1.1.3] - 2026-05-07
+## [1.1.3] 2026-05-07
 
 ### ✨ Mejoras
 
