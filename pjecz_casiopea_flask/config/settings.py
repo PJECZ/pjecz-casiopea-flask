@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     TURNOS_API_KEY_URL: str = os.getenv("TURNOS_API_KEY_URL", "")
     TURNOS_USUARIO_ID: int = os.getenv("TURNOS_USUARIO_ID", 0)
     TURNOS_TIPO_ID: int = os.getenv("TURNOS_TIPO_ID", 0)
+    TWO_FACTOR_AUTHENTICATION_ENABLED: bool = os.getenv("TWO_FACTOR_AUTHENTICATION_ENABLED", "False").lower() in ("true", "1", "t")
 
     # Incrementar el tamaño de lo que se sube en los formularios
     MAX_CONTENT_LENGTH: int | None = None
