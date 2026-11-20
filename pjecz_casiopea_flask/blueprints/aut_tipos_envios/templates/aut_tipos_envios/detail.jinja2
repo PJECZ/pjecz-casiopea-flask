@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipo de Envío {{ aut_tipo_envio.descripcion }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Tipo de Envío ' + aut_tipo_envio.descripcion) %}
+        {{ topbar.button_previous('Tipos de Envíos', url_for('aut_tipos_envios.list_active')) }}
+        {% if current_user.can_edit('AUT TIPOS ENVIOS') %}
+            {{ topbar.button_edit('Editar', url_for('aut_tipos_envios.edit', aut_tipo_envio_id=aut_tipo_envio.id)) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=aut_tipo_envio.estatus) %}
+        {{ detail.label_value_big('Descripción', aut_tipo_envio.descripcion) }}
+        {{ detail.label_value_boolean('Activo', aut_tipo_envio.activo) }}
+    {% endcall %}
+{% endblock %}

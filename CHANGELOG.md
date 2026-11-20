@@ -7,6 +7,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Nuevo _blueprint_ `aut_tipos_envios` para administrar los tipos de envíos de la autentificación de dos pasos.
 - Crear tabla tipo transaccional llamada `aut_verificaciones_usuarios` y `aut_verificaciones_clientes` para el código de verificación utilizado en la autentificación de dos pasos.
 - Crear tabla tipo catálogo llamada `aut_tipos_envios` y poblarla con tres valores.
 - Añadir campo `telefono` a la tabla de `usuarios`.
@@ -18,6 +19,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
     - `v1.10.0-01-add_tel-a-usuarios.sql` : Añade el campo `telefono` a la tabla `usuarios`
     - `v1.10.0-02-create-aut_tipos_envios.sql` : Crea una nueva tabla `aut_tipos_envios` para los tipos de envío del código utilizado en la autentificación de dos pasos.
     - `v1.10.0-03-create-aut_verificaciones.sql` : Crea nuevas tablas para el código de verificación utilizado en la autentificación de dos pasos.
+    - `v1.10.0-4-insert-modulos-aut.sql` : Añade los módulos a la BD y asigna los permisos para que los admins puedan acceder a ellos y modificarlos.
 
 - Nueva variable de entorno:
     - `TWO_FACTOR_AUTHENTICATION_ENABLED=True` : Activa el modo de autentificación de dos factores al _login_ del sistema.
