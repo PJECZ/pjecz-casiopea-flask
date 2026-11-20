@@ -3,7 +3,8 @@ Aut Verificaciones Usuarios, vistas
 """
 
 import json
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -27,14 +28,14 @@ aut_verificaciones_usuarios = Blueprint("aut_verificaciones_usuarios", __name__,
 
 
 def estatus_verificacion(verificacion):
-    """Entrega el estado de una verificación: UTILIZADO, MAX_INTENTOS, EN_ESPERA o NO_UTILIZADO"""
+    """Entrega el estado de una verificación: UTILIZADO, MAX_INTENTOS, EN_ESPERA o CADUCADO"""
     if verificacion.utilizado:
         return "UTILIZADO"
     if verificacion.intentos > MAXIMO_INTENTOS:
         return "MAX_INTENTOS"
     if verificacion.tiempo_caducidad >= datetime.now():
         return "EN_ESPERA"
-    return "NO_UTILIZADO"
+    return "CADUCADO"
 
 
 @aut_verificaciones_usuarios.before_request
@@ -56,6 +57,38 @@ def datatable_json():
         consulta = consulta.filter(AutVerificacionUsuario.estatus == request.form["estatus"])
     else:
         consulta = consulta.filter(AutVerificacionUsuario.estatus == "A")
+    if "fecha_inicio" in request.form:
+        try:
+            fecha_inicio = datetime.strptime(request.form["fecha_inicio"], "%Y-%m-%d")
+            consulta = consulta.filter(AutVerificacionUsuario.creado >= fecha_inicio)
+        except ValueError:
+            pass
+    if "fecha_termino" in request.form:
+        try:
+            fecha_termino = datetime.strptime(request.form["fecha_termino"], "%Y-%m-%d") + timedelta(days=1)
+            consulta = consulta.filter(AutVerificacionUsuario.creado < fecha_termino)
+        except ValueError:
+            pass
+    if "direccion_ip" in request.form:
+        direccion_ip = re.sub(r"[^0-9a-fA-F.:]", "", request.form["direccion_ip"])[:45].lower()
+        if direccion_ip != "":
+            consulta = consulta.filter(AutVerificacionUsuario.direccion_ip.contains(direccion_ip))
+    if "estado" in request.form:
+        ahora = datetime.now()
+        estado = request.form["estado"]
+        if estado == "UTILIZADO":
+            consulta = consulta.filter(AutVerificacionUsuario.utilizado.is_(True))
+        elif estado == "MAX_INTENTOS":
+            consulta = consulta.filter(AutVerificacionUsuario.utilizado.is_(False))
+            consulta = consulta.filter(AutVerificacionUsuario.intentos > MAXIMO_INTENTOS)
+        elif estado == "EN_ESPERA":
+            consulta = consulta.filter(AutVerificacionUsuario.utilizado.is_(False))
+            consulta = consulta.filter(AutVerificacionUsuario.intentos <= MAXIMO_INTENTOS)
+            consulta = consulta.filter(AutVerificacionUsuario.tiempo_caducidad >= ahora)
+        elif estado == "CADUCADO":
+            consulta = consulta.filter(AutVerificacionUsuario.utilizado.is_(False))
+            consulta = consulta.filter(AutVerificacionUsuario.intentos <= MAXIMO_INTENTOS)
+            consulta = consulta.filter(AutVerificacionUsuario.tiempo_caducidad < ahora)
     # Luego filtrar por columnas de otras tablas
     if "email" in request.form:
         email = safe_email(request.form["email"], search_fragment=True)
@@ -83,7 +116,8 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "creado": resultado.creado.strftime("%Y-%m-%d %H:%M"),
+                    "fecha": resultado.creado.strftime("%Y-%m-%d"),
+                    "hora": resultado.creado.strftime("%I:%M:%S ") + ("AM" if resultado.creado.hour < 12 else "PM"),
                     "url": url_for("aut_verificaciones_usuarios.detail", aut_verificacion_usuario_id=resultado.id),
                 },
                 "usuario": {
