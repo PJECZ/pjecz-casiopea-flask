@@ -5,7 +5,14 @@
 {% block title %}{{ titulo }}{% endblock %}
 
 {% block topbar_actions %}
-    {{ topbar.page(titulo) }}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('AUT VERIFICACIONES USUARIOS') %}
+            {{ topbar.button('Verificaciones de Usuarios', url_for('aut_verificaciones_usuarios.list_active'), 'mdi mdi-shield-key') }}
+        {% endif %}
+        {% if current_user.can_view('AUT VERIFICACIONES CLIENTES') %}
+            {{ topbar.button('Verificaciones de Clientes', url_for('aut_verificaciones_clientes.list_active'), 'mdi mdi-shield-account') }}
+        {% endif %}
+    {% endcall %}
 {% endblock %}
 
 {% block content %}

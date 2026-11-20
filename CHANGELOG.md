@@ -7,6 +7,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Se creo un nuevo _blueprint_ igual al de `aut_verificaciones_usuarios` pero ahora para clientes, llamado: `aut_verificaciones_clientes`.
 - Añadimos los campos `telefono` y `email` a las tablas de `aut_verificaciones_*` para guardar un histórico de que número de teléfono o dirección de email se uso en ese momento de autentificación y no perderlo por una actualización de datos del propio usuario hacía sus datos personales.
 - Nuevo _blueprint_ `aut_verificaciones_usuarios` para consultar los intentos de autentificación de dos pasos de los usuarios que acceden al área de administración del sistema.
 - Nuevo _blueprint_ `aut_tipos_envios` para administrar los tipos de envíos de la autentificación de dos pasos.
@@ -22,7 +23,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
     - `v1.10.0-02-create-aut_tipos_envios.sql` : Crea una nueva tabla `aut_tipos_envios` para los tipos de envío del código utilizado en la autentificación de dos pasos.
     - `v1.10.0-03-create-aut_verificaciones.sql` : Crea nuevas tablas para el código de verificación utilizado en la autentificación de dos pasos.
     - `v1.10.0-04-insert-modulos-aut.sql` : Añade los módulos a la BD y asigna los permisos para que los admins puedan acceder a ellos y modificarlos.
-    - `v1.10.0-05-insert-registros-aut_verificaciones_usuarios.sql` : Añade registros de prueba a la tabla de verificaciones de usuarios.
+    - `v1.10.0-05-insert-registros-aut_verificaciones.sql` : Añade registros de prueba a la tabla de verificaciones de usuarios y clientes.
 
 - Nueva variable de entorno:
     - `TWO_FACTOR_AUTHENTICATION_ENABLED=True` : Activa el modo de autentificación de dos factores al _login_ del sistema.

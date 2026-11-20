@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('AUT TIPOS ENVIOS') %}
+            {{ topbar.button('Tipos de Envíos', url_for('aut_tipos_envios.list_active'), 'mdi mdi-send') }}
+        {% endif %}
         {% if current_user.can_admin('AUT VERIFICACIONES USUARIOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('aut_verificaciones_usuarios.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('aut_verificaciones_usuarios.list_active')) }}{% endif %}
