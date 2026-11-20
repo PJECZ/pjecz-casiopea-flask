@@ -7,7 +7,7 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Verificación de Acceso del Usuario ' + aut_verificacion_usuario.usuario.email) %}
-        {{ topbar.button_previous('Verificaciones de Acceso de Usuarios', url_for('aut_verificaciones_usuarios.list_active')) }}
+        {{ topbar.button_previous('Verificaciones de Usuarios', url_for('aut_verificaciones_usuarios.list_active')) }}
         {% if current_user.can_admin('AUT VERIFICACIONES USUARIOS') %}
             {% if aut_verificacion_usuario.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('aut_verificaciones_usuarios.delete', aut_verificacion_usuario_id=aut_verificacion_usuario.id)) }}{% endif %}
             {% if aut_verificacion_usuario.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('aut_verificaciones_usuarios.recover', aut_verificacion_usuario_id=aut_verificacion_usuario.id)) }}{% endif %}
@@ -22,14 +22,15 @@
         {% else %}
             {{ detail.label_value('Nombre', aut_verificacion_usuario.usuario.nombre) }}
         {% endif %}
-        {{ detail.label_value('Email', aut_verificacion_usuario.usuario.email) }}
+        {{ detail.label_value('Email', aut_verificacion_usuario.email) }}
+        {{ detail.label_value('Teléfono', aut_verificacion_usuario.telefono) }}
         {{ detail.label_value('Creado', aut_verificacion_usuario.creado.strftime('%Y-%m-%d %H:%M:%S')) }}
+        {{ detail.label_value('Tiempo de caducidad', aut_verificacion_usuario.tiempo_caducidad.strftime('%Y-%m-%d %H:%M:%S')) }}
         {{ detail.label_value('Tipo de envío', aut_verificacion_usuario.aut_tipo_envio.descripcion) }}
         {{ detail.label_value('Código de verificación', aut_verificacion_usuario.codigo_verificacion) }}
-        {{ detail.label_value('Tiempo de caducidad', aut_verificacion_usuario.tiempo_caducidad.strftime('%Y-%m-%d %H:%M:%S')) }}
         {{ detail.label_value('Intentos', aut_verificacion_usuario.intentos) }}
         <div class="row">
-            <div class="col-md-3 text-end">Utilizado</div>
+            <div class="col-md-3 text-end">Estatus</div>
             <div class="col-md-9">
                 {% if estatus_verificacion == 'UTILIZADO' %}
                     <span class="badge rounded-pill bg-success">Utilizado</span>

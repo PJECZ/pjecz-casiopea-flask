@@ -38,6 +38,7 @@ class Usuario(database.Model, UserMixin, UniversalMixin):
     apellido_paterno: Mapped[str] = mapped_column(String(256))
     apellido_materno: Mapped[str] = mapped_column(String(256))
     puesto: Mapped[str] = mapped_column(String(256))
+    telefono: Mapped[Optional[str]] = mapped_column(String(20))
     api_key: Mapped[Optional[str]] = mapped_column(String(128))
     api_key_expiracion: Mapped[Optional[datetime]]
     contrasena: Mapped[Optional[str]] = mapped_column(String(256))

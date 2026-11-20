@@ -7,6 +7,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Añadimos los campos `telefono` y `email` a las tablas de `aut_verificaciones_*` para guardar un histórico de que número de teléfono o dirección de email se uso en ese momento de autentificación y no perderlo por una actualización de datos del propio usuario hacía sus datos personales.
 - Nuevo _blueprint_ `aut_verificaciones_usuarios` para consultar los intentos de autentificación de dos pasos de los usuarios que acceden al área de administración del sistema.
 - Nuevo _blueprint_ `aut_tipos_envios` para administrar los tipos de envíos de la autentificación de dos pasos.
 - Crear tabla tipo transaccional llamada `aut_verificaciones_usuarios` y `aut_verificaciones_clientes` para el código de verificación utilizado en la autentificación de dos pasos.

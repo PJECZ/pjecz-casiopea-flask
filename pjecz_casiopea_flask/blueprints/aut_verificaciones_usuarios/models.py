@@ -34,6 +34,8 @@ class AutVerificacionUsuario(database.Model, UniversalMixin):
     tiempo_caducidad: Mapped[datetime]
     intentos: Mapped[int] = mapped_column(default=0)
     utilizado: Mapped[bool] = mapped_column(default=False)
+    telefono: Mapped[Optional[str]] = mapped_column(String(20))
+    email: Mapped[Optional[str]] = mapped_column(String(256))
     direccion_ip: Mapped[Optional[str]] = mapped_column(String(45))
     dispositivo: Mapped[Optional[str]] = mapped_column(String(300))
 

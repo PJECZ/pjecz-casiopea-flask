@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS  aut_verificaciones_usuarios (
     aut_tipo_envio_id INT NOT NULL REFERENCES aut_tipos_envios(id),
     utilizado BOOLEAN NOT NULL DEFAULT FALSE,
     direccion_ip VARCHAR(45),
-    dispositivo VARCHAR(300)
+    dispositivo VARCHAR(300),
+    telefono VARCHAR(20),
+    email VARCHAR(256)
 );
 
 -- Crea tabla `aut_verificaciones_clientes` utilizada para el código de verificación que se usa en la autentificación de dos pasos.
@@ -30,5 +32,7 @@ CREATE TABLE IF NOT EXISTS aut_verificaciones_clientes (
     aut_tipo_envio_id INT NOT NULL REFERENCES aut_tipos_envios(id),
     utilizado BOOLEAN NOT NULL DEFAULT FALSE,
     direccion_ip VARCHAR(45),
-    dispositivo VARCHAR(300)
+    dispositivo VARCHAR(300),
+    telefono VARCHAR(20),
+    email VARCHAR(256)
 );

@@ -25,13 +25,19 @@
                             <label for="filtroNombreCompleto">Nombre completo</label>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroTelefono" type="text" class="form-control" aria-label="Teléfono">
+                            <label for="filtroTelefono">Teléfono</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
                         <div class="form-floating">
                             <input id="filtroEmail" type="text" class="form-control" aria-label="Email">
                             <label for="filtroEmail">Email</label>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-3">
                         <div class="form-floating">
                             <input id="filtroDireccionIp" type="text" class="form-control" aria-label="Dirección IP">
                             <label for="filtroDireccionIp">Dirección IP</label>
@@ -107,7 +113,7 @@
                 }
             },
             {
-                targets: 1, // usuario: nombre y debajo el email
+                targets: 1, // usuario: nombre y debajo teléfono · email
                 data: null,
                 render: function(data, type, row, meta) {
                     let nombre = $('<div>').text(data.nombre).html();
@@ -115,7 +121,9 @@
                     if (data.url !== '') {
                         nombre = '<a href="' + data.url + '">' + nombre + '</a>';
                     }
-                    return nombre + '<br><small class="text-muted">' + email + '</small>';
+                    let telefono = $('<div>').text(data.telefono).html();
+                    let contacto = [telefono, email].filter(function(x) { return x !== ''; }).join(' · ');
+                    return nombre + '<br><small class="text-muted">' + contacto + '</small>';
                 }
             },
             {
@@ -147,6 +155,7 @@
         ];
         const filtrosAutVerificacionesUsuarios = new FiltrosDataTable('#aut_verificaciones_usuarios_datatable', configDTAutVerificacionesUsuarios);
         filtrosAutVerificacionesUsuarios.agregarInput('filtroNombreCompleto', 'nombre_completo');
+        filtrosAutVerificacionesUsuarios.agregarInput('filtroTelefono', 'telefono');
         filtrosAutVerificacionesUsuarios.agregarInput('filtroEmail', 'email', LOWER);
         filtrosAutVerificacionesUsuarios.agregarInput('filtroDireccionIp', 'direccion_ip', LOWER);
         filtrosAutVerificacionesUsuarios.agregarSelect('filtroEstado', 'estado');

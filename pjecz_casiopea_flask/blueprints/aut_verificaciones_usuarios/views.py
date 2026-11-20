@@ -69,6 +69,10 @@ def datatable_json():
             consulta = consulta.filter(AutVerificacionUsuario.creado < fecha_termino)
         except ValueError:
             pass
+    if "telefono" in request.form:
+        telefono = re.sub(r"[^0-9]", "", request.form["telefono"])[:20]
+        if telefono != "":
+            consulta = consulta.filter(AutVerificacionUsuario.telefono.contains(telefono))
     if "direccion_ip" in request.form:
         direccion_ip = re.sub(r"[^0-9a-fA-F.:]", "", request.form["direccion_ip"])[:45].lower()
         if direccion_ip != "":
@@ -93,8 +97,7 @@ def datatable_json():
     if "email" in request.form:
         email = safe_email(request.form["email"], search_fragment=True)
         if email:
-            consulta = consulta.join(Usuario)
-            consulta = consulta.filter(Usuario.email.contains(email))
+            consulta = consulta.filter(AutVerificacionUsuario.email.contains(email))
     elif "nombre_completo" in request.form:
         nombre_completo = safe_string(request.form["nombre_completo"], save_enie=True)
         if nombre_completo:
@@ -122,7 +125,8 @@ def datatable_json():
                 },
                 "usuario": {
                     "nombre": resultado.usuario.nombre,
-                    "email": resultado.usuario.email,
+                    "telefono": resultado.telefono or "",
+                    "email": resultado.email or "",
                     "url": (
                         url_for("usuarios.detail", usuario_id=resultado.usuario.id) if current_user.can_view("USUARIOS") else ""
                     ),
@@ -145,7 +149,7 @@ def list_active():
     return render_template(
         "aut_verificaciones_usuarios/list.jinja2",
         filtros=json.dumps({"estatus": "A"}),
-        titulo="Verificaciones de Acceso de Usuarios",
+        titulo="Verificaciones de Accesos de Usuarios",
         estatus="A",
     )
 
@@ -157,7 +161,7 @@ def list_inactive():
     return render_template(
         "aut_verificaciones_usuarios/list.jinja2",
         filtros=json.dumps({"estatus": "B"}),
-        titulo="Verificaciones de Acceso de Usuarios inactivas",
+        titulo="Verificaciones de Accesos de Usuarios inactivas",
         estatus="B",
     )
 
