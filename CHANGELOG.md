@@ -9,6 +9,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Nuevo _blueprint_ `ban_intentos` para consultar el número de intentos de _login_ por dirección IP y email, usado por las reglas de _banneo_ y para reportes de posibles ataques.
 - Visualización del nuevo campo: `api_key_o_oauth2` en la tabla `cit_citas` que identifica el origen de la creación de la cita.
 - Nuevo _blueprint_ tipo catálogo para identificar el tipo de _banneo_ que se implementará.
 - Se creó un nuevo _blueprint_ igual al de `aut_verificaciones_usuarios` pero ahora para clientes, llamado: `aut_verificaciones_clientes`.
@@ -29,6 +30,8 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
     - `v1.10.0-04-insert-modulos-aut.sql` : Añade los módulos a la BD y asigna los permisos para que los admins puedan acceder a ellos y modificarlos.
     - `v1.10.0-05-insert-registros-aut_verificaciones.sql` : Añade registros de prueba a la tabla de verificaciones de usuarios y clientes.
     - `v1.10.0-06-create-ban_tipos.sql` : Añade el catálogo de tipos de _banneos_ para ataques al _login_ o _2FA_.
+    - `v1.10.0-07-create-ban_intentos.sql` : Crea la tabla `ban_intentos` con el contador de intentos de _login_ por dirección IP y email.
+    - `v1.10.0-08-insert-registros-ban_intentos.sql` : Añade 20 registros aleatorios de prueba a la tabla `ban_intentos` (no ejecutar en producción).
 
 - Nueva variable de entorno:
     - `TWO_FACTOR_AUTHENTICATION_ENABLED=True` : Activa el modo de autentificación de dos factores al _login_ del sistema.

@@ -1,0 +1,33 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Intento de Acceso{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Intento de Acceso ' + ban_intento.id | string) %}
+        {{ topbar.button_previous('Intentos de Acceso', url_for('ban_intentos.list_active')) }}
+        {% if current_user.can_admin('BAN INTENTOS') %}
+            {% if ban_intento.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('ban_intentos.delete', ban_intento_id=ban_intento.id)) }}{% endif %}
+            {% if ban_intento.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('ban_intentos.recover', ban_intento_id=ban_intento.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=ban_intento.estatus) %}
+        {{ detail.label_value('Email', ban_intento.email) }}
+        {{ detail.label_value('Dirección IP', ban_intento.direccion_ip) }}
+        {{ detail.label_value('Intentos', ban_intento.intentos) }}
+        {{ detail.label_value('Último intento', ban_intento.tiempo.strftime('%Y-%m-%d %H:%M:%S')) }}
+        {{ detail.label_value('Creado', ban_intento.creado.strftime('%Y-%m-%d %H:%M:%S')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('BAN INTENTOS') %}
+        {% if ban_intento.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar el intento de acceso de ' + ban_intento.email + '?') }}{% endif %}
+        {% if ban_intento.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar el intento de acceso de ' + ban_intento.email + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}
