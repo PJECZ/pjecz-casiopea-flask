@@ -9,6 +9,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Nuevo _blueprint_ `ban_bloqueados` lista de castigo para bloquear direcciones IP o cuentas (email) con un tipo de _banneo_.
 - Nuevo _blueprint_ `ban_intentos` para consultar el número de intentos de _login_ por dirección IP y email, usado por las reglas de _banneo_ y para reportes de posibles ataques.
 - Visualización del nuevo campo: `api_key_o_oauth2` en la tabla `cit_citas` que identifica el origen de la creación de la cita.
 - Nuevo _blueprint_ tipo catálogo para identificar el tipo de _banneo_ que se implementará.
@@ -32,6 +33,8 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
     - `v1.10.0-06-create-ban_tipos.sql` : Añade el catálogo de tipos de _banneos_ para ataques al _login_ o _2FA_.
     - `v1.10.0-07-create-ban_intentos.sql` : Crea la tabla `ban_intentos` con el contador de intentos de _login_ por dirección IP y email.
     - `v1.10.0-08-insert-registros-ban_intentos.sql` : Añade 20 registros aleatorios de prueba a la tabla `ban_intentos` (no ejecutar en producción).
+    - `v1.10.0-09-create-ban_bloqueados.sql` : Crea la tabla `ban_bloqueados` con la lista de direcciones IP y cuentas bloqueadas.
+    - `v1.10.0-10-insert-registros-ban_bloqueados.sql` : Añade 20 registros de prueba a la tabla `ban_bloqueados` (no ejecutar en producción).
 
 - Nueva variable de entorno:
     - `TWO_FACTOR_AUTHENTICATION_ENABLED=True` : Activa el modo de autentificación de dos factores al _login_ del sistema.

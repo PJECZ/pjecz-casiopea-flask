@@ -1,0 +1,56 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Bloqueado{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Bloqueado ' + ban_bloqueado.id | string) %}
+        {{ topbar.button_previous('Bloqueados', url_for('ban_bloqueados.list_active')) }}
+        {% if current_user.can_edit('BAN BLOQUEADOS') %}
+            {{ topbar.button_edit('Editar', url_for('ban_bloqueados.edit', ban_bloqueado_id=ban_bloqueado.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('BAN BLOQUEADOS') %}
+            {% if ban_bloqueado.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('ban_bloqueados.delete', ban_bloqueado_id=ban_bloqueado.id)) }}{% endif %}
+            {% if ban_bloqueado.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('ban_bloqueados.recover', ban_bloqueado_id=ban_bloqueado.id)) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=ban_bloqueado.estatus) %}
+        {{ detail.label_value('Dirección IP', ban_bloqueado.direccion_ip or '-') }}
+        {{ detail.label_value('Email', ban_bloqueado.email or '-') }}
+        {{ detail.label_value('Último acceso', ban_bloqueado.tiempo.strftime('%Y-%m-%d %H:%M:%S')) }}
+        {% if ban_bloqueado.ban_tipo.clave == 'BAN_MINUTOS' %}
+            {% set color = 'warning text-dark' %}
+        {% elif ban_bloqueado.ban_tipo.clave == 'BAN_DIA' %}
+            {% set color = 'danger' %}
+        {% elif ban_bloqueado.ban_tipo.clave == 'BAN_SIEMPRE' %}
+            {% set color = 'dark' %}
+        {% else %}
+            {% set color = 'primary' %}
+        {% endif %}
+        {% set pill %}<span class="badge rounded-pill bg-{{ color }} px-3">{{ ban_bloqueado.ban_tipo.clave | replace('BAN_', '', 1) }}</span>{% endset %}
+        <div class="row">
+            <div class="col-md-3 text-end">Tipo de bloqueo</div>
+            <div class="col-md-9">
+                {% if current_user.can_view('BAN TIPOS') %}
+                    <a href="{{ url_for('ban_tipos.detail', ban_tipo_id=ban_bloqueado.ban_tipo_id) }}">{{ pill }}</a>
+                {% else %}
+                    {{ pill }}
+                {% endif %}
+                <small class="text-muted ms-2">{{ ban_bloqueado.ban_tipo.descripcion }}</small>
+            </div>
+        </div>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('BAN BLOQUEADOS') %}
+        {% set a_quien = ban_bloqueado.direccion_ip or ban_bloqueado.email %}
+        {% if ban_bloqueado.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar el bloqueo de ' + a_quien + '?') }}{% endif %}
+        {% if ban_bloqueado.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar el bloqueo de ' + a_quien + '?') }}{% endif %}
+    {% endif %}
+{% endblock %}

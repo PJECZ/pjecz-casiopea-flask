@@ -12,6 +12,7 @@ from .blueprints.aut_tipos_envios.views import aut_tipos_envios
 from .blueprints.aut_verificaciones_usuarios.views import aut_verificaciones_usuarios
 from .blueprints.aut_verificaciones_clientes.views import aut_verificaciones_clientes
 from .blueprints.agendas.views import agendas
+from .blueprints.ban_bloqueados.views import ban_bloqueados
 from .blueprints.ban_intentos.views import ban_intentos
 from .blueprints.ban_tipos.views import ban_tipos
 from .blueprints.bitacoras.views import bitacoras
@@ -80,6 +81,7 @@ app.register_blueprint(aut_tipos_envios)
 app.register_blueprint(aut_verificaciones_usuarios)
 app.register_blueprint(aut_verificaciones_clientes)
 app.register_blueprint(agendas)
+app.register_blueprint(ban_bloqueados)
 app.register_blueprint(ban_intentos)
 app.register_blueprint(ban_tipos)
 app.register_blueprint(bitacoras)

@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nuevo Bloqueado{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nuevo Bloqueado') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% call f.form_tag('ban_bloqueados.new', fid='ban_bloqueado_form') %}
+            {% call f.form_group(form.ban_tipo) %}{% endcall %}
+            {% call f.form_group(form.direccion_ip) %}{% endcall %}
+            {% call f.form_group(form.email) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
