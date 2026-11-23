@@ -9,6 +9,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Visualización del nuevo campo: `api_key_o_oauth2` en la tabla `cit_citas` que identifica el origen de la creación de la cita.
 - Nuevo _blueprint_ tipo catálogo para identificar el tipo de _banneo_ que se implementará.
 - Se creó un nuevo _blueprint_ igual al de `aut_verificaciones_usuarios` pero ahora para clientes, llamado: `aut_verificaciones_clientes`.
 - Añadimos los campos `telefono` y `email` a las tablas de `aut_verificaciones_*` para guardar un histórico de que número de teléfono o dirección de email se uso en ese momento de autentificación y no perderlo por una actualización de datos del propio usuario hacía sus datos personales.
