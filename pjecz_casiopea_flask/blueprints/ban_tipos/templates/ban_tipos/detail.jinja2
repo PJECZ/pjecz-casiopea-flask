@@ -1,0 +1,21 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tipo de Baneo {{ ban_tipo.clave }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Tipo de Baneo ' + ban_tipo.clave) %}
+        {{ topbar.button_previous('Tipos de Baneos', url_for('ban_tipos.list_active')) }}
+        {% if current_user.can_edit('BAN TIPOS') %}
+            {{ topbar.button_edit('Editar', url_for('ban_tipos.edit', ban_tipo_id=ban_tipo.id)) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=ban_tipo.estatus) %}
+        {{ detail.label_value_big('Clave', ban_tipo.clave) }}
+        {{ detail.label_value('Descripción', ban_tipo.descripcion) }}
+    {% endcall %}
+{% endblock %}

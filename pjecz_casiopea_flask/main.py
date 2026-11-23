@@ -12,6 +12,7 @@ from .blueprints.aut_tipos_envios.views import aut_tipos_envios
 from .blueprints.aut_verificaciones_usuarios.views import aut_verificaciones_usuarios
 from .blueprints.aut_verificaciones_clientes.views import aut_verificaciones_clientes
 from .blueprints.agendas.views import agendas
+from .blueprints.ban_tipos.views import ban_tipos
 from .blueprints.bitacoras.views import bitacoras
 from .blueprints.cit_categorias.views import cit_categorias
 from .blueprints.cit_citas.views import cit_citas
@@ -78,6 +79,7 @@ app.register_blueprint(aut_tipos_envios)
 app.register_blueprint(aut_verificaciones_usuarios)
 app.register_blueprint(aut_verificaciones_clientes)
 app.register_blueprint(agendas)
+app.register_blueprint(ban_tipos)
 app.register_blueprint(bitacoras)
 app.register_blueprint(cit_categorias)
 app.register_blueprint(cit_citas)

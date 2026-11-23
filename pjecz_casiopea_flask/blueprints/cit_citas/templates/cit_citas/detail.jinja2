@@ -71,6 +71,13 @@
                 <span class="badge rounded-pill bg-{{color}}">{{ cit_cita.estado }}</span>
             </div>
         </div>
+        {% if cit_cita.api_key_o_oauth2 is none %}
+            {{ detail.label_value('API-Key/API-OAuth2', '-') }}
+        {% elif cit_cita.api_key_o_oauth2 %}
+            {{ detail.label_value('API-Key/API-OAuth2', 'API-KEY') }}
+        {% else %}
+            {{ detail.label_value('API-Key/API-OAuth2', 'API-OAuth2') }}
+        {% endif %}
         {{ detail.label_value('Creado', cit_cita.creado.strftime('%a, %d de %b de %Y, %H:%M')) }}
     {% endcall %}
     {% call detail.card(title='Asistencia', estatus=cit_cita.estatus) %}

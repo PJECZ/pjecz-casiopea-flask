@@ -118,6 +118,9 @@ def datatable_json():
                 "inicio": resultado.inicio.strftime("%H:%M"),
                 "termino": resultado.termino.strftime("%H:%M"),
                 "estado": resultado.estado,
+                "api_key_o_oauth2": (
+                    "-" if resultado.api_key_o_oauth2 is None else ("API-KEY" if resultado.api_key_o_oauth2 else "API-OAuth2")
+                ),
             }
         )
     # Entregar JSON
