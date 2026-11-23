@@ -11,7 +11,7 @@ FROM (
         ('AUT TIPOS ENVIOS', 'Tipos de Envíos', 'mdi mdi-send', '/aut_tipos_envios', FALSE),
         ('AUT VERIFICACIONES USUARIOS', 'Verificaciones de Accesos de Usuarios', 'mdi mdi-shield-key', '/aut_verificaciones_usuarios', TRUE),
         ('AUT VERIFICACIONES CLIENTES', 'Verificaciones de Accesos de Clientes', 'mdi mdi-shield-account', '/aut_verificaciones_clientes', TRUE)
-) AS v (nombre, nombre_corto, icono, ruta)
+) AS v (nombre, nombre_corto, icono, ruta, en_navegacion)
 WHERE NOT EXISTS (
     SELECT 1 FROM modulos m WHERE m.nombre = v.nombre
 );
