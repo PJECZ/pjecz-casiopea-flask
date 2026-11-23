@@ -1,0 +1,20 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Tipo de Baneo {{ ban_tipo.clave }}{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Editar Tipo de Baneo ' + ban_tipo.clave) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'ban_tipo_id': ban_tipo.id} %}
+        {% call f.form_tag('ban_tipos.edit', fid='ban_tipo_form', **form_kwargs) %}
+            {% call f.form_group(form.clave) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
