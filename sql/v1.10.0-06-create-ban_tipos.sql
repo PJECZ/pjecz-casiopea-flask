@@ -13,10 +13,13 @@ CREATE TABLE IF NOT EXISTS ban_tipos (
 
 -- Insertar datos iniciales en la tabla `ban_tipos`
 INSERT INTO ban_tipos (id, clave, descripcion) VALUES
-(1, 'BAN_MINUTOS', 'Suspendido por minutos'),
-(2, 'BAN_DIA', 'Suspendido por el día'),
-(3, 'BAN_SIEMPRE', 'Suspendido indefinidamente.')
+(1, 'MINUTOS', 'Suspendido por minutos'),
+(2, 'DIA', 'Suspendido por el día'),
+(3, 'SIEMPRE', 'Suspendido indefinidamente.')
 ON CONFLICT (id) DO NOTHING;
 
 -- Sincronizar la secuencia del id con los registros insertados
 SELECT setval(pg_get_serial_sequence('ban_tipos', 'id'), (SELECT MAX(id) FROM ban_tipos));
+
+-- Si la tabla ya se había creado con el prefijo `BAN_` en la clave, quitárselo (MINUTOS, DIA, SIEMPRE)
+UPDATE ban_tipos SET clave = substring(clave FROM 5) WHERE id IN (1, 2, 3) AND clave LIKE 'BAN\_%';

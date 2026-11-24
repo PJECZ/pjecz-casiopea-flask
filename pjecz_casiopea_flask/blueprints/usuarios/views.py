@@ -13,17 +13,21 @@ from google.oauth2.id_token import verify_firebase_token
 from pytz import timezone
 
 from ...config.firebase import get_firebase_settings
+from ...config.settings import get_settings
 from ...lib.cryptography_api_key import generate_api_key
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
 from ...lib.pwgen import generar_contrasena
 from ...lib.safe_next_url import safe_next_url
+from ...lib.sesion_caducidad import marcar_inicio_sesion, sesion_caducada
 from ...lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, safe_email, safe_message, safe_string, safe_uuid
+from ...services.login_ban import LoginBanService, ResultadoBan
 from ..autoridades.models import Autoridad
 from ..bitacoras.models import Bitacora
 from ..distritos.models import Distrito
 from ..entradas_salidas.models import EntradaSalida
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
+from ..sesiones.control import abrir_sesion, cerrar_sesion, sesion_vigente
 from .decorators import anonymous_required, permission_required
 from .forms import AccesoForm, FirebaseForm, UsuarioForm
 from .models import Usuario
@@ -31,6 +35,47 @@ from .models import Usuario
 MODULO = "USUARIOS"
 
 usuarios = Blueprint("usuarios", __name__, template_folder="templates")
+
+
+def salir(mensaje: str, categoria: str = "warning"):
+    """Registrar la salida, cerrar la sesión y regresar al login"""
+    EntradaSalida(
+        usuario_id=current_user.id,
+        tipo="SALIO",
+        direccion_ip=request.remote_addr,
+    ).save()
+    cerrar_sesion(current_user)
+    logout_user()
+    flash(mensaje, categoria)
+    return redirect(url_for("usuarios.login"))
+
+
+@usuarios.before_app_request
+def revisar_sesion():
+    """Cerrar la sesión si ya caducó, si la cerró un administrador o si se abrió en otro navegador"""
+    if request.endpoint == "static" or not current_user.is_authenticated:
+        return None
+    if sesion_caducada(int(get_settings().SESSION_DURATION_HOURS)):
+        return salir("Su sesión ha caducado, vuelva a ingresar.")
+    if not sesion_vigente(current_user):
+        return salir("Su sesión fue cerrada, vuelva a ingresar.")
+    return None
+
+
+def mensaje_bloqueo(resultado: ResultadoBan) -> str:
+    """Mensaje para quien tiene el acceso bloqueado"""
+    if resultado.hasta is None:
+        return "El acceso está bloqueado. Comuníquese con el administrador del sistema."
+    return f"Demasiados intentos fallidos. Podrá intentar de nuevo después de {resultado.hasta.strftime('%Y-%m-%d %H:%M')}."
+
+
+def avisar_intento_fallido(login_ban: LoginBanService, direccion_ip: str, email: str, mensaje: str = "") -> None:
+    """Registrar el intento fallido y avisar; si con este intento se bloqueó, avisar del bloqueo"""
+    resultado = login_ban.registrar_intento_fallido(direccion_ip, email)
+    if resultado.bloqueado:
+        flash(mensaje_bloqueo(resultado), "warning")
+    elif mensaje:
+        flash(mensaje, "warning")
 
 
 @usuarios.route("/login", methods=["GET", "POST"])
@@ -46,8 +91,14 @@ def login():
             identidad = str(form.identidad.data).strip()
             token = form.token.data
             siguiente = str(form.siguiente.data)
+            # Revisar si la dirección IP o el email están bloqueados
+            direccion_ip = request.remote_addr or ""
+            login_ban = LoginBanService.desde_settings()
+            bloqueo = login_ban.esta_bloqueado(direccion_ip, identidad)
+            if bloqueo.bloqueado:
+                flash(mensaje_bloqueo(bloqueo), "warning")
             # Si es válido el email
-            if re.fullmatch(EMAIL_REGEXP, identidad) is not None:
+            elif re.fullmatch(EMAIL_REGEXP, identidad) is not None:
                 http_request = Request()
                 try:
                     id_info = verify_firebase_token(token, http_request)
@@ -58,12 +109,20 @@ def login():
                 if id_info and id_info["email"] == identidad:
                     usuario = Usuario.find_by_identity(identidad)
                     # Si el usuario existe y está activo, hacer login
-                    if usuario and usuario.estatus == "A" and login_user(usuario, remember=True):
+                    if usuario and usuario.estatus == "A" and login_user(usuario, remember=False):
+                        marcar_inicio_sesion()
+                        abrir_sesion(usuario)
+                        login_ban.registrar_acceso_exitoso(direccion_ip, identidad)
                         if siguiente != "":
                             return redirect(safe_next_url(siguiente))
                         return redirect(url_for("sistemas.start"))
                     else:
                         flash("No está activa esa cuenta", "warning")
+                # Si el token no es válido o es de otro email, es un intento fallido
+                elif id_info:
+                    avisar_intento_fallido(login_ban, direccion_ip, identidad, "El correo electrónico no coincide con el token.")
+                else:
+                    avisar_intento_fallido(login_ban, direccion_ip, identidad)
             else:
                 flash("No es válido el correo electrónico o el token.", "warning")
         # Si viene el parámetro siguiente en la URL, agregarlo al formulario
@@ -84,23 +143,29 @@ def login():
             correo_electronico = str(form.correo_electronico.data).strip()
             contrasena = str(form.contrasena.data).strip()
             siguiente = str(form.siguiente.data)
-            # Si son válidos el email y la contraseña
-            if re.fullmatch(EMAIL_REGEXP, correo_electronico) is None:
-                flash("No es válido el correo electrónico.", "warning")
-            elif re.fullmatch(CONTRASENA_REGEXP, contrasena) is None:
-                flash("No es válida la contraseña.", "warning")
+            # Revisar si la dirección IP o el email están bloqueados
+            direccion_ip = request.remote_addr or ""
+            login_ban = LoginBanService.desde_settings()
+            bloqueo = login_ban.esta_bloqueado(direccion_ip, correo_electronico)
+            if bloqueo.bloqueado:
+                flash(mensaje_bloqueo(bloqueo), "warning")
+            elif re.fullmatch(EMAIL_REGEXP, correo_electronico) is None:
+                avisar_intento_fallido(login_ban, direccion_ip, correo_electronico, "No es válido el correo electrónico.")
             else:
                 usuario = Usuario.find_by_identity(correo_electronico)
                 # Si el usuario existe y está activo, hacer login
                 if usuario and usuario.authenticated(password=contrasena):
-                    if usuario.estatus == "A" and login_user(usuario, remember=True):
+                    if usuario.estatus == "A" and login_user(usuario, remember=False):
+                        marcar_inicio_sesion()
+                        abrir_sesion(usuario)
+                        login_ban.registrar_acceso_exitoso(direccion_ip, correo_electronico)
                         if siguiente:
                             return redirect(safe_next_url(siguiente))
                         return redirect(url_for("sistemas.start"))
                     else:
                         flash("No está activa esa cuenta", "warning")
                 else:
-                    flash("Correo electrónico o contraseña incorrectos.", "warning")
+                    avisar_intento_fallido(login_ban, direccion_ip, correo_electronico, "Correo electrónico o contraseña incorrectos.")
         # Si viene el parámetro siguiente en la URL, agregarlo al formulario
         siguiente = request.args.get("siguiente")
         if siguiente is not None:
@@ -118,14 +183,7 @@ def login():
 @login_required
 def logout():
     """Salir del Sistema"""
-    EntradaSalida(
-        usuario_id=current_user.id,
-        tipo="SALIO",
-        direccion_ip=request.remote_addr,
-    ).save()
-    logout_user()
-    flash("Ha salido de este sistema.", "success")
-    return redirect(url_for("usuarios.login"))
+    return salir("Ha salido de este sistema.", "success")
 
 
 @usuarios.route("/perfil")

@@ -1,0 +1,140 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('BAN INTENTOS') %}
+            {{ topbar.button('Intentos', url_for('ban_intentos.list_active'), 'mdi mdi-login-variant') }}
+        {% endif %}
+        {% if current_user.can_insert('BAN BLOQUEADOS') and estatus == 'A' %}
+            {{ topbar.button_new('Nuevo', url_for('ban_bloqueados.new')) }}
+        {% endif %}
+        {% if current_user.can_admin('BAN BLOQUEADOS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('ban_bloqueados.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('ban_bloqueados.list_active')) }}{% endif %}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <!-- Filtros Ban Bloqueados -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosBanBloqueados.buscar(); return false;">
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroDireccionIp" type="text" class="form-control" aria-label="Dirección IP">
+                            <label for="filtroDireccionIp">Dirección IP</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroEmail" type="text" class="form-control" aria-label="Email">
+                            <label for="filtroEmail">Email</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select id="filtroBanTipoId" class="form-select" aria-label="Tipo de baneo">
+                                <option value="">Todos</option>
+                                {% for ban_tipo in ban_tipos %}
+                                    <option value="{{ ban_tipo.id }}">{{ ban_tipo.descripcion }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="filtroBanTipoId">Tipo de bloqueo</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroFechaInicio" type="date" class="form-control" aria-label="Fecha inicio">
+                            <label for="filtroFechaInicio">Fecha inicio</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroFechaTermino" type="date" class="form-control" aria-label="Fecha término">
+                            <label for="filtroFechaTermino">Fecha término</label>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosBanBloqueados.buscar(); return false;" id="button-buscar"><span class="mdi mdi-magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosBanBloqueados.limpiar();" id="button-limpiar"><span class="mdi mdi-broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- DataTable Ban Bloqueados -->
+        <table id="ban_bloqueados_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Último acceso</th>
+                    <th>Tipo de bloqueo</th>
+                    <th>Dirección IP</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script src="{{ url_for('static', filename='js/datatables-constructor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datatables-filtros.js') }}"></script>
+    <script>
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDTBanBloqueados = constructorDataTable.config();
+        configDTBanBloqueados['ajax']['url'] = '{{ url_for("ban_bloqueados.datatable_json") }}';
+        configDTBanBloqueados['ajax']['data'] = {{ filtros }};
+        configDTBanBloqueados['columns'] = [
+            { data: 'detalle' },
+            { data: 'ban_tipo' },
+            { data: 'direccion_ip' },
+            { data: 'email' }
+        ];
+        configDTBanBloqueados['columnDefs'] = [
+            {
+                targets: 0, // tiempo del último acceso
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.fecha + '</a><br><small class="text-muted">' + data.hora + '</small>';
+                }
+            },
+            {
+                targets: 1, // ban_tipo
+                data: null,
+                render: function(data, type, row, meta) {
+                    let clave = $('<div>').text(data.clave.replace(/^BAN_/, '')).html(); // Solo en el listado se quita el prefijo BAN_
+                    let descripcion = $('<div>').text(data.descripcion).html().replace(/"/g, '&quot;');
+                    let bg_class = "bg-primary";
+                    switch (data.clave) {
+                        case "BAN_MINUTOS": bg_class = "bg-primary"; break;
+                        case "BAN_DIA":     bg_class = "bg-warning text-dark";            break;
+                        case "BAN_SIEMPRE": bg_class = "bg-danger";              break;
+                    }
+                    let pill = '<span class="badge rounded-pill ' + bg_class + ' px-3" title="' + descripcion + '">' + clave + '</span>';
+                    if (data.url !== '') {
+                        return '<a href="' + data.url + '">' + pill + '</a>';
+                    }
+                    return pill;
+                }
+            },
+            {
+                targets: [2, 3], // dirección IP y email (se escapan por venir del usuario); vacío = no se bloquea por ese dato
+                render: function(data, type, row, meta) {
+                    return data === '' ? '-' : $('<div>').text(data).html();
+                }
+            }
+        ];
+        const filtrosBanBloqueados = new FiltrosDataTable('#ban_bloqueados_datatable', configDTBanBloqueados);
+        filtrosBanBloqueados.agregarInput('filtroDireccionIp', 'direccion_ip', LOWER);
+        filtrosBanBloqueados.agregarInput('filtroEmail', 'email', LOWER);
+        filtrosBanBloqueados.agregarSelect('filtroBanTipoId', 'ban_tipo_id');
+        filtrosBanBloqueados.agregarInput('filtroFechaInicio', 'fecha_inicio');
+        filtrosBanBloqueados.agregarInput('filtroFechaTermino', 'fecha_termino');
+        filtrosBanBloqueados.precargar();
+    </script>
+{% endblock %}

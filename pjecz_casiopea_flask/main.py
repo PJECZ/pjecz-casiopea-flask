@@ -5,6 +5,7 @@ PJECZ Casiopea Flask
 from flask import Flask
 from redis import Redis
 from rq import Queue
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.wrappers import Response
 
 from .blueprints.autoridades.views import autoridades
@@ -12,6 +13,8 @@ from .blueprints.aut_tipos_envios.views import aut_tipos_envios
 from .blueprints.aut_verificaciones_usuarios.views import aut_verificaciones_usuarios
 from .blueprints.aut_verificaciones_clientes.views import aut_verificaciones_clientes
 from .blueprints.agendas.views import agendas
+from .blueprints.ban_bloqueados.views import ban_bloqueados
+from .blueprints.ban_intentos.views import ban_intentos
 from .blueprints.ban_tipos.views import ban_tipos
 from .blueprints.bitacoras.views import bitacoras
 from .blueprints.cit_categorias.views import cit_categorias
@@ -35,6 +38,7 @@ from .blueprints.pag_pagos.views import pag_pagos
 from .blueprints.pag_tramites_servicios.views import pag_tramites_servicios
 from .blueprints.permisos.views import permisos
 from .blueprints.roles.views import roles
+from .blueprints.sesiones.views import sesiones
 from .blueprints.sistemas.views import sistemas
 from .blueprints.tareas.views import tareas
 from .blueprints.usuarios.models import Usuario
@@ -69,6 +73,11 @@ app = Flask(__name__, instance_relative_config=True)
 app.add_url_rule("/favicon.ico", endpoint="sistemas.favicon")
 app.config.from_object(Settings())
 
+# Si está detrás de proxies (Cloud Run, balanceador), tomar la IP del cliente de X-Forwarded-For
+# Es necesario para que el baneo por dirección IP no bloquee la IP del proxy, que comparten todos
+if int(app.config["PROXY_FIX_X_FOR"]) > 0:
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=int(app.config["PROXY_FIX_X_FOR"]))
+
 # Aplicar el middleware de prefijo en producción
 if app.config["ENVIRONMENT"].lower() == "production" and app.config["PREFIX"]:
     app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix=app.config["PREFIX"])
@@ -79,6 +88,8 @@ app.register_blueprint(aut_tipos_envios)
 app.register_blueprint(aut_verificaciones_usuarios)
 app.register_blueprint(aut_verificaciones_clientes)
 app.register_blueprint(agendas)
+app.register_blueprint(ban_bloqueados)
+app.register_blueprint(ban_intentos)
 app.register_blueprint(ban_tipos)
 app.register_blueprint(bitacoras)
 app.register_blueprint(cit_categorias)
@@ -102,6 +113,7 @@ app.register_blueprint(pag_pagos)
 app.register_blueprint(pag_tramites_servicios)
 app.register_blueprint(permisos)
 app.register_blueprint(roles)
+app.register_blueprint(sesiones)
 app.register_blueprint(sistemas)
 app.register_blueprint(tareas)
 app.register_blueprint(usuarios)

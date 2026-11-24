@@ -1,0 +1,117 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('ENTRADAS SALIDAS') %}
+            {{ topbar.button('Entradas y Salidas', url_for('entradas_salidas.list_active'), 'mdi mdi-door') }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <!-- Filtros Sesiones -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosSesiones.buscar(); return false;">
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="filtroEmail" type="text" class="form-control" aria-label="Email">
+                            <label for="filtroEmail">Email</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="filtroDireccionIp" type="text" class="form-control" aria-label="Dirección IP">
+                            <label for="filtroDireccionIp">Dirección IP</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <select id="filtroEstado" class="form-select" aria-label="Estado de la sesión">
+                                <option value="activas" selected>Activas</option>
+                                <option value="inactivas">Inactivas (cerradas o caducadas)</option>
+                                <option value="todas">Todas</option>
+                            </select>
+                            <label for="filtroEstado">Estado</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosSesiones.buscar(); return false;" id="button-buscar"><span class="mdi mdi-magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosSesiones.limpiar();" id="button-limpiar"><span class="mdi mdi-broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- DataTable Sesiones -->
+        <table id="sesiones_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Dirección IP</th>
+                    <th>Inicio</th>
+                    <th>Último acceso</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script src="{{ url_for('static', filename='js/datatables-constructor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datatables-filtros.js') }}"></script>
+    <script>
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDTSesiones = constructorDataTable.config();
+        configDTSesiones['ajax']['url'] = '{{ url_for("sesiones.datatable_json") }}';
+        configDTSesiones['ajax']['data'] = {{ filtros }};
+        configDTSesiones['columns'] = [
+            { data: 'detalle' },
+            { data: 'direccion_ip' },
+            { data: 'inicio' },
+            { data: 'ultimo_acceso' },
+            { data: 'vigente' }
+        ];
+        configDTSesiones['columnDefs'] = [
+            {
+                targets: 0, // nombre con liga al detalle y email abajo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + $('<div>').text(data.nombre).html() + '</a><br><small class="text-muted">' + $('<div>').text(data.email).html() + '</small>';
+                }
+            },
+            {
+                targets: 1, // dirección IP
+                render: function(data, type, row, meta) {
+                    return data === '' ? '-' : $('<div>').text(data).html();
+                }
+            },
+            {
+                targets: [2, 3], // inicio y último acceso
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.fecha + '<br><small class="text-muted">' + data.hora + '</small>';
+                }
+            },
+            {
+                targets: 4, // vigente
+                render: function(data, type, row, meta) {
+                    if (data) {
+                        return '<span class="badge rounded-pill bg-success px-3">ACTIVA</span>';
+                    }
+                    return '<span class="badge rounded-pill bg-secondary px-3">CERRADA</span>';
+                }
+            }
+        ];
+        const filtrosSesiones = new FiltrosDataTable('#sesiones_datatable', configDTSesiones);
+        filtrosSesiones.agregarInput('filtroEmail', 'email', LOWER);
+        filtrosSesiones.agregarInput('filtroDireccionIp', 'direccion_ip', LOWER);
+        filtrosSesiones.agregarSelect('filtroEstado', 'estado');
+        filtrosSesiones.precargar();
+    </script>
+{% endblock %}
