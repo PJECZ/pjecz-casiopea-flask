@@ -27,6 +27,7 @@ from ..distritos.models import Distrito
 from ..entradas_salidas.models import EntradaSalida
 from ..modulos.models import Modulo
 from ..permisos.models import Permiso
+from ..sesiones.control import abrir_sesion, cerrar_sesion, sesion_vigente
 from .decorators import anonymous_required, permission_required
 from .forms import AccesoForm, FirebaseForm, UsuarioForm
 from .models import Usuario
@@ -36,21 +37,29 @@ MODULO = "USUARIOS"
 usuarios = Blueprint("usuarios", __name__, template_folder="templates")
 
 
-@usuarios.before_app_request
-def caducar_sesion():
-    """Cerrar la sesión cuando ya pasaron SESSION_DURATION_HOURS desde el login"""
-    if request.endpoint == "static" or not current_user.is_authenticated:
-        return None
-    if not sesion_caducada(int(get_settings().SESSION_DURATION_HOURS)):
-        return None
+def salir(mensaje: str, categoria: str = "warning"):
+    """Registrar la salida, cerrar la sesión y regresar al login"""
     EntradaSalida(
         usuario_id=current_user.id,
         tipo="SALIO",
         direccion_ip=request.remote_addr,
     ).save()
+    cerrar_sesion(current_user)
     logout_user()
-    flash("Su sesión ha caducado, vuelva a ingresar.", "warning")
+    flash(mensaje, categoria)
     return redirect(url_for("usuarios.login"))
+
+
+@usuarios.before_app_request
+def revisar_sesion():
+    """Cerrar la sesión si ya caducó, si la cerró un administrador o si se abrió en otro navegador"""
+    if request.endpoint == "static" or not current_user.is_authenticated:
+        return None
+    if sesion_caducada(int(get_settings().SESSION_DURATION_HOURS)):
+        return salir("Su sesión ha caducado, vuelva a ingresar.")
+    if not sesion_vigente(current_user):
+        return salir("Su sesión fue cerrada, vuelva a ingresar.")
+    return None
 
 
 def mensaje_bloqueo(resultado: ResultadoBan) -> str:
@@ -102,6 +111,7 @@ def login():
                     # Si el usuario existe y está activo, hacer login
                     if usuario and usuario.estatus == "A" and login_user(usuario, remember=False):
                         marcar_inicio_sesion()
+                        abrir_sesion(usuario)
                         login_ban.registrar_acceso_exitoso(direccion_ip, identidad)
                         if siguiente != "":
                             return redirect(safe_next_url(siguiente))
@@ -147,6 +157,7 @@ def login():
                 if usuario and usuario.authenticated(password=contrasena):
                     if usuario.estatus == "A" and login_user(usuario, remember=False):
                         marcar_inicio_sesion()
+                        abrir_sesion(usuario)
                         login_ban.registrar_acceso_exitoso(direccion_ip, correo_electronico)
                         if siguiente:
                             return redirect(safe_next_url(siguiente))
@@ -172,14 +183,7 @@ def login():
 @login_required
 def logout():
     """Salir del Sistema"""
-    EntradaSalida(
-        usuario_id=current_user.id,
-        tipo="SALIO",
-        direccion_ip=request.remote_addr,
-    ).save()
-    logout_user()
-    flash("Ha salido de este sistema.", "success")
-    return redirect(url_for("usuarios.login"))
+    return salir("Ha salido de este sistema.", "success")
 
 
 @usuarios.route("/perfil")

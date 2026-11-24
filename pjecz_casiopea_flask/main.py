@@ -38,6 +38,7 @@ from .blueprints.pag_pagos.views import pag_pagos
 from .blueprints.pag_tramites_servicios.views import pag_tramites_servicios
 from .blueprints.permisos.views import permisos
 from .blueprints.roles.views import roles
+from .blueprints.sesiones.views import sesiones
 from .blueprints.sistemas.views import sistemas
 from .blueprints.tareas.views import tareas
 from .blueprints.usuarios.models import Usuario
@@ -112,6 +113,7 @@ app.register_blueprint(pag_pagos)
 app.register_blueprint(pag_tramites_servicios)
 app.register_blueprint(permisos)
 app.register_blueprint(roles)
+app.register_blueprint(sesiones)
 app.register_blueprint(sistemas)
 app.register_blueprint(tareas)
 app.register_blueprint(usuarios)

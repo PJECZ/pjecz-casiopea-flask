@@ -1,0 +1,48 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Sesión{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Sesión de ' + sesion.usuario.email) %}
+        {{ topbar.button_previous('Sesiones', url_for('sesiones.list_active')) }}
+        {% if current_user.can_admin('SESIONES') and sesion.activa %}
+            {{ modals.button_modal('Cerrar sesión', url_for('sesiones.close', sesion_id=sesion.id), 'Close', 'mdi mdi-logout', '¿Cerrar la sesión de ' + sesion.usuario.email + '? Deberá volver a ingresar.', 'btn-outline-danger') }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        {% if current_user.can_view('USUARIOS') %}
+            {{ detail.label_value('Usuario', sesion.usuario.nombre, url_for('usuarios.detail', usuario_id=sesion.id)) }}
+        {% else %}
+            {{ detail.label_value('Usuario', sesion.usuario.nombre) }}
+        {% endif %}
+        {{ detail.label_value('Email', sesion.usuario.email) }}
+        <div class="row">
+            <div class="col-md-3 text-end">Estado</div>
+            <div class="col-md-9">
+                {% if vigente %}
+                    <span class="badge rounded-pill bg-success px-3">ACTIVA</span>
+                {% elif sesion.activa %}
+                    <span class="badge rounded-pill bg-secondary px-3">CADUCADA</span>
+                {% else %}
+                    <span class="badge rounded-pill bg-secondary px-3">CERRADA</span>
+                {% endif %}
+            </div>
+        </div>
+        {{ detail.label_value('Dirección IP', sesion.direccion_ip or '-') }}
+        {{ detail.label_value('Navegador', sesion.navegador or '-') }}
+        {{ detail.label_value('Inicio', sesion.inicio.strftime('%Y-%m-%d %H:%M:%S')) }}
+        {{ detail.label_value('Último acceso', sesion.ultimo_acceso.strftime('%Y-%m-%d %H:%M:%S')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {% if current_user.can_admin('SESIONES') and sesion.activa %}
+        {{ modals.custom_javascript('Cerrar sesión', '', 'Close') }}
+    {% endif %}
+{% endblock %}

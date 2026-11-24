@@ -9,6 +9,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Nuevo _blueprint_ `sesiones` que lista las sesiones activas y permite cerrarlas; cada usuario tiene una sola sesión a la vez. Script `sql/v1.10.0-11-create-sesiones.sql`.
 - La sesión caduca a las `SESSION_DURATION_HOURS` horas (24 por defecto) del _login_, sin importar la actividad.
 - Añadidos formularios para crear nuevas reglas de _banneo_ o editarlas en `ban_bloqueados`.
 - El _login_ usa el servicio `login_ban`: rechaza a las direcciones IP y cuentas bloqueadas, cuenta los intentos fallidos y bloquea al llegar al máximo.
@@ -39,11 +40,12 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
     - `v1.10.0-08-insert-registros-ban_intentos.sql` : Añade 20 registros aleatorios de prueba a la tabla `ban_intentos` (no ejecutar en producción).
     - `v1.10.0-09-create-ban_bloqueados.sql` : Crea la tabla `ban_bloqueados` con la lista de direcciones IP y cuentas bloqueadas.
     - `v1.10.0-10-insert-registros-ban_bloqueados.sql` : Añade 20 registros de prueba a la tabla `ban_bloqueados` (no ejecutar en producción).
+    - `v1.10.0-11-create-sesiones.sql` : Añada la tabla de sesiones de usuarios.
 
 - Nueva variable de entorno:
     - `TWO_FACTOR_AUTHENTICATION_ENABLED=True` : Activa el modo de autentificación de dos factores al _login_ del sistema.
     - `SESSION_DURATION_HOURS` : Duración activa de la sesión de usuarios.
-    - `PROXY_FIX_X_FOR=0` : Número de proxies delante de la app para tomar la IP real del cliente; en Cloud Run debe ser `1`, de lo contrario el baneo por IP bloquea la IP del proxy y con ella a todos.
+    - `PROXY_FIX_X_FOR=0` : Número de proxies delante de la app para tomar la IP real del cliente; en Cloud Run debe ser `1`, de lo contrario el _banneo_ por IP bloquea la IP del proxy y con ella a todos.
 
 ### ❌ Eliminado
 
@@ -51,6 +53,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### 🔐 Seguridad
 
+- Se pueden monitorear y cerrar las sesiones vía remota.
 - Caducidad de 24hr o al cerrar el navegados para la sesión.
 - Aplicado _banneo_ por dirección IP o por email.
 - Conteo de intentos de acceso incorrectos.
