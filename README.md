@@ -89,6 +89,14 @@ UPDATE cit_citas SET codigo_acceso_url = '' WHERE codigo_acceso_url IS NULL;
 6. Eliminar citas pasadas. Ejecutando el comando: `cli cit-citas eliminar`
 7. Restablecer un usuario para su acceso al sistema. Ejecute el comando `cli usuarios nueva-contrasena administrado@email.com`
 
+## 🧪 Pruebas
+
+Cómo ejecutar las pruebas
+
+```bash
+python -m pytest tests/test_login_ban.py -v
+```
+
 ---
 
 ## ✉️ Contacto
