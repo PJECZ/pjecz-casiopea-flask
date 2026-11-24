@@ -13,10 +13,12 @@ from google.oauth2.id_token import verify_firebase_token
 from pytz import timezone
 
 from ...config.firebase import get_firebase_settings
+from ...config.settings import get_settings
 from ...lib.cryptography_api_key import generate_api_key
 from ...lib.datatables import get_datatable_parameters, output_datatable_json
 from ...lib.pwgen import generar_contrasena
 from ...lib.safe_next_url import safe_next_url
+from ...lib.sesion_caducidad import marcar_inicio_sesion, sesion_caducada
 from ...lib.safe_string import CONTRASENA_REGEXP, EMAIL_REGEXP, safe_email, safe_message, safe_string, safe_uuid
 from ...services.login_ban import LoginBanService, ResultadoBan
 from ..autoridades.models import Autoridad
@@ -32,6 +34,23 @@ from .models import Usuario
 MODULO = "USUARIOS"
 
 usuarios = Blueprint("usuarios", __name__, template_folder="templates")
+
+
+@usuarios.before_app_request
+def caducar_sesion():
+    """Cerrar la sesión cuando ya pasaron SESSION_DURATION_HOURS desde el login"""
+    if request.endpoint == "static" or not current_user.is_authenticated:
+        return None
+    if not sesion_caducada(int(get_settings().SESSION_DURATION_HOURS)):
+        return None
+    EntradaSalida(
+        usuario_id=current_user.id,
+        tipo="SALIO",
+        direccion_ip=request.remote_addr,
+    ).save()
+    logout_user()
+    flash("Su sesión ha caducado, vuelva a ingresar.", "warning")
+    return redirect(url_for("usuarios.login"))
 
 
 def mensaje_bloqueo(resultado: ResultadoBan) -> str:
@@ -81,7 +100,8 @@ def login():
                 if id_info and id_info["email"] == identidad:
                     usuario = Usuario.find_by_identity(identidad)
                     # Si el usuario existe y está activo, hacer login
-                    if usuario and usuario.estatus == "A" and login_user(usuario, remember=True):
+                    if usuario and usuario.estatus == "A" and login_user(usuario, remember=False):
+                        marcar_inicio_sesion()
                         login_ban.registrar_acceso_exitoso(direccion_ip, identidad)
                         if siguiente != "":
                             return redirect(safe_next_url(siguiente))
@@ -125,7 +145,8 @@ def login():
                 usuario = Usuario.find_by_identity(correo_electronico)
                 # Si el usuario existe y está activo, hacer login
                 if usuario and usuario.authenticated(password=contrasena):
-                    if usuario.estatus == "A" and login_user(usuario, remember=True):
+                    if usuario.estatus == "A" and login_user(usuario, remember=False):
+                        marcar_inicio_sesion()
                         login_ban.registrar_acceso_exitoso(direccion_ip, correo_electronico)
                         if siguiente:
                             return redirect(safe_next_url(siguiente))

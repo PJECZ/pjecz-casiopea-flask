@@ -9,6 +9,8 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- La sesión caduca a las `SESSION_DURATION_HOURS` horas (24 por defecto) del _login_, sin importar la actividad.
+- Añadidos formularios para crear nuevas reglas de _banneo_ o editarlas en `ban_bloqueados`.
 - El _login_ usa el servicio `login_ban`: rechaza a las direcciones IP y cuentas bloqueadas, cuenta los intentos fallidos y bloquea al llegar al máximo.
 - Creación de servicio `login_ban` para proteger el _login_ al sistema de ataques.
 - Nuevo _blueprint_ `ban_bloqueados` lista de castigo para bloquear direcciones IP o cuentas (email) con un tipo de _banneo_.
@@ -40,11 +42,19 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 - Nueva variable de entorno:
     - `TWO_FACTOR_AUTHENTICATION_ENABLED=True` : Activa el modo de autentificación de dos factores al _login_ del sistema.
+    - `SESSION_DURATION_HOURS` : Duración activa de la sesión de usuarios.
     - `PROXY_FIX_X_FOR=0` : Número de proxies delante de la app para tomar la IP real del cliente; en Cloud Run debe ser `1`, de lo contrario el baneo por IP bloquea la IP del proxy y con ella a todos.
 
 ### ❌ Eliminado
 
 - _Script_ SQL de migración: `v1.8.0-01-anadir-modulo-agendas.sql`.
+
+### 🔐 Seguridad
+
+- Caducidad de 24hr o al cerrar el navegados para la sesión.
+- Aplicado _banneo_ por dirección IP o por email.
+- Conteo de intentos de acceso incorrectos.
+- _Banneo_ de usuarios comprometidos.
 
 
 ### [1.9.0] 2026-10-27

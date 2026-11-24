@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     BAN_MAX_ATTEMPTS: int = os.getenv("BAN_MAX_ATTEMPTS", 5)
     BAN_DURATION_MINUTES: int = os.getenv("BAN_DURATION_MINUTES", 30)
     BAN_MAX_ATTEMPTS_PER_DAY: int = os.getenv("BAN_MAX_ATTEMPTS_PER_DAY", 3)
+    # Horas que dura la sesión a partir del login, sin importar la actividad
+    SESSION_DURATION_HOURS: int = os.getenv("SESSION_DURATION_HOURS", 24)
     # Número de proxies de confianza delante de la app, 0 si no hay; con Cloud Run es 1
     PROXY_FIX_X_FOR: int = os.getenv("PROXY_FIX_X_FOR", 0)
 
