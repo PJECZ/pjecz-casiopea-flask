@@ -9,6 +9,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- Creación de servicio `login_ban` para proteger el _login_ al sistema de ataques.
 - Nuevo _blueprint_ `ban_bloqueados` lista de castigo para bloquear direcciones IP o cuentas (email) con un tipo de _banneo_.
 - Nuevo _blueprint_ `ban_intentos` para consultar el número de intentos de _login_ por dirección IP y email, usado por las reglas de _banneo_ y para reportes de posibles ataques.
 - Visualización del nuevo campo: `api_key_o_oauth2` en la tabla `cit_citas` que identifica el origen de la creación de la cita.

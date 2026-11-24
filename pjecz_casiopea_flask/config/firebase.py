@@ -6,7 +6,7 @@ import os
 from functools import lru_cache
 
 from google.cloud import secretmanager
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
 
 def get_secret(secret_id: str, default: str = "") -> str:
@@ -52,13 +52,17 @@ class FirebaseSettings(BaseSettings):
     PROJECTID: str = get_secret("FIREBASE_PROJECTID", "")
     STORAGEBUCKET: str = get_secret("FIREBASE_STORAGEBUCKET", "")
 
-    class Config:
-        """Load configuration"""
-
-        @classmethod
-        def customise_sources(cls, init_settings, env_settings, file_secret_settings):
-            """Change the order of precedence of settings sources"""
-            return env_settings, file_secret_settings, init_settings
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        """Change the order of precedence of settings sources"""
+        return env_settings, file_secret_settings, init_settings
 
 
 @lru_cache()

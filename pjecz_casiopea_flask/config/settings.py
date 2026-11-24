@@ -5,7 +5,7 @@ Settings
 import os
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
 
 class Settings(BaseSettings):
@@ -41,13 +41,17 @@ class Settings(BaseSettings):
     MAX_CONTENT_LENGTH: int | None = None
     MAX_FORM_MEMORY_SIZE: int = 50 * (2**10) ** 2  # 50 MB
 
-    class Config:
-        """Load configuration"""
-
-        @classmethod
-        def customise_sources(cls, init_settings, env_settings, file_secret_settings):
-            """Change the order of precedence of settings sources"""
-            return env_settings, file_secret_settings, init_settings
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        """Change the order of precedence of settings sources"""
+        return env_settings, file_secret_settings, init_settings
 
 
 @lru_cache()
