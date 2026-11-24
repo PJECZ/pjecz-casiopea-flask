@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     TURNOS_USUARIO_ID: int = os.getenv("TURNOS_USUARIO_ID", 0)
     TURNOS_TIPO_ID: int = os.getenv("TURNOS_TIPO_ID", 0)
     TWO_FACTOR_AUTHENTICATION_ENABLED: bool = os.getenv("TWO_FACTOR_AUTHENTICATION_ENABLED", "False").lower() in ("true", "1", "t")
+    # Variables de Banneo
+    BAN_MAX_ATTEMPTS: int = os.getenv("BAN_MAX_ATTEMPTS", 5)
+    BAN_DURATION_MINUTES: int = os.getenv("BAN_DURATION_MINUTES", 30)
+    BAN_MAX_ATTEMPTS_PER_DAY: int = os.getenv("BAN_MAX_ATTEMPTS_PER_DAY", 3)
 
     # Incrementar el tamaño de lo que se sube en los formularios
     MAX_CONTENT_LENGTH: int | None = None
