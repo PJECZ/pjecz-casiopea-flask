@@ -2,7 +2,10 @@
 Servicio para bannear ataques de login
 
 Reglas:
-- Si la dirección IP o el email tienen un bloqueo activo y vigente, no se permite el acceso.
+- Si hay un bloqueo activo y vigente que aplique a la pareja (dirección IP, email), no se permite el acceso.
+    - Bloqueo solo con dirección IP: bloquea todos los intentos desde esa IP, con cualquier email.
+    - Bloqueo solo con email: bloquea ese email, desde cualquier IP.
+    - Bloqueo con dirección IP y email: solo bloquea cuando coinciden los dos.
     - SIEMPRE: no caduca.
     - DIA: vigente hasta las 00:00 del día siguiente al bloqueo.
     - MINUTOS: vigente durante `duracion_minutos` a partir del bloqueo.
@@ -102,7 +105,10 @@ class RepositorioBan(Protocol):
     """Lo que el servicio necesita para leer y guardar los bloqueos y los intentos"""
 
     def buscar_bloqueos_activos(self, direccion_ip: str, email: str) -> list[Bloqueo]:
-        """Bloqueos activos cuya dirección IP sea `direccion_ip` o cuyo email sea `email`"""
+        """Bloqueos activos cuya dirección IP sea `direccion_ip` o cuyo email sea `email`
+
+        Son candidatos: el servicio decide cuáles aplican a la pareja (ver LoginBanService.aplica).
+        """
 
     def desactivar_bloqueo(self, bloqueo: Bloqueo) -> None:
         """Dar de baja un bloqueo que ya no está vigente"""
@@ -143,7 +149,8 @@ class LoginBanService:
         direccion_ip, email = self._normalizar(direccion_ip, email)
         ahora = self._ahora()
         # Revisar del bloqueo más severo al menos severo
-        bloqueos = sorted(self._repositorio.buscar_bloqueos_activos(direccion_ip, email), key=lambda b: b.tipo, reverse=True)
+        candidatos = self._repositorio.buscar_bloqueos_activos(direccion_ip, email)
+        bloqueos = sorted((b for b in candidatos if self.aplica(b, direccion_ip, email)), key=lambda b: b.tipo, reverse=True)
         for bloqueo in bloqueos:
             hasta = self._vigente_hasta(bloqueo)
             if bloqueo.tipo == TipoBan.SIEMPRE or ahora < hasta:
@@ -187,6 +194,24 @@ class LoginBanService:
             intento.intentos = 0
             self._repositorio.guardar_intento(intento)
 
+    @classmethod
+    def aplica(cls, bloqueo: Bloqueo, direccion_ip: str, email: str) -> bool:
+        """
+        Saber si el bloqueo aplica a la pareja (dirección IP, email) ya normalizada
+
+        - Solo dirección IP: aplica si coincide la IP.
+        - Solo email: aplica si coincide el email.
+        - Ambos: aplica solo si coinciden los dos.
+        """
+        bloqueo_ip, bloqueo_email = cls._normalizar(bloqueo.direccion_ip, bloqueo.email)
+        if not bloqueo_ip and not bloqueo_email:
+            return False  # Un bloqueo sin datos no bloquea a nadie
+        if bloqueo_ip and bloqueo_ip != direccion_ip:
+            return False
+        if bloqueo_email and bloqueo_email != email:
+            return False
+        return True
+
     def _vigente_hasta(self, bloqueo: Bloqueo) -> Optional[datetime]:
         """Fecha y hora en que caduca el bloqueo, None si es para siempre"""
         if bloqueo.tipo == TipoBan.MINUTOS:
@@ -196,7 +221,7 @@ class LoginBanService:
         return None
 
     @staticmethod
-    def _normalizar(direccion_ip: str, email: str) -> tuple[str, str]:
+    def _normalizar(direccion_ip: Optional[str], email: Optional[str]) -> tuple[str, str]:
         """Quitar espacios y pasar el email a minúsculas para que siempre coincidan los registros"""
         return (direccion_ip or "").strip()[:45], (email or "").strip().lower()[:256]
 

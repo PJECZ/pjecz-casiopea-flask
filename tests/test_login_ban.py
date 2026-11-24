@@ -256,6 +256,57 @@ ESCENARIOS_CONSULTA = [
         "bloqueado": True,
         "tipo": TipoBan.SIEMPRE,
     },
+    {
+        "nombre": "email bloqueado no afecta a otro email desde la misma ip",
+        "bloqueos": [{"tipo": "SIEMPRE", "email": EMAIL_COMPROMETIDO, "minutos_atras": 5}],
+        "direccion_ip": IP_ATACANTE,
+        "email": EMAIL_OTRO,
+        "bloqueado": False,
+        "tipo": None,
+    },
+    {
+        "nombre": "ip y email bloqueados juntos, coinciden los dos",
+        "bloqueos": [{"tipo": "SIEMPRE", "direccion_ip": IP_ATACANTE, "email": EMAIL_COMPROMETIDO, "minutos_atras": 5}],
+        "direccion_ip": IP_ATACANTE,
+        "email": EMAIL_COMPROMETIDO,
+        "bloqueado": True,
+        "tipo": TipoBan.SIEMPRE,
+    },
+    {
+        "nombre": "ip y email bloqueados juntos, misma ip con otro email puede entrar",
+        "bloqueos": [{"tipo": "SIEMPRE", "direccion_ip": IP_ATACANTE, "email": EMAIL_COMPROMETIDO, "minutos_atras": 5}],
+        "direccion_ip": IP_ATACANTE,
+        "email": EMAIL_OTRO,
+        "bloqueado": False,
+        "tipo": None,
+    },
+    {
+        "nombre": "ip y email bloqueados juntos, mismo email desde otra ip puede entrar",
+        "bloqueos": [{"tipo": "SIEMPRE", "direccion_ip": IP_ATACANTE, "email": EMAIL_COMPROMETIDO, "minutos_atras": 5}],
+        "direccion_ip": IP_OTRA,
+        "email": EMAIL_COMPROMETIDO,
+        "bloqueado": False,
+        "tipo": None,
+    },
+    {
+        "nombre": "ip y email bloqueados juntos, email se compara sin mayusculas ni espacios",
+        "bloqueos": [{"tipo": "SIEMPRE", "direccion_ip": IP_ATACANTE, "email": EMAIL_COMPROMETIDO, "minutos_atras": 5}],
+        "direccion_ip": IP_ATACANTE,
+        "email": "  ADMIN@Ejemplo.com ",
+        "bloqueado": True,
+        "tipo": TipoBan.SIEMPRE,
+    },
+    {
+        "nombre": "bloqueo de la pareja no impide que aplique el bloqueo solo por ip",
+        "bloqueos": [
+            {"tipo": "SIEMPRE", "direccion_ip": IP_ATACANTE, "email": EMAIL_COMPROMETIDO, "minutos_atras": 5},
+            {"tipo": "MINUTOS", "direccion_ip": IP_ATACANTE, "minutos_atras": 5},
+        ],
+        "direccion_ip": IP_ATACANTE,
+        "email": EMAIL_OTRO,
+        "bloqueado": True,
+        "tipo": TipoBan.MINUTOS,
+    },
 ]
 
 
@@ -328,6 +379,9 @@ def test_superar_maximo_de_intentos_bloquea_por_minutos():
     # El contador vuelve a cero y la consulta ya lo reporta bloqueado
     assert repositorio.intentos[0]["intentos"] == 0
     assert servicio.esta_bloqueado(IP_ATACANTE, EMAIL_COMPROMETIDO).bloqueado
+    # El bloqueo automático es de la pareja: la misma IP con otro email, o el email desde otra IP, pueden entrar
+    assert not servicio.esta_bloqueado(IP_ATACANTE, EMAIL_OTRO).bloqueado
+    assert not servicio.esta_bloqueado(IP_OTRA, EMAIL_COMPROMETIDO).bloqueado
 
 
 def test_superar_maximo_de_intentos_con_contador_previo():
