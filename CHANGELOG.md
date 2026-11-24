@@ -9,6 +9,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ### ✨ Mejoras
 
+- El _login_ usa el servicio `login_ban`: rechaza a las direcciones IP y cuentas bloqueadas, cuenta los intentos fallidos y bloquea al llegar al máximo.
 - Creación de servicio `login_ban` para proteger el _login_ al sistema de ataques.
 - Nuevo _blueprint_ `ban_bloqueados` lista de castigo para bloquear direcciones IP o cuentas (email) con un tipo de _banneo_.
 - Nuevo _blueprint_ `ban_intentos` para consultar el número de intentos de _login_ por dirección IP y email, usado por las reglas de _banneo_ y para reportes de posibles ataques.
@@ -39,6 +40,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 - Nueva variable de entorno:
     - `TWO_FACTOR_AUTHENTICATION_ENABLED=True` : Activa el modo de autentificación de dos factores al _login_ del sistema.
+    - `PROXY_FIX_X_FOR=0` : Número de proxies delante de la app para tomar la IP real del cliente; en Cloud Run debe ser `1`, de lo contrario el baneo por IP bloquea la IP del proxy y con ella a todos.
 
 ### ❌ Eliminado
 

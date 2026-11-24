@@ -5,6 +5,7 @@ PJECZ Casiopea Flask
 from flask import Flask
 from redis import Redis
 from rq import Queue
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.wrappers import Response
 
 from .blueprints.autoridades.views import autoridades
@@ -70,6 +71,11 @@ class PrefixMiddleware:
 app = Flask(__name__, instance_relative_config=True)
 app.add_url_rule("/favicon.ico", endpoint="sistemas.favicon")
 app.config.from_object(Settings())
+
+# Si está detrás de proxies (Cloud Run, balanceador), tomar la IP del cliente de X-Forwarded-For
+# Es necesario para que el baneo por dirección IP no bloquee la IP del proxy, que comparten todos
+if int(app.config["PROXY_FIX_X_FOR"]) > 0:
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=int(app.config["PROXY_FIX_X_FOR"]))
 
 # Aplicar el middleware de prefijo en producción
 if app.config["ENVIRONMENT"].lower() == "production" and app.config["PREFIX"]:
