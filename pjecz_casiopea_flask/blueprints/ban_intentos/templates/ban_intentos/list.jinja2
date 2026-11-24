@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('BAN BLOQUEADOS') %}
+            {{ topbar.button('Bloqueados', url_for('ban_bloqueados.list_active'), 'mdi mdi-arrow-left') }}
+        {% endif %}
         {% if current_user.can_admin('BAN INTENTOS') %}
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('ban_intentos.list_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('ban_intentos.list_active')) }}{% endif %}
