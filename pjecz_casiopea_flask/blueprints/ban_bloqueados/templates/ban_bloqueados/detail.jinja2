@@ -24,11 +24,11 @@
         {{ detail.label_value('Email', ban_bloqueado.email or '-') }}
         {{ detail.label_value('Último acceso', ban_bloqueado.tiempo.strftime('%Y-%m-%d %H:%M:%S')) }}
         {% if ban_bloqueado.ban_tipo.clave == 'BAN_MINUTOS' %}
-            {% set color = 'warning text-dark' %}
+            {% set color = 'primary' %}
         {% elif ban_bloqueado.ban_tipo.clave == 'BAN_DIA' %}
-            {% set color = 'danger' %}
+            {% set color = 'warning text-dark' %}
         {% elif ban_bloqueado.ban_tipo.clave == 'BAN_SIEMPRE' %}
-            {% set color = 'dark' %}
+            {% set color = 'danger' %}
         {% else %}
             {% set color = 'primary' %}
         {% endif %}

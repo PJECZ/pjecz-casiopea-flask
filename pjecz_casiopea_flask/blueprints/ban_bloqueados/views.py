@@ -64,6 +64,22 @@ def validar_direccion_ip_y_email(form):
     return es_valido, direccion_ip, email
 
 
+def buscar_duplicado(direccion_ip, email, excluir_id=None):
+    """Buscar un bloqueo activo con la misma combinación de dirección IP y email"""
+    consulta = BanBloqueado.query.filter_by(direccion_ip=direccion_ip, email=email, estatus="A")
+    if excluir_id is not None:
+        consulta = consulta.filter(BanBloqueado.id != excluir_id)
+    return consulta.first()
+
+
+def obtener_ban_tipo(form):
+    """Tomar el tipo de baneo elegido, solo si está activo"""
+    ban_tipo = BanTipo.query.filter_by(id=form.ban_tipo.data, estatus="A").first()
+    if ban_tipo is None:
+        flash("El tipo de baneo no es válido", "warning")
+    return ban_tipo
+
+
 def descripcion_bloqueado(ban_bloqueado):
     """Texto corto para la bitácora con a quién se bloquea"""
     partes = [parte for parte in (ban_bloqueado.direccion_ip, ban_bloqueado.email) if parte]
@@ -172,10 +188,10 @@ def new():
     cargar_opciones_ban_tipo(form)
     if form.validate_on_submit():
         es_valido, direccion_ip, email = validar_direccion_ip_y_email(form)
-        ban_tipo = BanTipo.query.get(form.ban_tipo.data)
+        ban_tipo = obtener_ban_tipo(form)
         # Evitar duplicados activos para la misma combinación de IP y email
         if es_valido:
-            existente = BanBloqueado.query.filter_by(direccion_ip=direccion_ip, email=email, estatus="A").first()
+            existente = buscar_duplicado(direccion_ip, email)
             if existente:
                 flash("Ya existe un bloqueo activo para esa dirección IP y email", "warning")
                 return redirect(url_for("ban_bloqueados.detail", ban_bloqueado_id=existente.id))
@@ -204,7 +220,13 @@ def edit(ban_bloqueado_id):
     cargar_opciones_ban_tipo(form)
     if form.validate_on_submit():
         es_valido, direccion_ip, email = validar_direccion_ip_y_email(form)
-        ban_tipo = BanTipo.query.get(form.ban_tipo.data)
+        ban_tipo = obtener_ban_tipo(form)
+        # Evitar que quede igual a otro bloqueo activo
+        if es_valido:
+            existente = buscar_duplicado(direccion_ip, email, excluir_id=ban_bloqueado.id)
+            if existente:
+                es_valido = False
+                flash(f"Ya existe otro bloqueo activo (id {existente.id}) para esa dirección IP y email", "warning")
         # Si es válido, actualizar
         if es_valido and ban_tipo is not None:
             ban_bloqueado.ban_tipo_id = ban_tipo.id

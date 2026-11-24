@@ -10,6 +10,7 @@
 
 {% block content %}
     {% call f.card() %}
+        {% include 'ban_bloqueados/_ayuda.jinja2' %}
         {% set form_kwargs = {'ban_bloqueado_id': ban_bloqueado.id} %}
         {% call f.form_tag('ban_bloqueados.edit', fid='ban_bloqueado_form', **form_kwargs) %}
             {% call f.form_group(form.ban_tipo) %}{% endcall %}

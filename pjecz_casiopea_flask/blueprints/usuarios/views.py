@@ -121,7 +121,6 @@ def login():
                 flash(mensaje_bloqueo(bloqueo), "warning")
             elif re.fullmatch(EMAIL_REGEXP, correo_electronico) is None:
                 avisar_intento_fallido(login_ban, direccion_ip, correo_electronico, "No es válido el correo electrónico.")
-                flash("No es válido el correo electrónico.", "warning")
             else:
                 usuario = Usuario.find_by_identity(correo_electronico)
                 # Si el usuario existe y está activo, hacer login

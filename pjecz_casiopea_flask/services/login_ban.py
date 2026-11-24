@@ -11,7 +11,9 @@ Reglas:
     - MINUTOS: vigente durante `duracion_minutos` a partir del bloqueo.
     - Un bloqueo que ya no está vigente se desactiva (estatus B) al consultarlo.
 - Cada intento fallido suma uno al contador de la pareja (dirección IP, email).
-    - El contador vuelve a cero al cambiar de día, al bloquear y en un acceso exitoso.
+    - El contador vuelve a cero al cambiar de día y al bloquear.
+    - En un acceso exitoso el contador se da de baja (estatus B) y queda como historial;
+      el siguiente intento fallido de la pareja comienza un registro nuevo.
 - Al llegar a `max_intentos` se bloquea la pareja (dirección IP, email) por MINUTOS.
     - Si ese mismo día la pareja ya tuvo `max_bloqueos_por_dia` bloqueos por MINUTOS, se bloquea para SIEMPRE.
 
@@ -125,6 +127,9 @@ class RepositorioBan(Protocol):
     def guardar_intento(self, intento: Intento) -> Intento:
         """Crear o actualizar el contador y entregarlo con su id"""
 
+    def desactivar_intento(self, intento: Intento) -> None:
+        """Dar de baja el contador (estatus B) para conservarlo como historial"""
+
 
 class LoginBanService:
     """Servicio para bannear ataques de login"""
@@ -187,12 +192,11 @@ class LoginBanService:
         return ResultadoBan(bloqueado=True, tipo=tipo, hasta=self._vigente_hasta(bloqueo), intentos=intentos)
 
     def registrar_acceso_exitoso(self, direccion_ip: str, email: str) -> None:
-        """Al entrar con éxito, el contador de la pareja vuelve a cero"""
+        """Al entrar con éxito, el contador de la pareja se da de baja y queda como historial"""
         direccion_ip, email = self._normalizar(direccion_ip, email)
         intento = self._repositorio.obtener_intento(direccion_ip, email)
-        if intento is not None and intento.intentos != 0:
-            intento.intentos = 0
-            self._repositorio.guardar_intento(intento)
+        if intento is not None:
+            self._repositorio.desactivar_intento(intento)
 
     @classmethod
     def aplica(cls, bloqueo: Bloqueo, direccion_ip: str, email: str) -> bool:
@@ -298,6 +302,11 @@ class RepositorioBanSQLAlchemy:
         registro.save()
         intento.id = registro.id
         return intento
+
+    def desactivar_intento(self, intento: Intento) -> None:
+        registro = self._ban_intento.query.get(intento.id) if intento.id is not None else None
+        if registro is not None:
+            registro.delete()
 
     @staticmethod
     def _a_bloqueo(registro) -> Bloqueo:

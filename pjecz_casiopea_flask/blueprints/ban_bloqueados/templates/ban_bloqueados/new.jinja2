@@ -10,6 +10,7 @@
 
 {% block content %}
     {% call f.card() %}
+        {% include 'ban_bloqueados/_ayuda.jinja2' %}
         {% call f.form_tag('ban_bloqueados.new', fid='ban_bloqueado_form') %}
             {% call f.form_group(form.ban_tipo) %}{% endcall %}
             {% call f.form_group(form.direccion_ip) %}{% endcall %}

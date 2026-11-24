@@ -109,6 +109,11 @@ class RepositorioEnMemoria:
         fila.update(direccion_ip=intento.direccion_ip, email=intento.email, intentos=intento.intentos, tiempo=intento.tiempo)
         return intento
 
+    def desactivar_intento(self, intento: Intento) -> None:
+        for fila in self.intentos:
+            if fila["id"] == intento.id:
+                fila["estatus"] = "B"
+
     @staticmethod
     def _a_bloqueo(fila: dict) -> Bloqueo:
         return Bloqueo(fila["id"], fila["tipo"], fila["tiempo"], fila["direccion_ip"], fila["email"])
@@ -406,14 +411,45 @@ def test_contador_de_otro_dia_empieza_de_nuevo():
     assert repositorio.bloqueos == []
 
 
-def test_acceso_exitoso_reinicia_el_contador():
-    """Después de entrar con éxito, el contador vuelve a cero"""
+def test_acceso_exitoso_da_de_baja_el_contador():
+    """Después de entrar con éxito, el contador pasa a estatus B como historial y conserva sus intentos"""
     servicio, repositorio = crear_servicio(
         intentos=[{"direccion_ip": IP_OTRA, "email": EMAIL_OTRO, "intentos": CONFIG.max_intentos - 1, "minutos_atras": 1}]
     )
     servicio.registrar_acceso_exitoso(IP_OTRA, EMAIL_OTRO)
-    assert repositorio.intentos[0]["intentos"] == 0
-    assert not servicio.registrar_intento_fallido(IP_OTRA, EMAIL_OTRO).bloqueado
+    assert repositorio.intentos[0]["estatus"] == "B"
+    assert repositorio.intentos[0]["intentos"] == CONFIG.max_intentos - 1
+
+
+def test_despues_de_acceso_exitoso_comienza_un_registro_nuevo():
+    """Al volver a fallar tras un acceso exitoso, se crea otro registro de intentos desde uno"""
+    servicio, repositorio = crear_servicio(
+        intentos=[{"direccion_ip": IP_OTRA, "email": EMAIL_OTRO, "intentos": CONFIG.max_intentos - 1, "minutos_atras": 1}]
+    )
+    servicio.registrar_acceso_exitoso(IP_OTRA, EMAIL_OTRO)
+    resultado = servicio.registrar_intento_fallido(IP_OTRA, EMAIL_OTRO)
+    assert not resultado.bloqueado
+    assert resultado.intentos == 1
+    assert [(fila["estatus"], fila["intentos"]) for fila in repositorio.intentos] == [("B", CONFIG.max_intentos - 1), ("A", 1)]
+
+
+def test_acceso_exitoso_sin_intentos_no_crea_registro():
+    """Si la pareja no tenía intentos fallidos, entrar con éxito no agrega nada a la tabla"""
+    servicio, repositorio = crear_servicio()
+    servicio.registrar_acceso_exitoso(IP_OTRA, EMAIL_OTRO)
+    assert repositorio.intentos == []
+
+
+def test_acceso_exitoso_solo_da_de_baja_su_pareja():
+    """Los contadores de otras parejas siguen activos"""
+    servicio, repositorio = crear_servicio(
+        intentos=[
+            {"direccion_ip": IP_OTRA, "email": EMAIL_OTRO, "intentos": 2, "minutos_atras": 1},
+            {"direccion_ip": IP_ATACANTE, "email": EMAIL_OTRO, "intentos": 3, "minutos_atras": 1},
+        ]
+    )
+    servicio.registrar_acceso_exitoso(IP_OTRA, EMAIL_OTRO)
+    assert [fila["estatus"] for fila in repositorio.intentos] == ["B", "A"]
 
 
 # Escenarios del máximo de bloqueos por minutos al día
